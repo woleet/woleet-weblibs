@@ -1,6 +1,5 @@
 {
   "name": "woleet-weblibs",
-  "version": "1.0.0",
   "description": "DAB receipt verification (Data Anchoring on Bitcoin) and SHA256 file hashing",
   "main": "",
   "keywords": [
