@@ -3,7 +3,22 @@ module.exports = function (grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-
+        babel: {
+            options: {
+                sourceMap: false,
+                presets: ['latest'],
+                compact: false
+            },
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: 'lib/',
+                    src: ['*.js'],
+                    dest: 'dist/babel',
+                    ext: '.js'
+                }]
+            }
+        },
         uglify: {
             options: {
                 //banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
@@ -13,10 +28,10 @@ module.exports = function (grunt) {
                     'bower_components/crypto-js/core.js',
                     'bower_components/crypto-js/sha256.js',
                     'bower_components/crypto-js/lib-typedarrays.js',
-                    'lib/woleet-api.js',
-                    'lib/woleet-hashfile.js',
-                    'lib/woleet-chainpoint.js',
-                    'lib/woleet-verify.js'
+                    'dist/babel/woleet-api.js',
+                    'dist/babel/woleet-hashfile.js',
+                    'dist/babel/woleet-chainpoint.js',
+                    'dist/babel/woleet-verify.js'
                 ],
                 dest: 'dist/woleet-verify.min.js'
             },
@@ -34,11 +49,18 @@ module.exports = function (grunt) {
                 ],
                 dest: 'dist/worker.min.js'
             }
+        },
+        clean: {
+            build: {
+                src: ['dist/babel']
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-babel');
 
     // Default task(s).
-    grunt.registerTask('default', ['uglify']);
+    grunt.registerTask('default', ['babel', 'uglify', 'clean']);
 };
