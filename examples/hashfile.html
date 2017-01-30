@@ -13,10 +13,10 @@
     <!-- END IE ZONE -->
 
     <!-- Woleet web libs (regular version) -->
-    <!--<script src="../lib/woleet-hashfile.js"></script>-->
+    <script src="../lib/woleet-hashfile.js"></script>
 
     <!-- Woleet web libs (minified version) -->
-    <script src="../dist/woleet-verify.min.js"></script>
+    <!--<script src="../dist/woleet-verify.min.js"></script>-->
 
     <script>
         window.onload = function () {
@@ -31,8 +31,8 @@
             hasher.on('progress', function (message) {
                 console.log(message)
             });
-            hasher.on('error', function (err) {
-                console.error(err)
+            hasher.on('error', function (error) {
+                console.error(error)
             });
 
             // On success, display computed hash

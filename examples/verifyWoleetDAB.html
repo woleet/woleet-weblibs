@@ -13,13 +13,13 @@
     <!-- END IE ZONE -->
 
     <!-- Woleet web libs (regular version) -->
-    <!--<script src="../lib/woleet-api.js"></script>-->
-    <!--<script src="../lib/woleet-hashfile.js"></script>-->
-    <!--<script src="../lib/woleet-chainpoint.js"></script>-->
-    <!--<script src="../lib/woleet-verify.js"></script>-->
+    <script src="../lib/woleet-api.js"></script>
+    <script src="../lib/woleet-hashfile.js"></script>
+    <script src="../lib/woleet-chainpoint.js"></script>
+    <script src="../lib/woleet-verify.js"></script>
 
     <!-- Woleet web libs (minified version) -->
-    <script src="../dist/woleet-verify.min.js"></script>
+    <!--<script src="../dist/woleet-verify.min.js"></script>-->
 
     <script>
         window.onload = function () {
@@ -27,7 +27,6 @@
             var r = document.getElementById('result');
 
             window.check = function (file) {
-                console.log("file", file);
                 woleet.verify.WoleetDAB(file)
                     .then(function (results) {
                         var len = results.length;
@@ -35,26 +34,25 @@
                             r.innerText = 'There is no match for "' + file.name + '", that means that the file is not anchored or that the anchor is not public';
                         }
                         else {
-                            var first = results[0];
-                            if (len == 1) {
-                                r.innerText = 'There is one math for this file, it '
-                            }
-                            else {
-                                r.innerText = 'There is ' + len + ' matches for this file, the first one ';
-                            }
-                            r.innerText += ' has been confirmed ' + first.confirmations + ' times';
-                            if(first.confirmations) r.innerText += ' at ' + first.date;
+                            r.innerText = 'There is ' + len + ' match(es) for this file:';
+                            results.forEach(function (result) {
+                                var li = document.createElement('li');
+                                li.innerText += 'confirmed ' + result.confirmations + ' times';
+                                if (result.confirmations)
+                                    li.innerText += ' on ' + result.date;
+                                r.appendChild(li);
+                            });
                         }
-                    }, function (err) {
-                        console.error(err, err.message);
-                        r.innerText = 'Error: ' + err.message;
+                    }, function (error) {
+                        console.error(error);
+                        r.innerText = 'Error: ' + error.message;
                     })
             }
         }
     </script>
 </head>
 <body>
-<h3>woleetDAB demo :</h3>
+<h3>Verify WoleetDAB demo</h3>
 <input type="file" id="input" onchange="check(this.files[0])">
 <ul id="result"></ul>
 </body>
