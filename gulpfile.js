@@ -39,7 +39,7 @@ gulp.task("uglifyLib", () => {
         .pipe(uglify())
         .pipe(dest('./', {ext: '.min.js'}))
         .pipe(gulp.dest("dist/splitted"))
-        .pipe(concat('woleet-verify.min.js'))
+        .pipe(concat('woleet-weblibs.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest("dist/"));
 });
