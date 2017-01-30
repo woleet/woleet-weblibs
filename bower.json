@@ -22,7 +22,6 @@
     "tests",
     "examples",
     "lib",
-    "bower.json",
     "gruntfile.js",
     "package.json",
     "README.md"
