@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "grunt default clean"
+    "build": "gulp"
   },
   "devDependencies": {
     "babel-preset-latest": "^6.22.0",
-    "grunt": "^1.0.1",
-    "grunt-babel": "^6.0.0",
-    "grunt-contrib-clean": "^1.0.0",
-    "grunt-contrib-uglify": "^2.0.0"
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-dest": "^0.2.3",
+    "gulp-uglify": "^2.0.1"
   }
 }
