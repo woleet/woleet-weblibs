@@ -2,7 +2,7 @@
   "name": "woleet-weblibs",
   "version": "1.0.0",
   "description": "DAB receipt verification (Data Anchoring on Bitcoin) and SHA256 file hashing",
-  "main": "",
+  "main": "dist/woleet-verify.min.js",
   "keywords": [
     "sha256",
     "chainpoint",
@@ -22,7 +22,11 @@
     "test",
     "tests",
     "examples",
-    "lib"
+    "lib",
+    "bower.json",
+    "gruntfile.js",
+    "package.json",
+    "README.md"
   ],
   "dependencies": {
     "crypto-js": "^3.1.8"
