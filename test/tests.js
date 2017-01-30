@@ -75,6 +75,7 @@ describe("isSHA256 suite", function () {
     });
 
     it('isSHA256(789) should be false', function () {
+        //noinspection JSCheckFunctionSignatures
         var result = woleet.isSHA256(789);
         expect(result).toBe(false);
     });
@@ -103,6 +104,7 @@ describe("receipt.validate suite", function () {
     });
 
     it('receipt.validate without param should throw invalid_receipt_format', function () {
+        //noinspection JSCheckFunctionSignatures
         var result = () => woleet.receipt.validate();
         expect(result).toThrowError('invalid_receipt_format');
     });
@@ -120,6 +122,7 @@ describe("receipt.validate suite", function () {
     });
 
     it('receipt.validate without param should throw invalid_receipt_format', function () {
+        //noinspection JSCheckFunctionSignatures
         var result = () => woleet.receipt.validate();
         expect(result).toThrowError('invalid_receipt_format');
     });
@@ -253,6 +256,7 @@ describe("rest functions suite", function () {
         });
 
         it('receipt.get with unknown anchor-id should return "not_found"', function (done) {
+            //noinspection JSUnusedLocalSymbols
             woleet.receipt.get('invalid_anchor_id')
                 .then(function (tx) {
                     expect(error).toBeUndefined();
@@ -349,6 +353,7 @@ describe("hashfile suite", function () {
 
     it('hashfile with invalid parameter should throw "invalid_parameter" Error', function () {
         var hasher = new woleet.file.Hasher;
+        //noinspection JSCheckFunctionSignatures
         var result = () => hasher.start(123);
         expect(result).toThrowError('invalid_parameter')
     });
@@ -385,6 +390,7 @@ describe("verify.WoleetDAB suite", function () {
     });
 
     it('WoleetDAB with invalid parameter should throw "invalid_parameter" Error', function (done) {
+        //noinspection JSCheckFunctionSignatures
         woleet.verify.WoleetDAB().then((results) => {
             expect(results).toBeUndefined();
             done();
