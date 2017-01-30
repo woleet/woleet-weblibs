@@ -1,0 +1,26 @@
+{
+  "name": "woleet-weblibs",
+  "description": "DAB receipt verification (Data Anchoring on Bitcoin) and SHA256 file hashing",
+  "main": "",
+  "keywords": [
+    "sha256",
+    "chainpoint",
+    "bitcoin",
+    "merkleproof"
+  ],
+  "license": "MIT",
+  "homepage": "woleet.io",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "crypto-js": "^3.1.8"
+  },
+  "devDependencies": {
+    "jasmine-core": "jasmine#^2.5.2"
+  }
+}

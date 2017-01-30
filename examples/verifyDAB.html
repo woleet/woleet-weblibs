@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>verify.DAB</title>
+
+    <!-- IE ZONE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <script type="text/javascript">
+        if(/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
+    </script>
+    <!-- END IE ZONE -->
+
+    <!-- Woleet web libs (regular version) -->
+    <!--<script src="../lib/woleet-api.js"></script>-->
+    <!--<script src="../lib/woleet-hashfile.js"></script>-->
+    <!--<script src="../lib/woleet-chainpoint.js"></script>-->
+    <!--<script src="../lib/woleet-verify.js"></script>-->
+
+    <!-- Woleet web libs (minified version) -->
+    <script src="../dist/woleet-verify.min.js"></script>
+
+    <script>
+        window.onload = function () {
+
+            var r = document.getElementById('result');
+            var _file = null;
+            var _receipt = null;
+
+            window.setFile = function (file) {
+                r.innerText = '';
+                _file = file;
+                check();
+            };
+
+            window.setReceipt = function (receipt) {
+                r.innerText = '';
+                console.log(receipt);
+                var reader = new FileReader();
+
+                reader.onloadend = function (e) {
+                    try {
+                        _receipt = JSON.parse(e.target.result);
+                        check();
+                    } catch (err) {
+                        r.innerText = 'Error while parsing receipt, is it a JSON file ?';
+                    }
+                };
+
+                reader.readAsText(receipt);
+            };
+
+            var check = function () {
+
+                if (_file && _receipt) {
+                    r.innerText = 'pending ...';
+                    woleet.verify.DAB(_file, _receipt)
+                        .then(function (result) {
+                            r.innerText = 'file matches the receipt and the blockchain confirmed it ' + result.confirmations
+                                + ' times at ' + result.date.toISOString();
+                        }, function (err) {
+                            console.warn(err);
+                            r.innerText = 'Error : ' + err.message
+                        })
+                }
+
+            }
+        }
+    </script>
+</head>
+<body>
+<h3>DAB demo :</h3>
+Set a file :
+<input type="file" onchange="setFile(this.files.item(0))">
+<br>
+Set a receipt :
+<input type="file" onchange="setReceipt(this.files.item(0))">
+<p id="result"></p>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>verify.woleetDAB</title>
+
+    <!-- IE ZONE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <script type="text/javascript">
+        if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
+    </script>
+    <!-- END IE ZONE -->
+
+    <!-- Woleet web libs (regular version) -->
+    <!--<script src="../lib/woleet-api.js"></script>-->
+    <!--<script src="../lib/woleet-hashfile.js"></script>-->
+    <!--<script src="../lib/woleet-chainpoint.js"></script>-->
+    <!--<script src="../lib/woleet-verify.js"></script>-->
+
+    <!-- Woleet web libs (minified version) -->
+    <script src="../dist/woleet-verify.min.js"></script>
+
+    <script>
+        window.onload = function () {
+
+            var r = document.getElementById('result');
+
+            window.check = function (file) {
+                console.log("file", file);
+                woleet.verify.WoleetDAB(file)
+                    .then(function (results) {
+                        var len = results.length;
+                        if (len == 0) {
+                            r.innerText = 'There is no match for "' + file.name + '", that means that the file is not anchored or that the anchor is not public';
+                        }
+                        else {
+                            var first = results[0];
+                            if (len == 1) {
+                                r.innerText = 'There is one math for this file, it '
+                            }
+                            else {
+                                r.innerText = 'There is ' + len + ' matches for this file, the first one ';
+                            }
+                            r.innerText += ' has been confirmed ' + first.confirmations + ' times';
+                            if(first.confirmations) r.innerText += ' at ' + first.date;
+                        }
+                    }, function (err) {
+                        console.error(err, err.message);
+                        r.innerText = 'Error: ' + err.message;
+                    })
+            }
+        }
+    </script>
+</head>
+<body>
+<h3>woleetDAB demo :</h3>
+<input type="file" id="input" onchange="check(this.files[0])">
+<ul id="result"></ul>
+</body>
+</html>
