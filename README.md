@@ -6,22 +6,22 @@ These libraries can be used in any web application to:
 - verify the integrity and timestamp of files anchored by third parties using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible receipts,
 - compute the SHA256 hashes of any file (even larger than 50MB).
 
-## Building Woleet Web libraries
+# Building Woleet Web libraries
  
 Type `./build.sh` on the project's root to:
 - install build tools 
 - install runtime dependencies
 - build the libraries 
 
-## Using Woleet Web libraries
+# Using Woleet Web libraries
 
-### Runtime dependencies
+## Runtime dependencies
  
 Woleet Web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)** lib to compute SHA256 hashes of files. 
 The minified version of this library (**crypto.min.js**) must be present in the directory containing Woleet Web libraries,
 which is done by the default build process.
 
-### Install using Bower
+## Installation using Bower
 
 You can use Bower to add Woleet Web libraries to your project:
 
@@ -84,6 +84,7 @@ verify.DAB(file, receipt)
 See example at [example_DAB.html](example/example_DAB.html)
 
 ## Advanced methods
+
 ### <a name="chainpoint"></a>Methods provided by woleet-chainpoint
  
 receipt.validate(receipt)
@@ -154,7 +155,7 @@ anchor.getAnchorIDs(hash[, size]):
 
 See example in [hashfile.html](examples/hashfile.html)
 
-### Limitations
+## Limitations
 
 This library has been tested for Internet Explorer 11, as it does not support promises, you will have to 
 include a third party library as [bluebird](http://bluebirdjs.com/) and 
@@ -166,7 +167,7 @@ in this case, hashing files is still possible for files whose size does not exce
 
 Receipts format must be [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible.
 
-### Dependencies description
+## Dependencies description
 
 There are 5 files that you can include in order to perform chainpoint verifications:
   - *woleet-verify* provides main methods verify.woleetDAB *and* verify.DAB, it relies on:
@@ -186,9 +187,9 @@ There are 5 files that you can include in order to perform chainpoint verificati
   - *worker* defines a worker used to hash files, it needs:
     - crypto-js library (only to be accessible, not to include)
     
-### Objects definitions
+## Objects definitions
 
-#### <a name="object_transaction"></a>*Transaction object
+### <a name="object_transaction"></a>*Transaction object
 ```
 {
     txId: String corresponding to the id of the transaction
@@ -198,7 +199,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
     opReturn: String corresponding to the op_return of the transaction
 }
 ```
-##### Example
+#### Example
 ```json
 {
     "blockHash": "00000000000000000276fb1e87fa581e09d943f198a8b9114167df0e2230c247",
@@ -209,7 +210,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
 }
 ```
 
-#### <a name="object_proof"></a>*Proof object
+### <a name="object_proof"></a>*Proof object
 ```
 {
     confirmations: Number corresponding to the number of confirmations
@@ -217,7 +218,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
     receipt: Receipt correesponding to the proof of existence
 }
 ```
-##### Example
+#### Example
 ```
 {
     "confirmedOn": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
@@ -226,7 +227,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
 }
 ```
 
-#### <a name="object_anchorIdsPage"></a>*AnchorIDsPage object
+### <a name="object_anchorIdsPage"></a>*AnchorIDsPage object
 ```
 {
     content: array of anchorID (as String)
@@ -239,7 +240,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
     number: current page number (starting from 0)
 }
 ```
-##### Example
+#### Example
 ```json
 {
     "content": [
@@ -256,12 +257,10 @@ There are 5 files that you can include in order to perform chainpoint verificati
 }
 ```
 
-#### <a name="object_receipt"></a>*Receipt object
+### <a name="object_receipt"></a>*Receipt object
 
 The receipt object matches the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) format.
-
 ##### Example
-
 ```json
 {
     "header": {
@@ -306,10 +305,10 @@ The receipt object matches the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) 
 }
 ```
 
-#### <a name="object_FileList"></a>*FileList object
+### <a name="object_FileList"></a>*FileList object
 
 See https://developer.mozilla.org/fr/docs/Web/API/FileList
 
-#### <a name="object_FIle"></a>*File object
+### <a name="object_FIle"></a>*File object
 
 See https://developer.mozilla.org/fr/docs/Web/API/File
