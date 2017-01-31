@@ -1,12 +1,15 @@
 {
   "name": "woleet-weblibs",
-  "description": "DAB receipt verification (Data Anchoring on Bitcoin) and SHA256 file hashing",
+  "description": "Woleet's DAB (Data Anchoring on Bitcoin) verification and file hashing libraries",
   "main": "",
   "keywords": [
-    "sha256",
+    "Woleet",
     "chainpoint",
-    "bitcoin",
-    "merkleproof"
+    "receipt",
+    "verification",
+    "SHA256",
+    "hashing",
+    "bitcoin"
   ],
   "license": "MIT",
   "homepage": "http://github.com/woleet/woleet-weblibs",

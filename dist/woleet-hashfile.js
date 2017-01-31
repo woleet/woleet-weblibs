@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * @typedef {Object}   ProgressMessage
@@ -28,24 +28,23 @@
     root.woleet = factory(root.woleet);
 })(window, function (woleet) {
 
+    /**
+     * @returns the base path (including final '/') of the current scripts.
+     */
     function findBasePath() {
         var scripts = document.getElementsByTagName('script'),
-            len = scripts.length,
-            re = /woleet-verify[.min]*\.js$/,
-            src,
-            wolScript;
-
-        while (src = scripts[--len].src) {
-            if (src && src.match(re)) {
-                wolScript = src;
-                break;
-            }
-        }
-
-        return wolScript ? wolScript.split('/').slice(0, -1).join('/') + '/' : null;
+            script = scripts[scripts.length - 1].src,
+            // last script is alwyas the current script
+        basePath = script.substr(0, script.lastIndexOf("/") + 1);
+        return basePath;
     }
 
-    var WORKER_LOCATION = (woleet.path || findBasePath() || "../dist/") + "worker.min.js";
+    // Guess the path of the worker script (NOTE: you can defined woleet.workerScriptPath to overwrite this path)
+    var basePath = findBasePath();
+    var DEFAUlT_WORKER_SCRIPT = "worker.min.js";
+    var workerScriptPath = woleet.workerScriptPath || (basePath ? basePath + DEFAUlT_WORKER_SCRIPT : null);
+    console.log("worker script:", workerScriptPath);
+    if (!workerScriptPath) throw new Error('Cannot find ' + DEFAUlT_WORKER_SCRIPT);
 
     /**
      * Check support for workers.
@@ -120,7 +119,7 @@
          */
         var hashWorker = function hashWorker(files, len) {
             var i = 0;
-            var worker = new Worker(WORKER_LOCATION);
+            var worker = new Worker(workerScriptPath);
 
             worker.onmessage = function (message) {
                 //handling worker message
