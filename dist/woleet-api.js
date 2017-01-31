@@ -63,22 +63,22 @@
     }
 
     /**
-     * @param {String} tx_id
+     * @param {String} txId
      * @param {Number} confirmations
-     * @param {Date} confirmed_at
-     * @param {String} block_hash
-     * @param {String} op_return
+     * @param {Date} confirmedOn
+     * @param {String} blockHash
+     * @param {String} opReturn
      */
-    function makeTransaction(tx_id, confirmations, confirmed_at, block_hash, op_return) {
+    function makeTransaction(txId, confirmations, confirmedOn, blockHash, opReturn) {
 
-        if (confirmed_at.toString() == "Invalid Date") confirmed_at = null;
+        if (confirmedOn.toString() == "Invalid Date") confirmedOn = null;
 
         return {
-            tx_id: tx_id,
+            txId: txId,
             confirmations: confirmations,
-            confirmedAt: confirmed_at,
-            blockHash: block_hash,
-            opReturn: op_return
+            confirmedOn: confirmedOn,
+            blockHash: blockHash,
+            opReturn: opReturn
         };
     }
 
@@ -107,13 +107,13 @@
             },
 
             /**
-             * @param tx_id
+             * @param txId
              * @returns {Promise.<Transaction>}
              */
-            get: function get(tx_id) {
+            get: function get(txId) {
                 switch (default_api) {
                     case 'woleet.io':
-                        return getJSON(woleetAPI + '/bitcoin/transaction/' + tx_id).then(function (res) {
+                        return getJSON(woleetAPI + '/bitcoin/transaction/' + txId).then(function (res) {
                             if (!res) {
                                 throw new Error('tx_not_found');
                             } else {
@@ -138,7 +138,7 @@
                             }
                         });
                     case 'chain.so':
-                        return getJSON('https://chain.so/api/v2/get_tx/BTC/' + tx_id).then(function (res) {
+                        return getJSON('https://chain.so/api/v2/get_tx/BTC/' + txId).then(function (res) {
                             if (!res || res.status == 'fail') {
                                 throw new Error('tx_not_found');
                             } else {
@@ -160,7 +160,7 @@
                             }
                         });
                     case 'blockcypher.com':
-                        return getJSON('https://api.blockcypher.com/v1/btc/main/txs/' + tx_id).then(function (res) {
+                        return getJSON('https://api.blockcypher.com/v1/btc/main/txs/' + txId).then(function (res) {
                             if (!res || res.error) {
                                 throw new Error('tx_not_found');
                             } else {
