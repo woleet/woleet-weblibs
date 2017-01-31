@@ -11,7 +11,7 @@
 
     /**
      * @param {File|String} file
-     * @param {Function} progressCallback
+     * @param {Function} [progressCallback]
      * @returns {Promise.<Object[]>}
      */
     api.verify.WoleetDAB = function (file, progressCallback) {
@@ -93,7 +93,7 @@
     /**
      * @param {File|String} file
      * @param {Receipt} receipt
-     * @param {Function} progressCallback
+     * @param {Function} [progressCallback]
      * @returns {Promise<Object>}
      */
     api.verify.DAB = function (file, receipt, progressCallback) {
@@ -124,6 +124,11 @@
         });
     };
 
+    /**
+     * @param {File|String} file
+     * @param {Function} [progressCallback]
+     * @returns {Promise<Hash>}
+     */
     var hashStringOrFile = function hashStringOrFile(file, progressCallback) {
         var resolveHash;
         var rejectHash;
@@ -140,10 +145,10 @@
             //noinspection JSUnusedLocalSymbols
             hasher.on('result', function (message, file) {
                 resolveHash(message.result);
-                if(progressCallback) progressCallback({progress:1.0, file:File})
+                if (progressCallback) progressCallback({ progress: 1.0, file: File });
             });
 
-            if(progressCallback && typeof progressCallback == 'function') {
+            if (progressCallback && typeof progressCallback == 'function') {
                 hasher.on('progress', progressCallback);
             }
 
@@ -154,7 +159,6 @@
             hasher.start(file);
         } else if (typeof file == "string") {
             if (api.isSHA256(file)) {
-                if(progressCallback) progressCallback({progress:1.0, file:File});
                 //noinspection JSUnusedAssignment
                 resolveHash(file);
             } else {
