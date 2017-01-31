@@ -1,46 +1,61 @@
 # Woleet Web libraries
 
 This repository contains the sources code of **Woleet Web libraries**.
-These libraries are aimed at:
-- verifying the integrity and timestamp of files anchored by Woleet,
-- verifying the integrity and timestamp of files anchored by third parties using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible receipts,
-- computing the SHA256 hashes of any file (even larger than 50MB).
+These libraries can be used in any web application to:
+- verify the integrity and timestamp of files anchored by Woleet,
+- verify the integrity and timestamp of files anchored by third parties using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible receipts,
+- compute the SHA256 hashes of any file (even larger than 50MB).
 
-### Installation 
-Before using **woleet-hash** you need to install the **[crypto-js](https://github.com/brix/crypto-js)** lib in order 
-to perform hash on files.
+## Building Woleet Web libraries
+ 
+Type `./build.sh` on the project's root to:
+- install build tools 
+- install runtime dependencies
+- build the libraries 
 
-Type `bower install` on the project's root to install this dependency.
+## Using Woleet Web libraries
 
-### Initialization
+### Runtime dependencies
+ 
+Woleet Web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)** lib to compute SHA256 hashes of files. 
+The minified version of this library (**crypto.min.js**) must be present in the directory containing Woleet Web libraries,
+which is done by the default build process.
+
+### Install using Bower
+
+You can use Bower to add Woleet Web libraries to your project:
+
+```json
+  "dependencies": {
+    "woleet-weblibs": "*"
+  }
+```
+
+***In this documentation, it is supposed that Bower is used to install Woleet Web libraries.***
+
+## Initialization
 
 In order to use this library you have to include the following components:
 ```html
-<script src="./lib/woleet-api.js"></script>
-<script src="./lib/woleet-hashfile.js"></script> <!-- Optional, only if you have to hash files-->
-<script src="./lib/woleet-chainpoint.js"></script>
-<script src="./lib/woleet-verify.js"></script>
-
-<!-- CryptoJS is optional. Required only if you have to hash files without workers -->
-<script src="./bower_components/crypto-js/core.js"></script>
-<script src="./bower_components/crypto-js/sha256.js"></script>
-<script src="./bower_components/crypto-js/lib-typedarrays.js"></script>
+<script src="../bower_components/woleet-weblibs/dist/woleet-api.js"></script>
+<script src="../bower_components/woleet-weblibs/dist/woleet-hashfile.js"></script>
+<script src="../bower_components/woleet-weblibs/dist/woleet-chainpoint.js"></script>
+<script src="../bower_components/woleet-weblibs/dist/woleet-verify.js"></script>
 ```
 
 or the minimized equivalent:
 
 ```html
-<script src="./dist/woleet-verify.min.js"></script>
+<script src="../bower_components/woleet-weblibs/dist/woleet-weblibs.min.js"></script>
 ```
 
-**Note**: worker.js is accessed only by woleet-hashfile.js and must not be specifically included on the web page. 
-
-## Main methods:
+## Main methods
 
 **Note**: all the methods will be contained in the same object (the "woleet" variable).
 For example, to get a transaction, the code will be: `woleet.transaction.get(transactionID)`
 
-### Methods provided by woleet-verify:
+### Methods provided by woleet-verify
+
 verify.WoleetDAB(file)
 - Param file: a File object ***or*** a SHA256 hash (as an hexadecimal characters String).
 - Returns a Promise witch forwards:
@@ -68,8 +83,8 @@ verify.DAB(file, receipt)
     
 See example at [example_DAB.html](example/example_DAB.html)
 
-## Advanced methods:
-### <a name="chainpoint"></a>Methods provided by woleet-chainpoint:
+## Advanced methods
+### <a name="chainpoint"></a>Methods provided by woleet-chainpoint
  
 receipt.validate(receipt)
 - Param receipt: a JSON parsed Chainpoint 1.0 receipt
@@ -84,7 +99,7 @@ receipt.validate(receipt)
 
 See example at [verifyReceipt.html](example/verifyReceipt.html)
 
-### <a name="hashfile"></a>Methods provided by woleet-hashfile: 
+### <a name="hashfile"></a>Methods provided by woleet-hashfile
 
 You can instance a Hasher object with `var myHasher = new woleet.file.Hasher`, this object provide an interface to hash files in the browser:
 
@@ -107,7 +122,7 @@ myHasher.start(files):
 myHasher.isReady(): 
 - Returns a boolean that indicates if the hasher is working (you cannot hash files if it is already working).
 
-### Methods provided by woleet-api: 
+### Methods provided by woleet-api:
 
 receipt.get(anchorID):
 - Param anchorID: an anchor id.
@@ -151,7 +166,8 @@ in this case, hashing files is still possible for files whose size does not exce
 
 Receipts format must be [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible.
 
-### Dependencies description:
+### Dependencies description
+
 There are 5 files that you can include in order to perform chainpoint verifications:
   - *woleet-verify* provides main methods verify.woleetDAB *and* verify.DAB, it relies on:
     - woleet-chainpoint
@@ -170,9 +186,9 @@ There are 5 files that you can include in order to perform chainpoint verificati
   - *worker* defines a worker used to hash files, it needs:
     - crypto-js library (only to be accessible, not to include)
     
-### Objects definitions:
+### Objects definitions
 
-#### <a name="object_transaction"></a>*Transaction object: 
+#### <a name="object_transaction"></a>*Transaction object
 ```
 {
     txId: String corresponding to the id of the transaction
@@ -182,7 +198,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
     opReturn: String corresponding to the op_return of the transaction
 }
 ```
-##### Example: 
+##### Example
 ```json
 {
     "blockHash": "00000000000000000276fb1e87fa581e09d943f198a8b9114167df0e2230c247",
@@ -193,7 +209,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
 }
 ```
 
-#### <a name="object_proof"></a>*Proof object: 
+#### <a name="object_proof"></a>*Proof object
 ```
 {
     confirmations: Number corresponding to the number of confirmations
@@ -201,7 +217,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
     receipt: Receipt correesponding to the proof of existence
 }
 ```
-##### Example: 
+##### Example
 ```
 {
     "confirmedOn": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
@@ -210,7 +226,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
 }
 ```
 
-#### <a name="object_anchorIdsPage"></a>*AnchorIDsPage object: 
+#### <a name="object_anchorIdsPage"></a>*AnchorIDsPage object
 ```
 {
     content: array of anchorID (as String)
@@ -223,7 +239,7 @@ There are 5 files that you can include in order to perform chainpoint verificati
     number: current page number (starting from 0)
 }
 ```
-##### Example: 
+##### Example
 ```json
 {
     "content": [
@@ -240,10 +256,12 @@ There are 5 files that you can include in order to perform chainpoint verificati
 }
 ```
 
-#### <a name="object_receipt"></a>*Receipt object: 
+#### <a name="object_receipt"></a>*Receipt object
+
 The receipt object matches the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) format.
 
-##### Example: 
+##### Example
+
 ```json
 {
     "header": {
@@ -288,8 +306,10 @@ The receipt object matches the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) 
 }
 ```
 
-#### <a name="object_FileList"></a>*FileList object: 
+#### <a name="object_FileList"></a>*FileList object
+
 See https://developer.mozilla.org/fr/docs/Web/API/FileList
 
-#### <a name="object_FIle"></a>*File object: 
+#### <a name="object_FIle"></a>*File object
+
 See https://developer.mozilla.org/fr/docs/Web/API/File
