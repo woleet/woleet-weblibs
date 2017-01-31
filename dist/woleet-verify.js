@@ -17,11 +17,12 @@
 
         return hashStringOrFile(file)
 
-        // we get the hash, so now we get the corresponding anchor ids
+        // We get the hash, so now we get the corresponding anchor ids
         .then(function (hash) {
             return api.anchor.getAnchorIDs(hash);
         })
-        // we got ids (an array), for each of them, we get the corresponding receipts
+
+        // We got ids (an array), for each of them, we get the corresponding receipts
         .then(function (anchorIDsPage) {
             var receiptArray = [];
             return anchorIDsPage.content.reduce(function (chain, anchorId) {
@@ -37,7 +38,7 @@
                 });
             }, Promise.resolve())
 
-            // we got a receipt array, so we forward it
+            // We got a receipt array, so we forward it
             .then(function () {
                 // if we had a match but can't get a receipt
                 if (!receiptArray.length && anchorIDsPage.content.length) {
@@ -48,7 +49,7 @@
             });
         }).then(function (receiptArray) {
 
-            // we check each receipt we got
+            // We check each receipt we got
             var receiptsCheckOk = receiptArray.map(function (receipt) {
                 try {
                     return api.receipt.validate(receipt);
@@ -57,14 +58,14 @@
                 }
             });
 
-            // we check that all of them are correct
+            // We check that all of them are correct
             var receiptsOk = receiptsCheckOk.every(function (e) {
                 return e == true;
             });
 
             var finalArray = [];
 
-            // if so, we get the corresponding transaction
+            // If so, we get the corresponding transaction
             if (receiptsOk) {
                 return receiptArray.reduce(function (chain, receipt) {
                     return chain.then(function () {
@@ -78,7 +79,7 @@
                     });
                 }, Promise.resolve())
 
-                // we got a array of object with the {receipt, transactionDate}, so we forward it
+                // We got a array of object with the {receipt, transactionDate}, so we forward it
                 .then(function () {
                     return finalArray;
                 });

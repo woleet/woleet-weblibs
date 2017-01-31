@@ -29,21 +29,20 @@
 })(window, function (woleet) {
 
     /**
-     * @returns the base path (including final '/') of the current scripts.
+     * @returns the base path (including final '/') of the current script.
      */
     function findBasePath() {
         var scripts = document.getElementsByTagName('script'),
             script = scripts[scripts.length - 1].src,
-            // last script is alwyas the current script
+            // last script is always the current script
         basePath = script.substr(0, script.lastIndexOf("/") + 1);
         return basePath;
     }
 
-    // Guess the path of the worker script (NOTE: you can defined woleet.workerScriptPath to overwrite this path)
+    // Guess the path of the worker script: same as current script's or defined by woleet.workerScriptPath
     var basePath = findBasePath();
     var DEFAUlT_WORKER_SCRIPT = "worker.min.js";
     var workerScriptPath = woleet.workerScriptPath || (basePath ? basePath + DEFAUlT_WORKER_SCRIPT : null);
-    console.log("worker script:", workerScriptPath);
     if (!workerScriptPath) throw new Error('Cannot find ' + DEFAUlT_WORKER_SCRIPT);
 
     /**
@@ -134,7 +133,7 @@
                     var error = message.data.error;
                     if (cb_error) cb_error(error);else throw error;
                 } else {
-                    console.trace("Unexpected worker message :", message);
+                    console.trace("Unexpected worker message: ", message);
                 }
             };
 

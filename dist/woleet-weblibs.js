@@ -19,12 +19,13 @@
 
     function RequestError(req) {
         this.name = 'getJSON';
-        this.message = req.statusText && req.statusText.length ? req.statusText : 'Error wile getting data';
+        this.message = req.statusText && req.statusText.length ? req.statusText : 'Error while getting data';
         this.code = req.status;
         //noinspection JSUnusedGlobalSymbols
         this.body = req.response;
         this.stack = new Error().stack;
     }
+
     RequestError.prototype = Object.create(Error.prototype);
     //noinspection JSUnusedGlobalSymbols
     RequestError.prototype.constructor = RequestError;
@@ -87,7 +88,7 @@
     api.anchor = api.anchor || {};
 
     api.transaction = function () {
-        var default_api = 'blockcypher.com';
+        var default_api = 'woleet.io';
 
         return {
             setDefaultProvider: function setDefaultProvider(api) {
@@ -104,6 +105,7 @@
                         break;
                 }
             },
+
             /**
              * @param tx_id
              * @returns {Promise.<Transaction>}
@@ -112,11 +114,11 @@
                 switch (default_api) {
                     case 'woleet.io':
                         return getJSON(woleetAPI + '/bitcoin/transaction/' + tx_id).then(function (res) {
-                            if (!res || res.status != 200) {
+                            if (!res) {
                                 throw new Error('tx_not_found');
                             } else {
                                 //noinspection JSUnresolvedVariable
-                                return makeTransaction(res.data.txid, res.data.confirmations, new Date(res.data.time * 1000), res.data.blockhash || 0, function (outputs) {
+                                return makeTransaction(res.txid, res.confirmations, new Date(res.time * 1000), res.blockhash || 0, function (outputs) {
                                     var opr_return_found = null;
                                     outputs.forEach(function (output) {
                                         if (output.hasOwnProperty('scriptPubKey')) {
@@ -132,7 +134,7 @@
                                         if (opr_return_found) return true; //breaks foreach
                                     });
                                     return opr_return_found;
-                                }(res.data.vout || []));
+                                }(res.vout || []));
                             }
                         });
                     case 'chain.so':
@@ -559,11 +561,12 @@
 
         return hashStringOrFile(file)
 
-        // we get the hash, so now we get the corresponding anchor ids
+        // We get the hash, so now we get the corresponding anchor ids
         .then(function (hash) {
             return api.anchor.getAnchorIDs(hash);
         })
-        // we got ids (an array), for each of them, we get the corresponding receipts
+
+        // We got ids (an array), for each of them, we get the corresponding receipts
         .then(function (anchorIDsPage) {
             var receiptArray = [];
             return anchorIDsPage.content.reduce(function (chain, anchorId) {
@@ -579,7 +582,7 @@
                 });
             }, Promise.resolve())
 
-            // we got a receipt array, so we forward it
+            // We got a receipt array, so we forward it
             .then(function () {
                 // if we had a match but can't get a receipt
                 if (!receiptArray.length && anchorIDsPage.content.length) {
@@ -590,7 +593,7 @@
             });
         }).then(function (receiptArray) {
 
-            // we check each receipt we got
+            // We check each receipt we got
             var receiptsCheckOk = receiptArray.map(function (receipt) {
                 try {
                     return api.receipt.validate(receipt);
@@ -599,14 +602,14 @@
                 }
             });
 
-            // we check that all of them are correct
+            // We check that all of them are correct
             var receiptsOk = receiptsCheckOk.every(function (e) {
                 return e == true;
             });
 
             var finalArray = [];
 
-            // if so, we get the corresponding transaction
+            // If so, we get the corresponding transaction
             if (receiptsOk) {
                 return receiptArray.reduce(function (chain, receipt) {
                     return chain.then(function () {
@@ -620,7 +623,7 @@
                     });
                 }, Promise.resolve())
 
-                // we got a array of object with the {receipt, transactionDate}, so we forward it
+                // We got a array of object with the {receipt, transactionDate}, so we forward it
                 .then(function () {
                     return finalArray;
                 });
@@ -735,21 +738,20 @@
 })(window, function (woleet) {
 
     /**
-     * @returns the base path (including final '/') of the current scripts.
+     * @returns the base path (including final '/') of the current script.
      */
     function findBasePath() {
         var scripts = document.getElementsByTagName('script'),
             script = scripts[scripts.length - 1].src,
-            // last script is alwyas the current script
+            // last script is always the current script
         basePath = script.substr(0, script.lastIndexOf("/") + 1);
         return basePath;
     }
 
-    // Guess the path of the worker script (NOTE: you can defined woleet.workerScriptPath to overwrite this path)
+    // Guess the path of the worker script: same as current script's or defined by woleet.workerScriptPath
     var basePath = findBasePath();
     var DEFAUlT_WORKER_SCRIPT = "worker.min.js";
     var workerScriptPath = woleet.workerScriptPath || (basePath ? basePath + DEFAUlT_WORKER_SCRIPT : null);
-    console.log("worker script:", workerScriptPath);
     if (!workerScriptPath) throw new Error('Cannot find ' + DEFAUlT_WORKER_SCRIPT);
 
     /**
@@ -840,7 +842,7 @@
                     var error = message.data.error;
                     if (cb_error) cb_error(error);else throw error;
                 } else {
-                    console.trace("Unexpected worker message :", message);
+                    console.trace("Unexpected worker message: ", message);
                 }
             };
 

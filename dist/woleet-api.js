@@ -19,12 +19,13 @@
 
     function RequestError(req) {
         this.name = 'getJSON';
-        this.message = req.statusText && req.statusText.length ? req.statusText : 'Error wile getting data';
+        this.message = req.statusText && req.statusText.length ? req.statusText : 'Error while getting data';
         this.code = req.status;
         //noinspection JSUnusedGlobalSymbols
         this.body = req.response;
         this.stack = new Error().stack;
     }
+
     RequestError.prototype = Object.create(Error.prototype);
     //noinspection JSUnusedGlobalSymbols
     RequestError.prototype.constructor = RequestError;
@@ -87,7 +88,7 @@
     api.anchor = api.anchor || {};
 
     api.transaction = function () {
-        var default_api = 'blockcypher.com';
+        var default_api = 'woleet.io';
 
         return {
             setDefaultProvider: function setDefaultProvider(api) {
@@ -104,6 +105,7 @@
                         break;
                 }
             },
+
             /**
              * @param tx_id
              * @returns {Promise.<Transaction>}
@@ -112,11 +114,11 @@
                 switch (default_api) {
                     case 'woleet.io':
                         return getJSON(woleetAPI + '/bitcoin/transaction/' + tx_id).then(function (res) {
-                            if (!res || res.status != 200) {
+                            if (!res) {
                                 throw new Error('tx_not_found');
                             } else {
                                 //noinspection JSUnresolvedVariable
-                                return makeTransaction(res.data.txid, res.data.confirmations, new Date(res.data.time * 1000), res.data.blockhash || 0, function (outputs) {
+                                return makeTransaction(res.txid, res.confirmations, new Date(res.time * 1000), res.blockhash || 0, function (outputs) {
                                     var opr_return_found = null;
                                     outputs.forEach(function (output) {
                                         if (output.hasOwnProperty('scriptPubKey')) {
@@ -132,7 +134,7 @@
                                         if (opr_return_found) return true; //breaks foreach
                                     });
                                     return opr_return_found;
-                                }(res.data.vout || []));
+                                }(res.vout || []));
                             }
                         });
                     case 'chain.so':
