@@ -78,8 +78,8 @@ declare namespace woleet {
     function isSHA256(hash: string): boolean;
 
     namespace verify {
-        function WoleetDAB(hash: string|File): Promise<Array<Proof>>;
+        function WoleetDAB(hash: string|File, progressCallback?: Function): Promise<Array<Proof>>;
 
-        function DAB(hash: string|File, receipt: Object): Promise<Proof>;
+        function DAB(hash: string|File, receipt: Object, progressCallback?: Function): Promise<Proof>;
     }
 }

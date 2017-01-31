@@ -11,11 +11,12 @@
 
     /**
      * @param {File|String} file
+     * @param {Function} progressCallback
      * @returns {Promise.<Object[]>}
      */
-    api.verify.WoleetDAB = function (file) {
+    api.verify.WoleetDAB = function (file, progressCallback) {
 
-        return hashStringOrFile(file)
+        return hashStringOrFile(file, progressCallback)
 
         // We get the hash, so now we get the corresponding anchor ids
         .then(function (hash) {
@@ -92,11 +93,12 @@
     /**
      * @param {File|String} file
      * @param {Receipt} receipt
+     * @param {Function} progressCallback
      * @returns {Promise<Object>}
      */
-    api.verify.DAB = function (file, receipt) {
+    api.verify.DAB = function (file, receipt, progressCallback) {
 
-        return hashStringOrFile(file).then(function (hash) {
+        return hashStringOrFile(file, progressCallback).then(function (hash) {
 
             api.receipt.validate(receipt);
 
@@ -122,7 +124,7 @@
         });
     };
 
-    var hashStringOrFile = function hashStringOrFile(file) {
+    var hashStringOrFile = function hashStringOrFile(file, progressCallback) {
         var resolveHash;
         var rejectHash;
         var hashPromise = new Promise(function (resolve, reject) {
@@ -138,7 +140,12 @@
             //noinspection JSUnusedLocalSymbols
             hasher.on('result', function (message, file) {
                 resolveHash(message.result);
+                if(progressCallback) progressCallback({progress:1.0, file:File})
             });
+
+            if(progressCallback && typeof progressCallback == 'function') {
+                hasher.on('progress', progressCallback);
+            }
 
             hasher.on('error', function (error) {
                 rejectHash(error);
@@ -147,6 +154,7 @@
             hasher.start(file);
         } else if (typeof file == "string") {
             if (api.isSHA256(file)) {
+                if(progressCallback) progressCallback({progress:1.0, file:File});
                 //noinspection JSUnusedAssignment
                 resolveHash(file);
             } else {
