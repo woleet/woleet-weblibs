@@ -164,7 +164,7 @@ describe("transaction.get suite", function () {
                 expect(tx.blockHash).toEqual("00000000000000000276fb1e87fa581e09d943f198a8b9114167df0e2230c247");
                 expect(tx.opReturn).toEqual(validReceipt.header.merkle_root);
                 expect(tx.confirmations).toBeGreaterThan(4500);
-                expect(tx.confirmedAt instanceof Date).toBe(true);
+                expect(tx.confirmedOn instanceof Date).toBe(true);
                 done();
             }, function (error) {
                 expect(error).toBeUndefined();
@@ -348,7 +348,7 @@ describe("verify.DAB suite", function () {
             .then(function (result) {
                 expect(result).toBeDefined();
                 expect(result.confirmations).toBeDefined();
-                expect(result.date instanceof Date).toBe(true);
+                expect(result.confirmedOn instanceof Date).toBe(true);
                 done();
             }, function (error) {
                 expect(error).toBeUndefined();
@@ -373,7 +373,7 @@ describe("verify.DAB suite", function () {
             .then(function (result) {
                 expect(result).toBeDefined();
                 expect(result.confirmations).toBeDefined();
-                expect(result.date instanceof Date).toBe(true);
+                expect(result.confirmedOn instanceof Date).toBe(true);
                 done();
             }, function (error) {
                 expect(error).toBeUndefined();

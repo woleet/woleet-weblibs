@@ -1,9 +1,10 @@
-#Woleet JS client
+# Woleet Web libraries
 
-This repository is the sources code of **Woleet JS Client**, it is aimed at:
-- Verify the integrity and timestamp of files anchored by Woleet.
-- Verify the integrity and timestamp of files anchored by third parties using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible receipts.
-- Compute SHA256 hashes on large files.
+This repository contains the sources code of **Woleet Web libraries**.
+These libraries are aimed at:
+- verifying the integrity and timestamp of files anchored by Woleet,
+- verifying the integrity and timestamp of files anchored by third parties using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible receipts,
+- computing the SHA256 hashes of any file (even larger than 50MB).
 
 ### Installation 
 Before using **woleet-hash** you need to install the **[crypto-js](https://github.com/brix/crypto-js)** lib in order 
@@ -174,9 +175,9 @@ There are 5 files that you can include in order to perform chainpoint verificati
 #### <a name="object_transaction"></a>*Transaction object: 
 ```
 {
-    tx_id: String corresponding to the id of the transaction
+    txId: String corresponding to the id of the transaction
     confirmations: Number corresponding to the number of confirmations
-    confirmedAt: Date corresponding to the block confirmation
+    confirmedOn: Date corresponding to the block confirmation
     blockHash: String corresponding to the block hash (id)
     opReturn: String corresponding to the op_return of the transaction
 }
@@ -186,25 +187,25 @@ There are 5 files that you can include in order to perform chainpoint verificati
 {
     "blockHash": "00000000000000000276fb1e87fa581e09d943f198a8b9114167df0e2230c247",
     "confirmations": 3897,
-    "confirmedAt": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
+    "confirmedOn": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "opReturn": "bf53f456227b377527349f337b8d11687e461a6ff01790deadb862bf1fa57fe9",
-    "tx_id": "0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c5"
+    "txId": "0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c5"
 }
 ```
 
 #### <a name="object_proof"></a>*Proof object: 
 ```
 {
-    date: Date corresponding to the block confirmation
     confirmations: Number corresponding to the number of confirmations
+    confirmedOn: Date corresponding to the block confirmation
     receipt: Receipt correesponding to the proof of existence
 }
 ```
 ##### Example: 
 ```
 {
+    "confirmedOn": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "confirmations": 3897,
-    "date": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "receipt": [object Receipt]
 }
 ```

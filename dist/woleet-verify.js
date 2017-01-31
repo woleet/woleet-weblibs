@@ -74,7 +74,7 @@
                             finalArray.push({
                                 receipt: receipt,
                                 confirmations: tx.confirmations,
-                                date: tx.confirmedAt
+                                date: tx.confirmedOn
                             });
                         });
                     });
@@ -118,7 +118,7 @@
             if (tx.opReturn == receipt.header.merkle_root) return {
                 receipt: receipt,
                 confirmations: tx.confirmations,
-                date: tx.confirmedAt
+                confirmedOn: tx.confirmedOn
             }; // opReturn matches root
             else throw new Error('opReturn_mismatches_merkleRoot');
         });

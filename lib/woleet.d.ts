@@ -1,9 +1,9 @@
 interface Transaction {
     blockHash: string
     confirmations: 3897
-    confirmedAt: Date
+    confirmedOn: Date
     opReturn: string
-    tx_id: string
+    txId: string
 }
 
 interface Branch {
