@@ -11,6 +11,7 @@
     "gulp-babel": "^6.1.2",
     "gulp-concat": "^2.6.1",
     "gulp-dest": "^0.2.3",
+    "gulp-sourcemaps": "^2.4.0",
     "gulp-uglify": "^2.0.1"
   }
 }
