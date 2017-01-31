@@ -1,8 +1,3 @@
-/**
- * source : http://www.briangrinstead.com/blog/filereadersync
- * source : https://github.com/mdn/simple-web-worker/blob/gh-pages/worker.js
- */
-
 /* crypto-js lib: minified version */
 importScripts('crypto.min.js');
 /* crypto-js lib: regular version */
