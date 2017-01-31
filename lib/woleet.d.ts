@@ -48,17 +48,19 @@ interface Proof {
 declare namespace woleet {
 
     namespace transaction {
-        function get (transactionID: string): Promise<Transaction>;
+        function get(transactionID: string): Promise<Transaction>;
+
         function setDefaultProvider(api: string);
     }
 
     namespace receipt {
-        function get (anchorID: string): Promise<Receipt>;
-        function validate (receipt: Object): boolean;
+        function get(anchorID: string): Promise<Receipt>;
+
+        function validate(receipt: Object): boolean;
     }
 
     namespace anchor {
-        function getAnchorIDs (hash: string, size?: Number): Promise<AnchorIDsPage>;
+        function getAnchorIDs(hash: string, size?: Number): Promise<AnchorIDsPage>;
     }
 
     namespace file {
@@ -76,7 +78,8 @@ declare namespace woleet {
     function isSHA256(hash: string): boolean;
 
     namespace verify {
-        function WoleetDAB (hash: string|File): Promise<Array<Proof>>;
-        function DAB (hash: string|File, receipt: Object): Promise<Proof>;
+        function WoleetDAB(hash: string|File): Promise<Array<Proof>>;
+
+        function DAB(hash: string|File, receipt: Object): Promise<Proof>;
     }
 }
