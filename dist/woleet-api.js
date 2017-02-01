@@ -1,5 +1,7 @@
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 /**
  * @typedef {Object}   AnchorIDsPage
  * @typedef {String[]} Page.content array of anchorID
@@ -30,7 +32,12 @@
     //noinspection JSUnusedGlobalSymbols
     RequestError.prototype.constructor = RequestError;
 
-    function getJSON(url) {
+    /**
+     * @param {String} url
+     * @param {{method?:string, data?:string, token?:string}} options
+     * @returns {Promise}
+     */
+    function getJSON(url, options) {
         var req = new XMLHttpRequest();
 
         return new Promise(function (resolve, reject) {
@@ -55,10 +62,13 @@
                 reject(new RequestError(req));
             };
 
-            req.open("GET", url, true);
+            req.open(options.method || "GET", url, true);
+            if (options.token) req.setRequestHeader("Authorization", "Bearer " + options.token);
+            req.setRequestHeader('Content-Type', 'application/json');
+            req.setRequestHeader('Accept', 'application/json');
             req.responseType = "json";
             req.json = "json";
-            req.send();
+            req.send(_typeof(options.data) == 'object' ? JSON.stringify(options.data) : options.data);
         });
     }
 
@@ -215,6 +225,9 @@
         var sha256RegExp = /^[A-Fa-f0-9]{64}$/;
         return sha256RegExp.test(hash);
     };
+
+    api._getJSON = getJSON;
+    api._woleetAPI = woleetAPI;
 
     return api;
 });

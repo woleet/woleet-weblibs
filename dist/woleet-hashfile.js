@@ -251,5 +251,54 @@
         };
     };
 
+    /**
+     * @param {File|String} file
+     * @param {Function} [progressCallback]
+     * @returns {Promise<Hash>}
+     */
+    api._hashStringOrFile = function (file, progressCallback) {
+        var resolveHash;
+        var rejectHash;
+        var hashPromise = new Promise(function (resolve, reject) {
+            resolveHash = resolve;
+            rejectHash = reject;
+        });
+
+        if (file instanceof File) {
+
+            if (!api.file || !api.file.Hasher) throw new Error("missing_woleet_hash_dependency");
+
+            var hasher = new api.file.Hasher();
+            //noinspection JSUnusedLocalSymbols
+            hasher.on('result', function (message, file) {
+                resolveHash(message.result);
+                if (progressCallback) progressCallback({ progress: 1.0, file: File });
+            });
+
+            if (progressCallback && typeof progressCallback == 'function') {
+                hasher.on('progress', progressCallback);
+            }
+
+            hasher.on('error', function (error) {
+                rejectHash(error);
+            });
+
+            hasher.start(file);
+        } else if (typeof file == "string") {
+            if (api.isSHA256(file)) {
+                //noinspection JSUnusedAssignment
+                resolveHash(file);
+            } else {
+                //noinspection JSUnusedAssignment
+                rejectHash(new Error("parameter_string_not_a_sha256_hash"));
+            }
+        } else {
+            //noinspection JSUnusedAssignment
+            rejectHash(new Error("invalid_parameter"));
+        }
+
+        return hashPromise;
+    };
+
     return api;
 });

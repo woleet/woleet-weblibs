@@ -61,6 +61,8 @@ declare namespace woleet {
 
     namespace anchor {
         function getAnchorIDs(hash: string, size?: Number): Promise<AnchorIDsPage>;
+
+        function create(hash: string|File, progressCallback?: Function): Promise<>;
     }
 
     namespace file {

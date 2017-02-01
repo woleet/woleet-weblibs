@@ -1,5 +1,7 @@
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 /**
  * @typedef {Object}   AnchorIDsPage
  * @typedef {String[]} Page.content array of anchorID
@@ -30,7 +32,12 @@
     //noinspection JSUnusedGlobalSymbols
     RequestError.prototype.constructor = RequestError;
 
-    function getJSON(url) {
+    /**
+     * @param {String} url
+     * @param {{method?:string, data?:string, token?:string}} options
+     * @returns {Promise}
+     */
+    function getJSON(url, options) {
         var req = new XMLHttpRequest();
 
         return new Promise(function (resolve, reject) {
@@ -55,10 +62,13 @@
                 reject(new RequestError(req));
             };
 
-            req.open("GET", url, true);
+            req.open(options.method || "GET", url, true);
+            if (options.token) req.setRequestHeader("Authorization", "Bearer " + options.token);
+            req.setRequestHeader('Content-Type', 'application/json');
+            req.setRequestHeader('Accept', 'application/json');
             req.responseType = "json";
             req.json = "json";
-            req.send();
+            req.send(_typeof(options.data) == 'object' ? JSON.stringify(options.data) : options.data);
         });
     }
 
@@ -215,6 +225,9 @@
         var sha256RegExp = /^[A-Fa-f0-9]{64}$/;
         return sha256RegExp.test(hash);
     };
+
+    api._getJSON = getJSON;
+    api._woleetAPI = woleetAPI;
 
     return api;
 });
@@ -719,6 +732,49 @@
 
     return api;
 });
+'use strict';
+
+;(function (root, factory) {
+    root.woleet = factory(root.woleet);
+})(window, function (woleet) {
+
+    var api = woleet || {};
+    api.receipt = api.receipt || {};
+    api.anchor = api.anchor || {};
+    api.verify = api.verify || {};
+
+    var hashStringOrFile = api._hashStringOrFile;
+    var getJSON = api._getJSON;
+    var woleetAPI = api._woleetAPI;
+
+    var _token = null;
+
+    api.token = {
+        set: function set(token) {
+            _token = token;
+        },
+        get: function get(user, pass) {}
+    };
+
+    /**
+     * @param {File|String} file
+     * @param {Function} [progressCallback]
+     * @returns {Promise.<Object[]>}
+     */
+    api.anchor.create = function (file, progressCallback) {
+
+        return hashStringOrFile(file, progressCallback).then(function (hash) {
+            var data = {
+                public: true,
+                name: file.name,
+                hash: hash
+            };
+            return getJSON(woleetAPI + '/anchor', { data: data, method: 'POST', token: _token });
+        }).then(console.info);
+    };
+
+    return api;
+});
 "use strict";
 
 /**
@@ -970,6 +1026,55 @@
         this.isReady = function () {
             return ready;
         };
+    };
+
+    /**
+     * @param {File|String} file
+     * @param {Function} [progressCallback]
+     * @returns {Promise<Hash>}
+     */
+    api._hashStringOrFile = function (file, progressCallback) {
+        var resolveHash;
+        var rejectHash;
+        var hashPromise = new Promise(function (resolve, reject) {
+            resolveHash = resolve;
+            rejectHash = reject;
+        });
+
+        if (file instanceof File) {
+
+            if (!api.file || !api.file.Hasher) throw new Error("missing_woleet_hash_dependency");
+
+            var hasher = new api.file.Hasher();
+            //noinspection JSUnusedLocalSymbols
+            hasher.on('result', function (message, file) {
+                resolveHash(message.result);
+                if (progressCallback) progressCallback({ progress: 1.0, file: File });
+            });
+
+            if (progressCallback && typeof progressCallback == 'function') {
+                hasher.on('progress', progressCallback);
+            }
+
+            hasher.on('error', function (error) {
+                rejectHash(error);
+            });
+
+            hasher.start(file);
+        } else if (typeof file == "string") {
+            if (api.isSHA256(file)) {
+                //noinspection JSUnusedAssignment
+                resolveHash(file);
+            } else {
+                //noinspection JSUnusedAssignment
+                rejectHash(new Error("parameter_string_not_a_sha256_hash"));
+            }
+        } else {
+            //noinspection JSUnusedAssignment
+            rejectHash(new Error("invalid_parameter"));
+        }
+
+        return hashPromise;
     };
 
     return api;

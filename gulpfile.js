@@ -42,6 +42,7 @@ gulp.task("uglifyLib", () => {
         'lib/woleet-api.js',
         'lib/woleet-chainpoint.js',
         'lib/woleet-verify.js',
+        'lib/woleet-anchor.js',
         'lib/woleet-hashfile.js'])
         .pipe(sourcemaps.init())
         .pipe(babel({presets: ['latest']}));
