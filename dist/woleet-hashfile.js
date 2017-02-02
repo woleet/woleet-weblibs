@@ -28,25 +28,28 @@
     root.woleet = factory(root.woleet);
 })(window, function (woleet) {
 
+    var testFileReaderSupport = checkFileReaderSyncSupport();
+    //noinspection JSUnresolvedVariable
+    var testNativeCryptoSupport = window.crypto && window.crypto.subtle && window.crypto.subtle.digest;
+
     var api = woleet || {};
     api.file = api.file || {};
 
     /**
-     * @returns the base path (including final '/') of the current script.
+     * @returns string base path (including final '/') of the current script.
      */
     function findBasePath() {
         var scripts = document.getElementsByTagName('script'),
-            script = scripts[scripts.length - 1].src,
-            // last script is always the current script
-        basePath = script.substr(0, script.lastIndexOf("/") + 1);
-        return basePath;
+            script = scripts[scripts.length - 1].src; // last script is always the current script
+        return script.substr(0, script.lastIndexOf("/") + 1);
     }
 
     // Guess the path of the worker script: same as current script's or defined by woleet.workerScriptPath
     var basePath = findBasePath();
-    var DEFAUlT_WORKER_SCRIPT = "woleet-hashfile-worker.min.js";
-    var workerScriptPath = api.workerScriptPath || (basePath ? basePath + DEFAUlT_WORKER_SCRIPT : null);
-    if (!workerScriptPath) throw new Error('Cannot find ' + DEFAUlT_WORKER_SCRIPT);
+    var DEFAULT_WORKER_SCRIPT = "worker.min.js";
+    //noinspection JSUnresolvedVariable
+    var workerScriptPath = api.workerScriptPath || (basePath ? basePath + DEFAULT_WORKER_SCRIPT : null);
+    if (!workerScriptPath) throw new Error('Cannot find ' + DEFAULT_WORKER_SCRIPT);
 
     /**
      * Check support for workers.
@@ -82,12 +85,13 @@
         });
     }
 
-    var testFileReaderSupport = checkFileReaderSyncSupport();
-
     api.file.Hasher = function () {
 
         var ready = true;
-        var cb_start, cb_progress, cb_result, cb_error;
+        var cb_start = void 0,
+            cb_progress = void 0,
+            cb_result = void 0,
+            cb_error = void 0;
 
         /**
          * @param {String} event
@@ -113,70 +117,57 @@
         };
 
         /**
-         * @param {FileList|File} files
-         * @param {Number} len
+         * @param {File} file
+         * @returns {Promise}
          */
-        var hashWorker = function hashWorker(files, len) {
-            var i = 0;
-            var worker = new Worker(workerScriptPath);
+        var hashWorker = function hashWorker(file) {
+            return new Promise(function (next, reject) {
 
-            worker.onmessage = function (message) {
-                //handling worker message
-                if (message.data.progress != undefined) {
-                    if (cb_progress) cb_progress(message.data);
-                } else if (message.data.result) {
-                    if (cb_result) cb_result(message.data);
-                    next();
-                } else if (message.data.start) {
-                    if (cb_start) cb_start(message.data);
-                } else if (message.data.error) {
-                    var error = message.data.error;
-                    if (cb_error) cb_error(error);else throw error;
-                } else {
-                    console.trace("Unexpected worker message: ", message);
-                }
-            };
+                var worker = new Worker(workerScriptPath);
 
-            function next() {
-                if (i >= len) {
-                    worker.terminate();
-                    ready = true;
-                } else {
-                    worker.postMessage(files.item(i));
-                    i++;
-                }
-            }
+                worker.onmessage = function (message) {
+                    //handling worker message
+                    if (message.data.progress != undefined) {
+                        if (cb_progress) cb_progress(message.data);
+                    } else if (message.data.result) {
+                        if (cb_result) cb_result(message.data);
+                        next();
+                    } else if (message.data.start) {
+                        if (cb_start) cb_start(message.data);
+                    } else if (message.data.error) {
+                        var _error = message.data.error;
+                        if (cb_error) cb_error(_error);else reject(_error);
+                    } else {
+                        console.trace("Unexpected worker message: ", message);
+                    }
+                };
 
-            //entry point
-            if (len != -1) next(); // if files is a list
-            else {
-                    worker.postMessage(files);
-                }
+                worker.postMessage(file);
+            });
         };
 
         /**
-         * @param {FileList|File} files
-         * @param {Number} len
+         * @param {File} file
+         * @returns {Promise}
          */
-        var hashLocal = function hashLocal(files, len) {
-            var i = 0;
+        var hashLocal = function hashLocal(file) {
 
-            /**
-             * @param {File} file
-             */
-            function hash(file) {
+            return new Promise(function (next, reject) {
                 var err = new Error("file_too_big_to_be_hashed_without_worker");
                 if (file.size > 5e7) {
                     ready = true;
-                    if (cb_error) return cb_error({ error: err, file: file });else throw err;
+                    if (cb_error) return cb_error({ error: err, file: file });else reject(error);
                 }
-                if (cb_start) cb_start({ start: true, file: file });
 
                 var reader = new FileReader();
 
                 var sha256 = CryptoJS.algo.SHA256.create();
-                var hash,
+                var hash = void 0,
                     prev = 0;
+
+                reader.onloadstart = function () {
+                    if (cb_start) cb_start({ start: true, file: file });
+                };
 
                 reader.onloadend = function () {
                     hash.finalize();
@@ -205,44 +196,88 @@
                 };
 
                 reader.readAsArrayBuffer(file);
-            }
+            });
+        };
 
-            function next() {
-                if (i >= len) {
-                    ready = true;
-                } else {
-                    hash(files.item(i));
-                    i++;
-                }
-            }
+        /**
+         * @param {File} file
+         * @returns {Promise}
+         */
+        var hashLocalWithNativeAPI = function hashLocalWithNativeAPI(file) {
+            return new Promise(function (resolve, reject) {
+                var algo = "SHA-256";
+                // entry point
+                var reader = new FileReader();
 
-            //entry point
-            if (len != -1) next(); // if files is a list
-            else {
-                    hash(files);
-                }
+                reader.onloadstart = function () {
+                    if (cb_start) cb_start({ start: true, file: file });
+                };
+
+                reader.onprogress = function (e) {
+                    if (cb_progress) {
+                        //noinspection JSUnresolvedVariable
+                        cb_progress({ progress: e.loaded / e.total, file: file });
+                    }
+                };
+
+                reader.onload = function (event) {
+                    var data = event.target.result;
+                    //noinspection JSUnresolvedFunction,JSUnresolvedVariable
+                    window.crypto.subtle.digest(algo, data).then(function (hash) {
+                        var hashResult = new Uint8Array(hash);
+                        var hexString = hashResult.reduce(function (res, e) {
+                            return res + e.toString(16);
+                        }, '');
+                        if (cb_result) cb_result({ result: hexString, file: file });
+                        resolve();
+                    }).catch(function (error) {
+                        return cb_error ? cb_error({ error: error, file: file }) : reject(error);
+                    });
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
         };
 
         this.start = function (files) {
 
             if (!ready) throw new Error("not_ready");
 
-            var len = -1;
-
-            if (files instanceof FileList) {
-                len = files.length;
-            } else if (files instanceof File) {} else throw new Error("invalid_parameter");
-
             ready = false;
 
-            testFileReaderSupport.then(function (supported) {
-                if (supported) {
-                    hashWorker(files, len);
+            testFileReaderSupport.then(function (WorkerSupported) {
+                var hashMethod = null;
+                if (testNativeCryptoSupport) {
+                    hashMethod = hashLocalWithNativeAPI;
+                } else if (WorkerSupported) {
+                    hashMethod = hashWorker;
                 } else if (typeof CryptoJS !== 'undefined') {
-                    hashLocal(files, len);
+                    hashMethod = hashLocal;
                 } else {
                     throw new Error("no_viable_hash_method");
                 }
+
+                // set iterator function with selected hash method
+                function iter(i, len) {
+                    if (i >= len) {
+                        ready = true;
+                    } else {
+                        hashMethod(files[i]).then(function () {
+                            iter(++i, len);
+                        });
+                    }
+                }
+
+                // entry point
+                if (files instanceof FileList) {
+                    // files is a FileList
+                    iter(0, files.length);
+                } else if (files instanceof File) {
+                    // files is a single file
+                    hashMethod(files).then(function () {
+                        ready = true;
+                    });
+                } else throw new Error("invalid_parameter");
             });
         };
 
@@ -257,8 +292,8 @@
      * @returns {Promise<Hash>}
      */
     api._hashStringOrFile = function (file, progressCallback) {
-        var resolveHash;
-        var rejectHash;
+        var resolveHash = void 0;
+        var rejectHash = void 0;
         var hashPromise = new Promise(function (resolve, reject) {
             resolveHash = resolve;
             rejectHash = reject;
