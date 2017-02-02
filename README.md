@@ -5,16 +5,16 @@ These libraries can be used in any web application to:
 - verify the integrity and timestamp of any data anchored on the Bitcoin blockchain (so called DAB) by Woleet or by any third party using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible anchoring receipts,
 - compute the SHA256 hash of any file (even larger than 50MB).
 
-Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`** ,
-**`woleet.receipt.get`** and `woleet.anchor.getAnchorIds` functions) and so don't require any Woleet account nor the
+Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`**,
+**`woleet.receipt.get`** and **`woleet.anchor.getAnchorIds`** functions) and so don't require any Woleet account nor the
 availability of the Woleet service to work: they only need to access Bitcoin transactions, which by default is done using
 the Woleet API, but can be configured to use other independent providers like [blockcypher.com](https://blockcypher.com). 
  
 # Building Woleet web libraries
 
 Type `./build.sh` on the project's root to:
-- install build tools into the `/node_modules/` directory
-- install runtime dependencies into the `/bower_components/` directory
+- install build tools into the `./node_modules/` directory
+- install runtime dependencies into the `./bower_components/` directory
 - build the libraries into the `./dist/`directory
 
 # Using Woleet web libraries
