@@ -2,9 +2,8 @@
 
 This repository contains the sources code of **Woleet Web libraries**.
 These libraries can be used in any web application to:
-- verify the integrity and timestamp of files anchored by Woleet,
-- verify the integrity and timestamp of files anchored by third parties using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible receipts,
-- compute the SHA256 hashes of any file (even larger than 50MB).
+- verify the integrity and timestamp of files anchored by Woleet or by any third parties using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible receipts,
+- compute the SHA256 hash of any file (even larger than 50MB).
 
 Note that these libraries don't rely on the Woleet API (except for the **`woleet.verify.WoleetDAB(file)`** function)
 and so don't require any Woleet account to be used, nor the availability of the Woleet service.
@@ -12,7 +11,7 @@ They only need to read Bitcoin transactions, which by default is done using the 
 but can be configured to use other independent providers like [blockcypher.com](https://blockcypher.com). 
  
 # Building Woleet Web libraries
- 
+
 Type `./build.sh` on the project's root to:
 - install build tools 
 - install runtime dependencies
@@ -80,126 +79,154 @@ or the minimized equivalent:
 
 All methods are provided by the `woleet` object. As an example, to get a Bitcoin transaction, the code is `woleet.transaction.get(txId)`.
 
-### Verify a file anchored publicly using the Woleet platform
+### Verify a file (without its anchoring receipt)
 
-The **`woleet.verify`** library provides an easy way to verify a file anchored using the Woleet platform and flagged as **public** (which is the default):
+**`woleet.verify.WoleetDAB(file)`** or **`woleet.verify.WoleetDAB(hash)`**
+
+This function provides an easy way to verify a file that was anchored using the Woleet platform and flagged as **public** (which is the default):
  in that case, the anchoring receipt is retrieved automatically by the library from the platform, and so can be omitted.
 
-**`woleet.verify.WoleetDAB(file)`**
-**`woleet.verify.WoleetDAB(hash)`**
-- `file`: a File object.
-- `hash`: a SHA256 hash (as an hexadecimal characters String).
+See example at [example/verifyWoleetDAB.html](example/verifyWoleetDAB.html)
+
+- Parameters:
+    - `file`: a [File](#object_file) object.
+    - `hash`: a SHA256 hash (as an hexadecimal characters String).
 - Returns a Promise witch forwards:
   - on success: a list of Proof* object (can be empty).
   - on error: 
-    - any error thrown by [receipt.validate](#chainpoint) (see below).
+    - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
     - any error thrown by the [Hasher](#hashfile) object (see below).
     - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting for anchoring.
     - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
 
-See example at [example/verifyWoleetDAB.html](example/verifyWoleetDAB.html)
+### Verify a file (with its anchoring receipt) 
 
-### Verify any file 
+**`verify.DAB(file, receipt)`** or **`verify.DAB(hash, receipt)`**
 
-For any other case (files anchored using the Woleet platform but flagged as **private**, or files anchored by third party platforms,
+This function allows to verify files anchored using the Woleet platform but flagged as **private**, or files anchored by third party platforms,
 you must provide a anchoring receipt.
 
-**`verify.DAB(file, receipt)`**
-**`verify.DAB(hash, receipt)`**
-- `file`: a File object.
-- `hash`: a SHA256 hash (as an hexadecimal characters String).
-- `receipt`: a JSON parsed Chainpoint 1.0 receipt.
+See example at [example/verifyDAB.html](example/verifyDAB.html)
+
+- Parameters:
+    - `file`: a [File](#object_file) object.
+    - `hash`: a SHA256 hash (as an hexadecimal characters String).
+    - `receipt`: a JSON parsed anchoring receipt.
 - Returns a Promise witch forwards:
-  - on success: a [Proof](#object_proof)* object.
+  - on success: a [Proof](#object_proof) object.
   - on error: 
-    - any error thrown by [receipt.validate](#chainpoint) (see below).
+    - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
     - any error thrown by the [Hasher](#hashfile) object (see below).
     - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
     - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
     - `transaction_not_found`: the receipt's Bitcoin transaction cannot be found.
     - `opReturn_mismatches_merkleRoot`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
-    
-See example at [example/verifyDAB.html](example/verifyDAB.html)
 
+### <a name="hashfile"></a>Compute the SHA256 hash of a file
 
+To compute the SHA256 hash of a file, you have to instance a Hasher object: `var hasher = new woleet.file.Hasher`.
+This object provides an interface to hash files in the browser:
 
+See example at [example/hashfile.html](examples/hashfile.html)
 
+**`hasher.on(event, callback)`**
 
+This function allows to set the various callback functions used to monitor the hashing process and get the result.
 
+- Parameters:
+    - `event`: the event name
+    - `callback`: a callback function to be called when the event is triggered
 
+event name | callback prototype
+----- | --------
+`start` | `function ({ start: boolean `(always true)`, file: File })`
+`progress` | `function ({ progress: Number `(between 0.0 and 1.0)`, file: File })`
+`error` | `function ({ error: Error, file: File })`
+`result` | `function ({ result: String `(SHA256 hash of the file)`, file: File })`
 
+**`hasher.start(files)`** 
 
+This functions allows to start the hashing process.
 
-## Advanced methods
+- Parameters:
+    - `files`: a [FileList](#object_fileList) object.
+- Throws:
+    - `file_too_big_to_be_hashed_without_worker`: workers are not supported and the file exceeds the maximum size of the worker free hash function.
+    - `invalid_parameter`: `files` parameter is not a File nor a FileList.
+    - `not_ready`: the hasher is already hashing, you must wait for it to finish.
+    - `no_viable_hash_method`: workers are not supported ***and*** crypto-js lib is not included on the page.
 
-### <a name="chainpoint"></a>Methods provided by woleet-chainpoint
+**`hasher.isReady()`**
+
+This function check if the hasher is ready to be used.
+
+- Returns `true` if the hasher is ready to be used (i.e. is not currently hashing).
+
+## Advanced usage
+
+### <a name="receiptValidate"></a>Validate a anchoring receipt
  
-receipt.validate(receipt)
-- Param receipt: a JSON parsed Chainpoint 1.0 receipt
-- Returns: 
-    - true if the receipt is valid.
-    - throws an error if not:
-        - invalid_receipt_format: the receipt does not match the chainpoint 1.x format.
-        - invalid_target_proof: missing attribute in proof (parent or left or right).
-        - invalid_parent_in_proof_element: parent does not match the sha256(left+right).
-        - non_sha256_target_proof_element: an attribute in proof (parent or left or right) in not a sha256 sum.
-        - merkle_root_mismatch: the proof result does not match the receipt's merkle_root attribute.
+**`woleet.receipt.validate(receipt)`*
+
+This function allows to validate an anchoring receipt.
 
 See example at [example/validateReceipt.html](example/validateReceipt.html)
 
-### <a name="hashfile"></a>Methods provided by woleet-hashfile
-
-You can instance a Hasher object with `var myHasher = new woleet.file.Hasher`, this object provide an interface to hash files in the browser:
-
-myHasher.on(event, callback):
-
-- Params event (a String corresponding to an event name), callback (a Function):
-    - event = "start",      callback = function ({start:Boolean (always true), file:File})
-    - event = "progress",   callback = function ({progress:Number (Float), file:File})
-    - event = "error",      callback = function ({error:Error, file:File})
-    - event = "result",     callback = function ({result:Hash (file hash), file:File})
-
-myHasher.start(files): 
-- Param files: a [FileList](#objectFileList)* object.
+- Parameters:
+    - `receipt`: a JSON parsed anchoring receipt
+- Returns: 
+    - `true` if the receipt is valid.
 - Throws:
-    - file_too_big_to_be_hashed_without_worker: web worker are not available on the browser and the file exceeds the maximum size of the non-worker hash function.
-    - invalid_parameter: The parameter is not a File nor a FileList.
-    - not_ready: the _hasher_ is already working, you must wait that it has finished.
-    - no_viable_hash_method: workers are not supported by the browser ***and*** crypto-js lib is not included on the page (crypto-js is already included in woleet-verify.min.js).
+    - `invalid_receipt_format`: the receipt format is not supported.
+    - `invalid_target_proof`: the receipt's Merkle proof is invalid (missing parent, left or right).
+    - `invalid_parent_in_proof_element`: the receipt's Merkle proof is invalid (parent != SHA256(left + right)).
+    - `non_sha256_target_proof_element`: the receipt's Merkle proof is invalid (parent, left or right not a SHA256 hash).
+    - `merkle_root_mismatch`: the receipt's Merkle proof is invalid (Merkle proof result does not match the merkle_root attribute).
 
-myHasher.isReady(): 
-- Returns a boolean that indicates if the hasher is working (you cannot hash files if it is already working).
+### Get Woleet public anchors matching a given file
 
-### Methods provided by woleet-api:
+**`woleet.anchor.getAnchorIDs(hash[, size])`**
 
-receipt.get(anchorID):
-- Param anchorID: an anchor id.
+This function allows to retreive from the Wollet platform all public anchors matching a given file.
+
+- Parameters:
+    - `hash`: the SHA256 hash of the file (as an hexadecimal characters String).
+    - `size`: optional parameters setting the size of pages to retrieve.
 - Returns a promise witch forwards:
-  - if succeed: a [Receipt](#object_receipt)* object.
-  - if error: 
-    - "not_found" if the returned status where 404.
+  - on success: a [AnchorIDsPage](#object_anchorIdsPage) object containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
+  - on error: 
     - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText) for any other case.
 
-transaction.get(txid): 
-- Param txid: a bitcoin transaction id.
+### Get the anchoring receipt of a Woleet public anchor
+
+**`woleet.receipt.get(anchorID)`**
+
+- Parameters:
+    - `anchorID`: the identifier of the anchor to retrieve.
 - Returns a promise witch forwards:
-  - if succeed: a [Transaction](#object_transaction)* object.
-  - if error: 
-    - transaction_not_found if the returned status where 404.
+  - on success: a [Receipt](#object_receipt) object.
+  - on error: 
+    - `not_found` if the anchor does not exist or is not public.
     - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText) for any other case.
 
-transaction.setDefaultProvider(api): 
-- Param api: a string "woleet.io" _or_ "blockcypher.com" _or_ "chain.so" (default is "chain.so").
+### Get a Bitcoin transaction
 
-anchor.getAnchorIDs(hash[, size]):
-- Param hash: a file hash (as String).
-- Param size (optional): integer setting the page size (default: 20).
+**`woleet.transaction.get(txid)`**
+
+- Parameters:
+    - `txid`: the identifier of the Bitcoin transaction to retrieve.
 - Returns a promise witch forwards:
-  - if succeed: a [AnchorIDsPage](#object_anchorIdsPage)* object (containing a list of the public anchors IDs corresponding to the file hash). Note that the list may be empty (it won't throw a "not_found" error).
-  - if error: 
+  - on succeed: a [Transaction](#object_transaction) object.
+  - on error: 
+    - `transaction_not_found` if the transaction does not exits on the Bitcoin blockchain.
     - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText) for any other case.
 
-See example at [example/hashfile.html](examples/hashfile.html)
+### Set the Bitcoin transaction provider
+
+**`woleet.transaction.setDefaultProvider(provider)`**
+
+- Parameter:
+    - `provider: the provider to use as default provider: "woleet.io", "blockcypher.com" or "chain.so" (default is "woleet.io").
 
 ## Dependencies
 
@@ -222,18 +249,17 @@ into a single *woleet-weblibs.js* file and minified versions are available.
     - *crypto-js.js* library (only to be accessible, not to include)
     
   - *woleet-api.js* provides miscellaneous method wrapping the Woleet API
-
     
 ## Objects definitions
 
-### <a name="object_transaction"></a>*Transaction object
+### <a name="object_transaction"></a>Transaction object
 ```
 {
-    txId: String corresponding to the id of the transaction
-    confirmations: Number corresponding to the number of confirmations
-    confirmedOn: Date corresponding to the block confirmation
-    blockHash: String corresponding to the block hash (id)
-    opReturn: String corresponding to the op_return of the transaction
+    txId: {String} identifier of the transaction
+    confirmations: {Number} number of confirmations of the block containing the transaction
+    confirmedOn: {Date} confirmation date of the block containing the transaction
+    blockHash: {String} identifier of the block containing the transaction
+    opReturn: {String} OP_RETURN of the transaction
 }
 ```
 #### Example
@@ -247,16 +273,16 @@ into a single *woleet-weblibs.js* file and minified versions are available.
 }
 ```
 
-### <a name="object_proof"></a>*Proof object
+### <a name="object_proof"></a>Proof object
 ```
 {
-    confirmations: Number corresponding to the number of confirmations
-    confirmedOn: Date corresponding to the block confirmation
-    receipt: Receipt correesponding to the proof of existence
+    confirmations: {Number} number of confirmations of the block containing the transaction
+    confirmedOn: {Date} confirmation date of the block containing the transaction
+    receipt: {Receipt} anchoring receipt
 }
 ```
 #### Example
-```
+```json
 {
     "confirmedOn": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "confirmations": 3897,
@@ -264,24 +290,25 @@ into a single *woleet-weblibs.js* file and minified versions are available.
 }
 ```
 
-### <a name="object_anchorIdsPage"></a>*AnchorIDsPage object
+### <a name="object_anchorIdsPage"></a>AnchorIDsPage object
 ```
 {
-    content: array of anchorID (as String)
-    totalPages: number of pages with the current page size
-    totalElements: total of elements matching the request
-    last: boolean that indicates if the current page is the last one
-    first: boolean that indicates if the current page is the first one
-    numberOfElements: number of elements matching the request on the current page
-    size: current page size
-    number: current page number (starting from 0)
+    content: {String[]} array of anchor identifiers
+    totalPages: {Number} total number of pages available
+    totalElements: {Number} total number of anchor identifiers available
+    first: {boolean} true if the current page is the first one
+    last: {boolean} true if the current page is the last one
+    numberOfElements: {Number} number of anchors identifier on the current page
+    size: {Number} size of the current page
+    number: {Number} index of the current page number (starting from 0)
 }
 ```
 #### Example
 ```json
 {
     "content": [
-      "c2f25d10-eae5-413c-82eb-1bdb6cf499b6"
+      "c2f25d10-eae5-413c-82eb-1bdb6cf499b6",
+      "aef56767-feef-0123-9000-1bdb6cf499b6"
     ],
     "totalPages": 1,
     "totalElements": 1,
@@ -294,9 +321,10 @@ into a single *woleet-weblibs.js* file and minified versions are available.
 }
 ```
 
-### <a name="object_receipt"></a>*Receipt object
+### <a name="object_receipt"></a>Receipt object
 
 The receipt object matches the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) format.
+
 ##### Example
 ```json
 {
@@ -342,10 +370,10 @@ The receipt object matches the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) 
 }
 ```
 
-### <a name="object_FileList"></a>*FileList object
+### <a name="object_fileList"></a>FileList object
 
 See https://developer.mozilla.org/fr/docs/Web/API/FileList
 
-### <a name="object_FIle"></a>*File object
+### <a name="object_file"></a>File object
 
 See https://developer.mozilla.org/fr/docs/Web/API/File
