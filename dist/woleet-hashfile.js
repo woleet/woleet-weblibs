@@ -8,20 +8,20 @@
 
 /**
  * @typedef {Object}   StartMessage
- * @typedef {Boolean}  StartMessage.start always true
- * @typedef {File}     ProgressMessage.file
+ * @typedef {Boolean}  StartMessage.start (always true)
+ * @typedef {File}     StartMessage.file
  */
 
 /**
  * @typedef {Object}   ErrorMessage
  * @typedef {Error}    ErrorMessage.error
- * @typedef {File}     EndMessage.file
+ * @typedef {File}     ErrorMessage.file
  */
 
 /**
- * @typedef {Object}   EndMessage
- * @typedef {String}   EndMessage.end hash of the file
- * @typedef {File}     EndMessage.file
+ * @typedef {Object}   ResultMessage
+ * @typedef {String}   ResultMessage.end (hash of the file)
+ * @typedef {File}     ResultMessage.file
  */
 
 ;(function (root, factory) {
