@@ -13,13 +13,13 @@
     <!-- END IE ZONE -->
 
     <!-- Woleet web libs (regular version) -->
-    <script src="../lib/woleet-api.js"></script>
-    <script src="../lib/woleet-hashfile.js"></script>
-    <script src="../lib/woleet-chainpoint.js"></script>
-    <script src="../lib/woleet-verify.js"></script>
+    <script src="../dist/woleet-api.js"></script>
+    <script src="../dist/woleet-hashfile.js"></script>
+    <script src="../dist/woleet-chainpoint.js"></script>
+    <script src="../dist/woleet-verify.js"></script>
 
     <!-- Woleet web libs (minified version) -->
-    <!--<script src="../dist/woleet-verify.min.js"></script>-->
+    <!--<script src="../dist/woleet-weblibs.min.js"></script>-->
 
     <script>
         window.onload = function () {
@@ -31,7 +31,8 @@
                     .then(function (results) {
                         var len = results.length;
                         if (len == 0) {
-                            r.innerText = 'There is no match for "' + file.name + '", that means that the file is not anchored or that the anchor is not public';
+                            r.innerText = 'There is no match for "' + file.name
+                                + '", that means that the file was not anchored by Woleet or that the anchor is not public';
                         }
                         else {
                             r.innerText = 'There is ' + len + ' match(es) for this file:';

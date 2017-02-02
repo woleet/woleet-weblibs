@@ -6,6 +6,11 @@ These libraries can be used in any web application to:
 - verify the integrity and timestamp of files anchored by third parties using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible receipts,
 - compute the SHA256 hashes of any file (even larger than 50MB).
 
+Note that these libraries don't rely on the Woleet API (except for the **`woleet.verify.WoleetDAB(file)`** function)
+and so don't require any Woleet account to be used, nor the availability of the Woleet service.
+They only need to read Bitcoin transactions, which by default is done using the Woleet API,
+but can be configured to use other independent providers like [blockcypher.com](https://blockcypher.com). 
+ 
 # Building Woleet Web libraries
  
 Type `./build.sh` on the project's root to:
@@ -15,11 +20,33 @@ Type `./build.sh` on the project's root to:
 
 # Using Woleet Web libraries
 
+## Limitations
+
+This library has been tested on all Web browsers and should work on all browsers supporting
+[Promises](https://developer.mozilla.org/en-US/docs/Web/API/Promise)
+and [Workers](https://developer.mozilla.org/en-US/docs/Web/API/Worker) (note that if Workers are not supported,
+it is still possible to hash files whose size does not exceed 50MB).
+
+Since Internet Explorer 11 does not support promises, you will have to 
+include a third party library as [bluebird](http://bluebirdjs.com/):
+
+```html
+<!-- IE ZONE -->
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+<script type="text/javascript">
+  if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
+    document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
+</script>
+<!-- END IE ZONE -->
+```
+
+Anchoring receipts must be compatible with [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible.
+
 ## Runtime dependencies
  
-Woleet Web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)** lib to compute SHA256 hashes of files. 
-The minified version of this library (**crypto.min.js**) must be present in the directory containing Woleet Web libraries,
-which is done by the default build process.
+Woleet Web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)** lib to compute SHA256 hashes of files.
+ The minified version of this library (**crypto.min.js**) must be present in the directory containing Woleet Web libraries,
+ which is done by the default build process.
 
 ## Installation using Bower
 
@@ -49,39 +76,59 @@ or the minimized equivalent:
 <script src="../bower_components/woleet-weblibs/dist/woleet-weblibs.min.js"></script>
 ```
 
-## Main methods
+## Basic usage
 
-**Note**: all the methods will be contained in the same object (the "woleet" variable).
-For example, to get a transaction, the code will be: `woleet.transaction.get(transactionID)`
+All methods are provided by the `woleet` object. As an example, to get a Bitcoin transaction, the code is `woleet.transaction.get(txId)`.
 
-### Methods provided by woleet-verify
+### Verify a file anchored publicly using the Woleet platform
 
-verify.WoleetDAB(file)
-- Param file: a File object ***or*** a SHA256 hash (as an hexadecimal characters String).
+The **`woleet.verify`** library provides an easy way to verify a file anchored using the Woleet platform and flagged as **public** (which is the default):
+ in that case, the anchoring receipt is retrieved automatically by the library from the platform, and so can be omitted.
+
+**`woleet.verify.WoleetDAB(file)`**
+**`woleet.verify.WoleetDAB(hash)`**
+- `file`: a File object.
+- `hash`: a SHA256 hash (as an hexadecimal characters String).
 - Returns a Promise witch forwards:
-  - if succeed: a list of Proof* object (can be empty).
-  - if error: 
+  - on success: a list of Proof* object (can be empty).
+  - on error: 
     - any error thrown by [receipt.validate](#chainpoint) (see below).
     - any error thrown by the [Hasher](#hashfile) object (see below).
-    - file_matched_but_anchor_not_yet_processed: the file has a match in our database but is waiting for anchoring.
-    - missing_woleet_hash_dependency: if woleet-hashfile.js is not included while passing a File object as argument.
-    - missing_woleet_hash_dependency: if woleet-hashfile.js is not included while passing a File object as argument.
+    - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting for anchoring.
+    - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
 
-See example at [example_woleetDAB.html](example/example_woleetDAB.html)
-    
-verify.DAB(file, receipt)
-- Param file: a File object ***or*** a sha256 hash (as an hexadecimal characters String)
+See example at [example/verifyWoleetDAB.html](example/verifyWoleetDAB.html)
+
+### Verify any file 
+
+For any other case (files anchored using the Woleet platform but flagged as **private**, or files anchored by third party platforms,
+you must provide a anchoring receipt.
+
+**`verify.DAB(file, receipt)`**
+**`verify.DAB(hash, receipt)`**
+- `file`: a File object.
+- `hash`: a SHA256 hash (as an hexadecimal characters String).
+- `receipt`: a JSON parsed Chainpoint 1.0 receipt.
 - Returns a Promise witch forwards:
-  - if succeed: a [Proof](#object_proof)* object.
-  - if error: 
+  - on success: a [Proof](#object_proof)* object.
+  - on error: 
     - any error thrown by [receipt.validate](#chainpoint) (see below).
     - any error thrown by the [Hasher](#hashfile) object (see below).
-    - missing_woleet_hash_dependency: if woleet-hashfile.js is not included while passing a File object as first argument.
-    - target_hash_mismatch: the receipt's target is not mean for the file.
-    - transaction_not_found: the proof linked by the receipt cannot be found.
-    - opReturn_mismatches_merkleRoot: the proof value mismatches the receipt's one.
+    - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
+    - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
+    - `transaction_not_found`: the receipt's Bitcoin transaction cannot be found.
+    - `opReturn_mismatches_merkleRoot`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
     
-See example at [example_DAB.html](example/example_DAB.html)
+See example at [example/verifyDAB.html](example/verifyDAB.html)
+
+
+
+
+
+
+
+
+
 
 ## Advanced methods
 
@@ -98,7 +145,7 @@ receipt.validate(receipt)
         - non_sha256_target_proof_element: an attribute in proof (parent or left or right) in not a sha256 sum.
         - merkle_root_mismatch: the proof result does not match the receipt's merkle_root attribute.
 
-See example at [verifyReceipt.html](example/verifyReceipt.html)
+See example at [example/validateReceipt.html](example/validateReceipt.html)
 
 ### <a name="hashfile"></a>Methods provided by woleet-hashfile
 
@@ -152,40 +199,30 @@ anchor.getAnchorIDs(hash[, size]):
   - if error: 
     - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText) for any other case.
 
+See example at [example/hashfile.html](examples/hashfile.html)
 
-See example in [hashfile.html](examples/hashfile.html)
+## Dependencies
 
-## Limitations
+Woleet Web libraries are provided as 5 separate javascript files. For convenience, all these files are also wrapped
+into a single *woleet-weblibs.js* file and minified versions are available.
 
-This library has been tested for Internet Explorer 11, as it does not support promises, you will have to 
-include a third party library as [bluebird](http://bluebirdjs.com/) and 
-set `<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />` in 
-your page to make it work (see examples files).
+  - *woleet-verify.js* provides file verification methods. It relies on:
+    - *woleet-chainpoint.js*
+    - *woleet-api.js*
+    - *woleet-hashfile.js* (optional)
 
-Some browsers won't support [workers](https://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker),
-in this case, hashing files is still possible for files whose size does not exceed 50MB.
+  - *woleet-chainpoint.js* provides the receipt.validate method, it relies on
+    - *woleet-api.js*
 
-Receipts format must be [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible.
+  - *woleet-hashfile.js* provides the file.Hasher class witch is an interface to hash files, it relies on:
+    - *crypto-js.js* library (optional): only if the browser does not support workers
+    - *woleet-hashfile-worker.js*
 
-## Dependencies description
+  - *woleet-hashfile-worker.js* defines a worker used to hash files, it needs:
+    - *crypto-js.js* library (only to be accessible, not to include)
+    
+  - *woleet-api.js* provides miscellaneous method wrapping the Woleet API
 
-There are 5 files that you can include in order to perform chainpoint verifications:
-  - *woleet-verify* provides main methods verify.woleetDAB *and* verify.DAB, it relies on:
-    - woleet-chainpoint
-    - woleet-api
-    - woleet-hashfile (optional)
-
-  - *woleet-chainpoint* provides the receipt.validate method, it relies on
-    - woleet-api
-
-  - *woleet-hashfile* provides the file.Hasher class witch is an interface to hash files, it relies on:
-    - crypto-js library (optional): only if the browser does not support workers (see Limitations)
-    - worker
-
-  - *woleet-api* provides miscellaneous method in order to use the woleet api
-
-  - *worker* defines a worker used to hash files, it needs:
-    - crypto-js library (only to be accessible, not to include)
     
 ## Objects definitions
 
