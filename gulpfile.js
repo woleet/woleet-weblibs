@@ -25,7 +25,7 @@ gulp.task("uglifyCrypto", () => {
 
 //uglify worker
 gulp.task("uglifyWorker", () => {
-    var worker = gulp.src("lib/worker.js")
+    var worker = gulp.src("lib/woleet-hashfile-worker.js")
         .pipe(sourcemaps.init())
         .pipe(gulp.dest("./dist"));
 

@@ -805,6 +805,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     root.woleet = factory(root.woleet);
 })(window, function (woleet) {
 
+    var api = woleet || {};
+    api.file = api.file || {};
+
     /**
      * @returns the base path (including final '/') of the current script.
      */
@@ -818,8 +821,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
     // Guess the path of the worker script: same as current script's or defined by woleet.workerScriptPath
     var basePath = findBasePath();
-    var DEFAUlT_WORKER_SCRIPT = "worker.min.js";
-    var workerScriptPath = woleet.workerScriptPath || (basePath ? basePath + DEFAUlT_WORKER_SCRIPT : null);
+    var DEFAUlT_WORKER_SCRIPT = "woleet-hashfile-worker.min.js";
+    var workerScriptPath = api.workerScriptPath || (basePath ? basePath + DEFAUlT_WORKER_SCRIPT : null);
     if (!workerScriptPath) throw new Error('Cannot find ' + DEFAUlT_WORKER_SCRIPT);
 
     /**
@@ -857,9 +860,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
 
     var testFileReaderSupport = checkFileReaderSyncSupport();
-
-    var api = woleet || {};
-    api.file = api.file || {};
 
     api.file.Hasher = function () {
 
