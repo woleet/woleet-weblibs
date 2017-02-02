@@ -1,33 +1,33 @@
-# Woleet Web libraries
+# Woleet web libraries
 
-This repository contains the sources code of **Woleet Web libraries**.
+This repository contains the sources code of **Woleet web libraries**.
 These libraries can be used in any web application to:
-- verify the integrity and timestamp of files anchored by Woleet or by any third parties using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible receipts,
+- verify the integrity and timestamp of any data anchored on the Bitcoin blockchain (so called DAB) by Woleet or by any third party using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible anchoring receipts,
 - compute the SHA256 hash of any file (even larger than 50MB).
 
-Note that these libraries don't rely on the Woleet API (except for the **`woleet.verify.WoleetDAB(file)`** function)
-and so don't require any Woleet account to be used, nor the availability of the Woleet service.
-They only need to read Bitcoin transactions, which by default is done using the Woleet API,
-but can be configured to use other independent providers like [blockcypher.com](https://blockcypher.com). 
+Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`** ,
+**`woleet.receipt.get`** and `woleet.anchor.getAnchorIds` functions) and so don't require any Woleet account nor the
+availability of the Woleet service to work: they only need to access Bitcoin transactions, which by default is done using
+the Woleet API, but can be configured to use other independent providers like [blockcypher.com](https://blockcypher.com). 
  
-# Building Woleet Web libraries
+# Building Woleet web libraries
 
 Type `./build.sh` on the project's root to:
-- install build tools 
-- install runtime dependencies
-- build the libraries 
+- install build tools into the `/node_modules/` directory
+- install runtime dependencies into the `/bower_components/` directory
+- build the libraries into the `./dist/`directory
 
-# Using Woleet Web libraries
+# Using Woleet web libraries
 
 ## Limitations
 
-This library has been tested on all Web browsers and should work on all browsers supporting
+These libraries have been tested on all modern web browsers and should work on any browser supporting
 [Promises](https://developer.mozilla.org/en-US/docs/Web/API/Promise)
 and [Workers](https://developer.mozilla.org/en-US/docs/Web/API/Worker) (note that if Workers are not supported,
-it is still possible to hash files whose size does not exceed 50MB).
+it is still possible to hash files whose size do not exceed 50MB).
 
 Since Internet Explorer 11 does not support promises, you will have to 
-include a third party library as [bluebird](http://bluebirdjs.com/):
+include a third party library such as [bluebird](http://bluebirdjs.com/):
 
 ```html
 <!-- IE ZONE -->
@@ -39,17 +39,17 @@ include a third party library as [bluebird](http://bluebirdjs.com/):
 <!-- END IE ZONE -->
 ```
 
-Anchoring receipts must be compatible with [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible.
+These libraries currently only support anchoring receipts compatible with the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) standard.
 
 ## Runtime dependencies
  
-Woleet Web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)** lib to compute SHA256 hashes of files.
- The minified version of this library (**crypto.min.js**) must be present in the directory containing Woleet Web libraries,
+Woleet web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)** lib to compute SHA256 hashes of files.
+ The minified version of this library (**crypto.min.js**) must be present in the directory containing Woleet web libraries,
  which is done by the default build process.
 
 ## Installation using Bower
 
-You can use Bower to add Woleet Web libraries to your project:
+You can use Bower to add Woleet web libraries to your project:
 
 ```json
   "dependencies": {
@@ -57,11 +57,11 @@ You can use Bower to add Woleet Web libraries to your project:
   }
 ```
 
-***In this documentation, it is supposed that Bower is used to install Woleet Web libraries.***
+***In this documentation, it is supposed that Bower is used to install Woleet web libraries.***
 
 ## Initialization
 
-In order to use this library you have to include the following components:
+To use Woleet web libraries you have to include the following components:
 ```html
 <script src="../bower_components/woleet-weblibs/dist/woleet-api.js"></script>
 <script src="../bower_components/woleet-weblibs/dist/woleet-hashfile.js"></script>
@@ -69,7 +69,7 @@ In order to use this library you have to include the following components:
 <script src="../bower_components/woleet-weblibs/dist/woleet-verify.js"></script>
 ```
 
-or the minimized equivalent:
+or their minimized equivalent:
 
 ```html
 <script src="../bower_components/woleet-weblibs/dist/woleet-weblibs.min.js"></script>
@@ -86,7 +86,7 @@ All methods are provided by the `woleet` object. As an example, to get a Bitcoin
 This function provides an easy way to verify a file that was anchored using the Woleet platform and flagged as **public** (which is the default):
  in that case, the anchoring receipt is retrieved automatically by the library from the platform, and so can be omitted.
 
-See example at [example/verifyWoleetDAB.html](example/verifyWoleetDAB.html)
+See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 
 - Parameters:
     - `file`: a [File](#object_file) object.
@@ -106,7 +106,7 @@ See example at [example/verifyWoleetDAB.html](example/verifyWoleetDAB.html)
 This function allows to verify files anchored using the Woleet platform but flagged as **private**, or files anchored by third party platforms,
 you must provide a anchoring receipt.
 
-See example at [example/verifyDAB.html](example/verifyDAB.html)
+See example at [examples/verifyDAB.html](examples/verifyDAB.html)
 
 - Parameters:
     - `file`: a [File](#object_file) object.
@@ -127,7 +127,7 @@ See example at [example/verifyDAB.html](example/verifyDAB.html)
 To compute the SHA256 hash of a file, you have to instance a Hasher object: `var hasher = new woleet.file.Hasher`.
 This object provides an interface to hash files in the browser:
 
-See example at [example/hashfile.html](examples/hashfile.html)
+See example at [examples/hashfile.html](examples/hashfile.html)
 
 **`hasher.on(event, callback)`**
 
@@ -170,7 +170,7 @@ This function check if the hasher is ready to be used.
 
 This function allows to validate an anchoring receipt.
 
-See example at [example/validateReceipt.html](example/validateReceipt.html)
+See example at [examples/validateReceipt.html](examples/validateReceipt.html)
 
 - Parameters:
     - `receipt`: a JSON parsed anchoring receipt
@@ -230,7 +230,7 @@ This function allows to retreive from the Wollet platform all public anchors mat
 
 ## Dependencies
 
-Woleet Web libraries are provided as 5 separate javascript files. For convenience, all these files are also wrapped
+Woleet web libraries are provided as 5 separate javascript files. For convenience, all these files are also wrapped
 into a single *woleet-weblibs.js* file and minified versions are available.
 
   - *woleet-verify.js* provides file verification methods. It relies on:
