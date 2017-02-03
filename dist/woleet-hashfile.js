@@ -51,7 +51,6 @@
 
     // Guess the path of the worker script: same as current script's or defined by woleet.workerScriptPath
     var basePath = findBasePath();
-    console.log(basePath);
     var DEFAULT_WORKER_SCRIPT = "woleet-hashfile-worker.min.js";
     //noinspection JSUnresolvedVariable
     var workerScriptPath = api.workerScriptPath || (basePath ? basePath + DEFAULT_WORKER_SCRIPT : null);
