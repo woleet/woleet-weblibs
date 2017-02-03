@@ -37,7 +37,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * @param {{method?:string, data?:string, token?:string}} options
      * @returns {Promise}
      */
-    function getJSON(url, options) {
+    function getJSON(url) {
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
         var req = new XMLHttpRequest();
 
         return new Promise(function (resolve, reject) {
@@ -64,7 +66,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             req.open(options.method || "GET", url, true);
             if (options.token) req.setRequestHeader("Authorization", "Bearer " + options.token);
-            req.setRequestHeader('Content-Type', 'application/json');
+            if (options.method == 'POST') req.setRequestHeader('Content-Type', 'application/json');
             req.setRequestHeader('Accept', 'application/json');
             req.responseType = "json";
             req.json = "json";

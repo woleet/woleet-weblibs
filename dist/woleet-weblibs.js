@@ -37,7 +37,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * @param {{method?:string, data?:string, token?:string}} options
      * @returns {Promise}
      */
-    function getJSON(url, options) {
+    function getJSON(url) {
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
         var req = new XMLHttpRequest();
 
         return new Promise(function (resolve, reject) {
@@ -64,7 +66,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             req.open(options.method || "GET", url, true);
             if (options.token) req.setRequestHeader("Authorization", "Bearer " + options.token);
-            req.setRequestHeader('Content-Type', 'application/json');
+            if (options.method == 'POST') req.setRequestHeader('Content-Type', 'application/json');
             req.setRequestHeader('Accept', 'application/json');
             req.responseType = "json";
             req.json = "json";
@@ -777,6 +779,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 });
 "use strict";
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 /**
  * @typedef {Object}   ProgressMessage
  * @typedef {Number}   ProgressMessage.progress (float number)
@@ -816,14 +820,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * @returns string base path (including final '/') of the current script.
      */
     function findBasePath() {
-        var scripts = document.getElementsByTagName('script'),
-            script = scripts[scripts.length - 1].src; // last script is always the current script
-        return script.substr(0, script.lastIndexOf("/") + 1);
+        var scripts = document.getElementsByTagName('script');
+        var scriptsArray = Array.prototype.slice.call(scripts, 0); // Converts collection to array
+        var re = /.*woleet-(hashfile|weblibs)[.min]*\.js$/;
+        var script = scriptsArray.find(function (e) {
+            return e.src && e.src.match(re);
+        });
+
+        return script && script.src ? script.src.substr(0, script.src.lastIndexOf("/") + 1) : null;
     }
 
     // Guess the path of the worker script: same as current script's or defined by woleet.workerScriptPath
     var basePath = findBasePath();
-    var DEFAULT_WORKER_SCRIPT = "worker.min.js";
+    console.log(basePath);
+    var DEFAULT_WORKER_SCRIPT = "woleet-hashfile-worker.min.js";
     //noinspection JSUnresolvedVariable
     var workerScriptPath = api.workerScriptPath || (basePath ? basePath + DEFAULT_WORKER_SCRIPT : null);
     if (!workerScriptPath) throw new Error('Cannot find ' + DEFAULT_WORKER_SCRIPT);
@@ -1003,7 +1013,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     window.crypto.subtle.digest(algo, data).then(function (hash) {
                         var hashResult = new Uint8Array(hash);
                         var hexString = hashResult.reduce(function (res, e) {
-                            return res + e.toString(16);
+                            return res + ('00' + e.toString(16)).slice(-2);
                         }, '');
                         if (cb_result) cb_result({ result: hexString, file: file });
                         resolve();
@@ -1021,6 +1031,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (!ready) throw new Error("not_ready");
 
             ready = false;
+
+            // checking input type
+            if (!(files instanceof FileList || files instanceof File)) throw new Error("invalid_parameter");
 
             testFileReaderSupport.then(function (WorkerSupported) {
                 var hashMethod = null;
@@ -1045,16 +1058,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     }
                 }
 
+                console.log("files is", files instanceof FileList, files instanceof File, typeof files === "undefined" ? "undefined" : _typeof(files));
+
                 // entry point
                 if (files instanceof FileList) {
                     // files is a FileList
+                    console.log('iter file');
                     iter(0, files.length);
                 } else if (files instanceof File) {
                     // files is a single file
+                    console.log('iter files');
                     hashMethod(files).then(function () {
                         ready = true;
                     });
-                } else throw new Error("invalid_parameter");
+                }
             });
         };
 
