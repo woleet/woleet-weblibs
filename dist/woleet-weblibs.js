@@ -857,33 +857,39 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         /**
-         * @param {File} file
-         * @returns {Promise}
+         * @constructor
          */
-        var hashWorker = function hashWorker(file) {
-            return new Promise(function (next, reject) {
+        var HashWorker = function HashWorker() {
 
-                var worker = new Worker(workerScriptPath);
+            var worker = new Worker(workerScriptPath);
 
-                worker.onmessage = function (message) {
-                    //handling worker message
-                    if (message.data.progress != undefined) {
-                        if (cb_progress) cb_progress(message.data);
-                    } else if (message.data.result) {
-                        if (cb_result) cb_result(message.data);
-                        next();
-                    } else if (message.data.start) {
-                        if (cb_start) cb_start(message.data);
-                    } else if (message.data.error) {
-                        var error = message.data.error;
-                        if (cb_error) cb_error(error);else reject(error);
-                    } else {
-                        console.trace("Unexpected worker message: ", message);
-                    }
-                };
+            /**
+             * @param {File} file
+             * @returns {Promise}
+             */
+            this.hash = function (file) {
+                return new Promise(function (next, reject) {
 
-                worker.postMessage(file);
-            });
+                    worker.onmessage = function (message) {
+                        //handling worker message
+                        if (message.data.progress != undefined) {
+                            if (cb_progress) cb_progress(message.data);
+                        } else if (message.data.result) {
+                            if (cb_result) cb_result(message.data);
+                            next(worker);
+                        } else if (message.data.start) {
+                            if (cb_start) cb_start(message.data);
+                        } else if (message.data.error) {
+                            var error = message.data.error;
+                            if (cb_error) cb_error(error);else reject(error);
+                        } else {
+                            console.trace("Unexpected worker message: ", message);
+                        }
+                    };
+
+                    worker.postMessage(file);
+                });
+            };
         };
 
         /**
@@ -993,20 +999,27 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (testNativeCryptoSupport) {
                     hashMethod = hashLocalWithNativeAPI;
                 } else if (WorkerSupported) {
-                    hashMethod = hashWorker;
+                    var hashWorker = new HashWorker();
+                    hashMethod = hashWorker.hash;
                 } else if (typeof CryptoJS !== 'undefined') {
                     hashMethod = hashLocal;
                 } else {
                     throw new Error("no_viable_hash_method");
                 }
 
-                // set iterator function with selected hash method
-                function iter(i, len) {
+                /**
+                 * iterator function with selected hash method
+                 * @param i current index of the list
+                 * @param len total size of the list
+                 * @param worker passing worker through iterator if selected method is hashWorker in order to terminate it
+                 */
+                function iter(i, len, worker) {
                     if (i >= len) {
                         ready = true;
+                        if (worker) worker.terminate();
                     } else {
-                        hashMethod(files[i]).then(function () {
-                            iter(++i, len);
+                        hashMethod(files[i]).then(function (worker) {
+                            iter(++i, len, worker);
                         });
                     }
                 }
@@ -1017,8 +1030,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     iter(0, files.length);
                 } else if (files instanceof File) {
                     // files is a single file
-                    hashMethod(files).then(function () {
-                        ready = true;
+                    hashMethod(files).then(function (worker) {
+                        iter(1, 0, worker); // set ready state with iter function (i > len)
                     });
                 }
             });
