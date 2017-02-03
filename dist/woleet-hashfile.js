@@ -36,7 +36,7 @@
     api.file = api.file || {};
 
     /**
-     * @returns get the base path (including final '/') of the current script.
+     * @returns {String} get the base path (including final '/') of the current script.
      */
     function findBasePath() {
         var scripts = document.getElementsByTagName('script');
