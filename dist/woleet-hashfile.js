@@ -36,22 +36,20 @@
     api.file = api.file || {};
 
     /**
-     * @returns string base path (including final '/') of the current script.
+     * @returns get the base path (including final '/') of the current script.
      */
     function findBasePath() {
         var scripts = document.getElementsByTagName('script');
         var scriptsArray = Array.prototype.slice.call(scripts, 0); // Converts collection to array
-        var re = /.*woleet-(hashfile|weblibs)[.min]*\.js$/;
-        var script = scriptsArray.find(function (e) {
-            return e.src && e.src.match(re);
+        var regex = /.*woleet-(hashfile|weblibs)[.min]*\.js$/;
+        var script = scriptsArray.find(function (script) {
+            return script.src && script.src.match(regex);
         });
-
         return script && script.src ? script.src.substr(0, script.src.lastIndexOf("/") + 1) : null;
     }
 
     // Guess the path of the worker script: same as current script's or defined by woleet.workerScriptPath
     var basePath = findBasePath();
-    console.log(basePath);
     var DEFAULT_WORKER_SCRIPT = "woleet-hashfile-worker.min.js";
     //noinspection JSUnresolvedVariable
     var workerScriptPath = api.workerScriptPath || (basePath ? basePath + DEFAULT_WORKER_SCRIPT : null);
