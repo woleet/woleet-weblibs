@@ -734,52 +734,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
     return api;
 });
-'use strict';
-
-;(function (root, factory) {
-    root.woleet = factory(root.woleet);
-})(window, function (woleet) {
-
-    var api = woleet || {};
-    api.receipt = api.receipt || {};
-    api.anchor = api.anchor || {};
-    api.verify = api.verify || {};
-
-    var hashStringOrFile = api._hashStringOrFile;
-    var getJSON = api._getJSON;
-    var woleetAPI = api._woleetAPI;
-
-    var _token = null;
-
-    api.token = {
-        set: function set(token) {
-            _token = token;
-        },
-        get: function get(user, pass) {}
-    };
-
-    /**
-     * @param {File|String} file
-     * @param {Function} [progressCallback]
-     * @returns {Promise.<Object[]>}
-     */
-    api.anchor.create = function (file, progressCallback) {
-
-        return hashStringOrFile(file, progressCallback).then(function (hash) {
-            var data = {
-                public: true,
-                name: file.name,
-                hash: hash
-            };
-            return getJSON(woleetAPI + '/anchor', { data: data, method: 'POST', token: _token });
-        }).then(console.info);
-    };
-
-    return api;
-});
 "use strict";
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /**
  * @typedef {Object}   ProgressMessage
@@ -1058,16 +1013,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     }
                 }
 
-                console.log("files is", files instanceof FileList, files instanceof File, typeof files === "undefined" ? "undefined" : _typeof(files));
-
                 // entry point
                 if (files instanceof FileList) {
                     // files is a FileList
-                    console.log('iter file');
                     iter(0, files.length);
                 } else if (files instanceof File) {
                     // files is a single file
-                    console.log('iter files');
                     hashMethod(files).then(function () {
                         ready = true;
                     });
