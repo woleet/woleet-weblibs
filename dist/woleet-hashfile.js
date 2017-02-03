@@ -139,8 +139,8 @@
                     } else if (message.data.start) {
                         if (cb_start) cb_start(message.data);
                     } else if (message.data.error) {
-                        var _error = message.data.error;
-                        if (cb_error) cb_error(_error);else reject(_error);
+                        var error = message.data.error;
+                        if (cb_error) cb_error(error);else reject(error);
                     } else {
                         console.trace("Unexpected worker message: ", message);
                     }
@@ -157,10 +157,10 @@
         var hashLocal = function hashLocal(file) {
 
             return new Promise(function (next, reject) {
-                var err = new Error("file_too_big_to_be_hashed_without_worker");
+                var error = new Error("file_too_big_to_be_hashed_without_worker");
                 if (file.size > 5e7) {
                     ready = true;
-                    if (cb_error) return cb_error({ error: err, file: file });else reject(error);
+                    if (cb_error) return cb_error({ error: error, file: file });else reject(error);
                 }
 
                 var reader = new FileReader();
