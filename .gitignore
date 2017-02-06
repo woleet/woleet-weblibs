@@ -1,4 +1,9 @@
-bower_components/
-node_modules/
-.idea/
-*.log
+# IntelliJ IDEA
+**/.idea/
+**/*.iml
+
+# Node module
+**/node_modules
+
+# Bower components
+**/bower_components
