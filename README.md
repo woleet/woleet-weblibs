@@ -19,7 +19,7 @@ Type `./build.sh` on the project's root to:
 
 # Using Woleet web libraries
 
-## Limitations
+## <a name="limitations"></a>Limitations
 
 These libraries have been tested on all modern web browsers and should work on any browser supporting
 [Promises](https://developer.mozilla.org/en-US/docs/Web/API/Promise)
@@ -41,7 +41,7 @@ include a third party library such as [bluebird](http://bluebirdjs.com/):
 
 These libraries currently only support anchoring receipts compatible with the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) standard.
 
-## Runtime dependencies
+## <a name="runtime-dependencies"></a>Runtime dependencies
  
 Woleet web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)** lib to compute SHA256 hashes of files.
  The minified version of this library (**crypto.min.js**) must be present in the directory containing Woleet web libraries,
@@ -325,7 +325,7 @@ into a single *woleet-weblibs.js* file and minified versions are available.
 
 The receipt object matches the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) format.
 
-##### Example
+#### Example
 ```json
 {
     "header": {
