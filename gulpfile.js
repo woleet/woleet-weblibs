@@ -5,7 +5,7 @@ var gulp = require("gulp"),
     uglify = require('gulp-uglify'),
     sourcemaps = require('gulp-sourcemaps');
 
-//uglify crypto
+// Uglify crypto
 gulp.task("uglifyCrypto", () => {
     var crypto = gulp.src([
         'bower_components/crypto-js/core.js',
@@ -23,7 +23,7 @@ gulp.task("uglifyCrypto", () => {
 });
 
 
-//uglify worker
+// Uglify hashfile worker
 gulp.task("uglifyWorker", () => {
     var worker = gulp.src("lib/woleet-hashfile-worker.js")
         .pipe(sourcemaps.init())
@@ -36,7 +36,7 @@ gulp.task("uglifyWorker", () => {
         .pipe(gulp.dest("./"));
 });
 
-//uglify all
+// Uglify other Woleet libraries
 gulp.task("uglifyLib", () => {
     var src = gulp.src([
         'lib/woleet-api.js',
