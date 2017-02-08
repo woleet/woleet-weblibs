@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * @typedef {Object}   ProgressMessage
@@ -28,12 +28,15 @@
     root.woleet = factory(root.woleet);
 })(window, function (woleet) {
 
-    var testFileReaderSupport = checkFileReaderSyncSupport();
-    //noinspection JSUnresolvedVariable
-    var testNativeCryptoSupport = window.crypto && window.crypto.subtle && window.crypto.subtle.digest;
-
     var api = woleet || {};
     api.file = api.file || {};
+
+    var isHTTPS = location.protocol == 'https:';
+
+    //noinspection JSUnresolvedVariable
+    var testNativeCryptoSupport = window.crypto && window.crypto.subtle && window.crypto.subtle.digest && isHTTPS;
+
+    var testFileReaderSupport = checkFileReaderSyncSupport();
 
     /**
      * @returns {String} get the base path (including final '/') of the current script.
