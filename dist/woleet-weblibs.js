@@ -631,7 +631,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             finalArray.push({
                                 receipt: receipt,
                                 confirmations: tx.confirmations,
-                                date: tx.confirmedOn
+                                confirmedOn: tx.confirmedOn
                             });
                         });
                     });

@@ -74,7 +74,7 @@
                             finalArray.push({
                                 receipt: receipt,
                                 confirmations: tx.confirmations,
-                                date: tx.confirmedOn
+                                confirmedOn: tx.confirmedOn
                             });
                         });
                     });
