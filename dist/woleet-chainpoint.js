@@ -230,16 +230,13 @@
         };
 
         /**
-         * Returns the root string if proof is valid, false if it's not
+         * Returns the Merkle proof root if the proof is valid, false if it's not
          * @returns {String|Boolean}
          */
         this.is_valid = function () {
-            // Check if the target hash is in the proof.
 
-            // We assume that the leaf is contained in the
-            // first branch of the proof, so then we check
-            // if the parent is contained in each higher
-            // branch.
+            // Check if the target hash is in the proof (we assume that the leaf is contained in the
+            // first branch of the proof) and if the parent of each branch is contained in its higher branch.
 
             var new_target = self.target;
 
@@ -292,7 +289,8 @@
 
         // If no Merkle proof
         if (receipt.target.target_proof.length == 0) {
-            // Receipt is valid if target hash is Merkle root
+
+            // Receipt is valid if its target hash is equal to its Merkle root
             if (receipt.target.target_hash == receipt.header.merkle_root) return true;else throw new Error("merkle_root_mismatch");
         }
 
@@ -315,7 +313,7 @@
                     proof.add(merkleBranch);
                 });
 
-                // Receipt is valid if Merkle proof root is  Merkle root
+                // Receipt is valid if its Merkle root is equal to the Merkle proof root
                 if (proof.is_valid() == receipt.header.merkle_root) return true;else throw new Error("merkle_root_mismatch");
             }
     };
