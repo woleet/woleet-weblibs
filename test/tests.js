@@ -317,6 +317,9 @@ describe("verify.WoleetDAB suite", function () {
             .then(function (results) {
                 var len = results.length;
                 expect(len).toBeGreaterThan(0);
+                expect(results[0]).toBeDefined();
+                expect(results[0].confirmations).toBeGreaterThan(0);
+                expect(results[0].confirmedOn instanceof Date).toBe(true);
                 done();
             }, function (error) {
                 expect(error).toBeUndefined();
@@ -347,7 +350,7 @@ describe("verify.DAB suite", function () {
         woleet.verify.DAB(file, emptyfileValidReceipt)
             .then(function (result) {
                 expect(result).toBeDefined();
-                expect(result.confirmations).toBeDefined();
+                expect(result.confirmations).toBeGreaterThan(0);
                 expect(result.confirmedOn instanceof Date).toBe(true);
                 done();
             }, function (error) {

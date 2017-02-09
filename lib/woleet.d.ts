@@ -7,8 +7,8 @@ interface Transaction {
 }
 
 interface Branch {
-    parent: string,
-    left: string,
+    parent: string
+    left: string
     right: string
 }
 
@@ -40,8 +40,8 @@ interface AnchorIDsPage {
 }
 
 interface Proof {
-    confirmations: number,
-    date: Date
+    confirmations: number
+    confirmedOn: Date
     receipt: Receipt
 }
 
