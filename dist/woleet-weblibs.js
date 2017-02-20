@@ -587,7 +587,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 return chain.then(function () {
                     return api.receipt.get(anchorId).then(function (receipt) {
                         return receiptArray.push(receipt);
-                    }, function (error) {
+                    }).catch(function (error) {
                         // if we cannot get the corresponding receipt for
                         // this anchorID because it's not yet processed (202)
                         // we ignore this element, else we forward error
@@ -637,7 +637,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     });
                 }, Promise.resolve())
 
-                // We got a array of object with the {receipt, transactionDate}, so we forward it
+                // We got a array of object with {receipt, confirmations, confirmedOn}, so we forward it
                 .then(function () {
                     return finalArray;
                 });
@@ -656,14 +656,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     api.verify.DAB = function (file, receipt, progressCallback) {
 
         return hashStringOrFile(file, progressCallback).then(function (hash) {
-
             api.receipt.validate(receipt);
 
             if (receipt.target.target_hash != hash) throw new Error("target_hash_mismatch");
 
-            return api.transaction.get(receipt.header.tx_id).then(function (tx) {
-                return tx;
-            }, function (error) {
+            return api.transaction.get(receipt.header.tx_id).catch(function (error) {
+                if (error.message == 'tx_not_found') {
+                    throw error;
+                } else {
+                    // we try a second time with a different provider
+                    api.transaction.setDefaultProvider('blockcypher.com');
+                    return api.transaction.get(receipt.header.tx_id);
+                }
+            }).catch(function (error) {
                 if (error.message == 'tx_not_found') {
                     throw error;
                 } else {
@@ -671,7 +676,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
             });
         }).then(function (tx) {
-
             if (tx.opReturn == receipt.header.merkle_root) return {
                 receipt: receipt,
                 confirmations: tx.confirmations,
@@ -686,9 +690,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * @param {Function} [progressCallback]
      * @returns {Promise<Hash>}
      */
-    var hashStringOrFile = function hashStringOrFile(file, progressCallback) {
-        var resolveHash;
-        var rejectHash;
+    function hashStringOrFile(file, progressCallback) {
+        var resolveHash = void 0;
+        var rejectHash = void 0;
         var hashPromise = new Promise(function (resolve, reject) {
             resolveHash = resolve;
             rejectHash = reject;
@@ -709,9 +713,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 hasher.on('progress', progressCallback);
             }
 
-            hasher.on('error', function (error) {
-                rejectHash(error);
-            });
+            hasher.on('error', rejectHash);
 
             hasher.start(file);
         } else if (typeof file == "string") {
@@ -728,7 +730,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }
 
         return hashPromise;
-    };
+    }
 
     return api;
 });

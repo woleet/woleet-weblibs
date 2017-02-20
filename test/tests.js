@@ -359,7 +359,7 @@ describe("verify.DAB suite", function () {
             })
     });
 
-    it('verify.DAB with valid file and valid NOT corresponding receipt should through target_hash_mismatch', function (done) {
+    it('verify.DAB with valid file and valid NOT corresponding receipt should throw target_hash_mismatch', function (done) {
         woleet.verify.DAB(file, validReceipt)
             .then(function (result) {
                 expect(result).toBeUndefined();
