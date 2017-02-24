@@ -321,48 +321,36 @@
      * @param {Function} [progressCallback]
      * @returns {Promise<Hash>}
      */
-    api._hashStringOrFile = function (file, progressCallback) {
-        var resolveHash = void 0;
-        var rejectHash = void 0;
-        var hashPromise = new Promise(function (resolve, reject) {
-            resolveHash = resolve;
-            rejectHash = reject;
+    api.hashFileOrCheckHash = function (file, progressCallback) {
+        return new Promise(function (resolve, reject) {
+
+            // If parameter is a file, hash it
+            if (file instanceof File) {
+
+                if (!api.file || !api.file.Hasher) throw new Error("missing_woleet_hash_dependency");
+
+                var hasher = new api.file.Hasher();
+
+                hasher.on('result', function (message, file) {
+                    resolve(message.result);
+                    if (progressCallback) progressCallback({ progress: 1.0, file: file });
+                });
+
+                if (progressCallback && typeof progressCallback == 'function') hasher.on('progress', progressCallback);
+
+                hasher.on('error', reject);
+
+                hasher.start(file);
+            }
+
+            // If parameter is a hash, check it is a valid SHA256 hash
+            else if (typeof file == "string") {
+                    if (api.isSHA256(file)) resolve(file);else reject(new Error("parameter_string_not_a_sha256_hash"));
+                }
+
+                // Invalid parameter
+                else reject(new Error("invalid_parameter"));
         });
-
-        if (file instanceof File) {
-
-            if (!api.file || !api.file.Hasher) throw new Error("missing_woleet_hash_dependency");
-
-            var hasher = new api.file.Hasher();
-            //noinspection JSUnusedLocalSymbols
-            hasher.on('result', function (message, file) {
-                resolveHash(message.result);
-                if (progressCallback) progressCallback({ progress: 1.0, file: File });
-            });
-
-            if (progressCallback && typeof progressCallback == 'function') {
-                hasher.on('progress', progressCallback);
-            }
-
-            hasher.on('error', function (error) {
-                rejectHash(error);
-            });
-
-            hasher.start(file);
-        } else if (typeof file == "string") {
-            if (api.isSHA256(file)) {
-                //noinspection JSUnusedAssignment
-                resolveHash(file);
-            } else {
-                //noinspection JSUnusedAssignment
-                rejectHash(new Error("parameter_string_not_a_sha256_hash"));
-            }
-        } else {
-            //noinspection JSUnusedAssignment
-            rejectHash(new Error("invalid_parameter"));
-        }
-
-        return hashPromise;
     };
 
     return api;
