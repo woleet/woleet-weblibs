@@ -990,6 +990,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         this.start = function (files) {
 
+            var max_native_crypto_size = 5e8; // ~500MB
+
+            var hashWorker = null; // We may have to keep the hashWorker
+
             if (!ready) throw new Error("not_ready");
 
             ready = false;
@@ -998,31 +1002,36 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (!(files instanceof FileList || files instanceof File)) throw new Error("invalid_parameter");
 
             testFileReaderSupport.then(function (WorkerSupported) {
-                var hashMethod = null;
-                if (testNativeCryptoSupport) {
-                    hashMethod = hashLocalWithNativeAPI;
-                } else if (WorkerSupported) {
-                    var hashWorker = new HashWorker();
-                    hashMethod = hashWorker.hash;
-                } else if (typeof CryptoJS !== 'undefined') {
-                    hashMethod = hashLocal;
-                } else {
-                    throw new Error("no_viable_hash_method");
-                }
 
                 /**
                  * iterator function with selected hash method
-                 * @param i current index of the list
-                 * @param len total size of the list
-                 * @param worker passing worker through iterator if selected method is hashWorker in order to terminate it
+                 * @param {Number} i current index of the list
+                 * @param {Number} len total size of the list
+                 * @param {FileList|[File]} files file list
+                 * @param {Worker} [worker] passing worker through iterator if selected method is hashWorker in order to terminate it
                  */
-                function iter(i, len, worker) {
+                function iter(i, len, files, worker) {
+
                     if (i >= len) {
                         ready = true;
                         if (worker) worker.terminate();
                     } else {
-                        hashMethod(files[i]).then(function (worker) {
-                            iter(++i, len, worker);
+
+                        // We choose here the better method to hash a file
+                        var hashMethod = null;
+                        if (testNativeCryptoSupport && files[i].size < max_native_crypto_size) {
+                            hashMethod = hashLocalWithNativeAPI;
+                        } else if (WorkerSupported) {
+                            if (!hashWorker) hashWorker = new HashWorker(); // if worker instance has already been called
+                            hashMethod = hashWorker.hash;
+                        } else if (typeof CryptoJS !== 'undefined') {
+                            hashMethod = hashLocal;
+                        } else {
+                            throw new Error("no_viable_hash_method");
+                        }
+
+                        hashMethod(files[i]).then(function (_worker) {
+                            iter(i + 1, len, files, _worker || worker);
                         });
                     }
                 }
@@ -1030,12 +1039,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 // entry point
                 if (files instanceof FileList) {
                     // files is a FileList
-                    iter(0, files.length);
+                    iter(0, files.length, files);
                 } else if (files instanceof File) {
                     // files is a single file
-                    hashMethod(files).then(function (worker) {
-                        iter(1, 0, worker); // set ready state with iter function (i > len)
-                    });
+                    iter(0, 1, [files]);
                 }
             });
         };
