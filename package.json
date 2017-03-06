@@ -1,7 +1,7 @@
 {
   "name": "woleet-weblibs",
   "version": "0.2.6",
-  "private": true,
+  "private": false,
   "scripts": {
     "build": "gulp"
   },
