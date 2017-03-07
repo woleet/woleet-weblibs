@@ -1,7 +1,5 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 ;(function (root, factory) {
     root.woleet = factory(root.woleet);
 })(window, function (woleet) {
@@ -73,37 +71,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 return e == true;
             });
             if (receiptsOk) {
-                var _ret = function () {
 
-                    // Build the result array
-                    var finalArray = [];
-                    return {
-                        v: receiptArray.reduce(function (chain, receipt) {
-                            return chain.then(function () {
+                // Build the result array
+                var finalArray = [];
+                return receiptArray.reduce(function (chain, receipt) {
+                    return chain.then(function () {
 
-                                // Get the corresponding transaction
-                                return api.transaction.get(receipt.header.tx_id).then(function (tx) {
+                        // Get the corresponding transaction
+                        return api.transaction.get(receipt.header.tx_id).then(function (tx) {
 
-                                    // Check that receipt's Merkle root matches transaction's OP_RETURN
-                                    if (tx.opReturn == receipt.header.merkle_root) {
-                                        finalArray.push({
-                                            receipt: receipt,
-                                            confirmations: tx.confirmations,
-                                            confirmedOn: tx.confirmedOn
-                                        });
-                                    } else throw new Error('opReturn_mismatches_merkleRoot');
+                            // Check that receipt's Merkle root matches transaction's OP_RETURN
+                            if (tx.opReturn == receipt.header.merkle_root) {
+                                finalArray.push({
+                                    receipt: receipt,
+                                    confirmations: tx.confirmations,
+                                    confirmedOn: tx.confirmedOn
                                 });
-                            });
-                        }, Promise.resolve())
+                            } else throw new Error('opReturn_mismatches_merkleRoot');
+                        });
+                    });
+                }, Promise.resolve())
 
-                        // We got an array of object with {receipt, confirmations, confirmedOn}, so we forward it
-                        .then(function () {
-                            return finalArray;
-                        })
-                    };
-                }();
-
-                if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+                // We got an array of object with {receipt, confirmations, confirmedOn}, so we forward it
+                .then(function () {
+                    return finalArray;
+                });
             } else {
                 throw new Error("invalid_receipt");
             }
