@@ -41,7 +41,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
         var req = new XMLHttpRequest();
-
         return new Promise(function (resolve, reject) {
 
             req.onload = function () {
@@ -130,23 +129,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                 throw new Error('tx_not_found');
                             } else {
                                 //noinspection JSUnresolvedVariable
-                                return makeTransaction(res.txid, res.confirmations, new Date(res.time * 1000), res.blockhash || 0, function (outputs) {
-                                    var opr_return_found = null;
-                                    outputs.forEach(function (output) {
-                                        if (output.hasOwnProperty('scriptPubKey')) {
-                                            //noinspection JSUnresolvedVariable
-                                            if (output.scriptPubKey.hasOwnProperty('asm')) {
-                                                //noinspection JSUnresolvedVariable
-                                                if (output.scriptPubKey.asm.indexOf('OP_RETURN') != -1) {
-                                                    //noinspection JSUnresolvedVariable
-                                                    opr_return_found = output.scriptPubKey.asm.split(' ')[1];
-                                                }
-                                            }
-                                        }
-                                        if (opr_return_found) return true; //breaks foreach
-                                    });
-                                    return opr_return_found;
-                                }(res.vout || []));
+                                return makeTransaction(res.txid, res.confirmations, new Date(res.time * 1000), res.blockhash || 0, function (output) {
+                                    return output ? output.scriptPubKey.asm.split(' ')[1] : null;
+                                }((res.vout || []).find(function (o) {
+                                    return o.hasOwnProperty('scriptPubKey') && o.scriptPubKey.hasOwnProperty('asm') && o.scriptPubKey.asm.startsWith('OP_RETURN');
+                                })));
                             }
                         });
                     case 'chain.so':
@@ -155,20 +142,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                 throw new Error('tx_not_found');
                             } else {
                                 //noinspection JSUnresolvedVariable
-                                return makeTransaction(res.data.txid, res.data.confirmations, new Date(res.data.time * 1000), res.data.blockhash, function (outputs) {
-                                    var opr_return_found = null;
-                                    outputs.forEach(function (output) {
-                                        if (output.hasOwnProperty('script')) {
-                                            //noinspection JSUnresolvedVariable
-                                            if (output.script.indexOf('OP_RETURN') != -1) {
-                                                //noinspection JSUnresolvedVariable
-                                                opr_return_found = output.script.split(' ')[1];
-                                            }
-                                            if (opr_return_found) return true; //breaks foreach
-                                        }
-                                    });
-                                    return opr_return_found;
-                                }(res.data.outputs || []));
+                                return makeTransaction(res.data.txid, res.data.confirmations, new Date(res.data.time * 1000), res.data.blockhash, function (output) {
+                                    return output ? output.script.split(' ')[1] : null;
+                                }((res.data.outputs || []).find(function (o) {
+                                    return o.hasOwnProperty('script') && o.script.startsWith('OP_RETURN');
+                                })));
                             }
                         });
                     case 'blockcypher.com':
@@ -177,17 +155,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                 throw new Error('tx_not_found');
                             } else {
                                 //noinspection JSUnresolvedVariable
-                                return makeTransaction(res.hash, res.confirmations, new Date(res.confirmed), res.block_hash, function (outputs) {
-                                    var opr_return_found = null;
-                                    outputs.forEach(function (output) {
-                                        if (output.hasOwnProperty('data_hex')) {
-                                            //noinspection JSUnresolvedVariable
-                                            opr_return_found = output.data_hex;
-                                        }
-                                        if (opr_return_found) return true; //breaks foreach
-                                    });
-                                    return opr_return_found;
-                                }(res.outputs || []));
+                                return makeTransaction(res.hash, res.confirmations, new Date(res.confirmed), res.block_hash, function (output) {
+                                    return output ? output.data_hex : null;
+                                }((res.outputs || []).find(function (o) {
+                                    return o.hasOwnProperty('data_hex');
+                                })));
                             }
                         });
                 }
