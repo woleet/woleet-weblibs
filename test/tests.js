@@ -155,44 +155,73 @@ describe("receipt.validate suite", function () {
 
 describe("transaction.get suite", function () {
 
-    // Wait one second after each test not to exceed the API limit
-    afterEach((done) => setInterval(done, 1000));
+    genTest('woleet.io');
+    genTest('chain.so');
+    genTest('blockcypher.com');
 
-    it('transaction.get with valid tx id should return transaction object', function (done) {
-        woleet.transaction.get(validReceipt.header.tx_id)
-            .then(function (tx) {
-                expect(tx.blockHash).toEqual("00000000000000000276fb1e87fa581e09d943f198a8b9114167df0e2230c247");
-                expect(tx.opReturn).toEqual(validReceipt.header.merkle_root);
-                expect(tx.confirmations).toBeGreaterThan(4500);
-                expect(tx.confirmedOn instanceof Date).toBe(true);
-                done();
-            }, function (error) {
-                expect(error).toBeUndefined();
-                done();
-            });
-    });
+    function genTest(provider) {
 
-    it('transaction.get with invalid tx id should return an error', function (done) {
-        woleet.transaction.get('invalid_tx')
-            .then(function (tx) {
-                expect(tx).toBeUndefined();
-                done();
-            }, function (error) {
-                expect(error instanceof Error).toBe(true);
-                done();
-            });
-    });
+        describe(provider, function () {
 
-    it('transaction.get without parameter should return an error', function (done) {
-        woleet.transaction.get('invalid_tx')
-            .then(function (tx) {
-                expect(tx).toBeUndefined();
-                done();
-            }, function (error) {
-                expect(error instanceof Error).toBe(true);
-                done();
+            // Wait one second after each test not to exceed the API limit
+            afterEach((done) => setInterval(done, 1000));
+
+            it('transaction.get with valid tx id should return transaction object', function (done) {
+                woleet.transaction.setDefaultProvider(provider);
+                woleet.transaction.get(validReceipt.header.tx_id)
+                    .then(function (tx) {
+                        expect(tx.blockHash).toEqual("00000000000000000276fb1e87fa581e09d943f198a8b9114167df0e2230c247");
+                        expect(tx.opReturn).toEqual(validReceipt.header.merkle_root);
+                        expect(tx.confirmations).toBeGreaterThan(4500);
+                        expect(tx.confirmedOn instanceof Date).toBe(true);
+                        done();
+                    }, function (error) {
+                        expect(error).toBeUndefined();
+                        done();
+                    });
             });
-    });
+
+            it('transaction.get with invalid tx id should return an error', function (done) {
+                woleet.transaction.setDefaultProvider(provider);
+                woleet.transaction.get('invalid_tx')
+                    .then(function (tx) {
+                        expect(tx).toBeUndefined();
+                        done();
+                    }, function (error) {
+                        expect(error instanceof Error).toBe(true);
+                        expect(error.message).toBe('tx_not_found');
+                        done();
+                    });
+            });
+
+            it('transaction.get with unknown tx id should return an error', function (done) {
+                woleet.transaction.setDefaultProvider(provider);
+                woleet.transaction.get('invalid_tx')
+                    .then(function (tx) {
+                        expect(tx).toBeUndefined();
+                        done();
+                    }, function (error) {
+                        expect(error instanceof Error).toBe(true);
+                        expect(error.message).toBe('tx_not_found');
+                        done();
+                    });
+            });
+
+            it('transaction.get without parameter should return an error', function (done) {
+                woleet.transaction.setDefaultProvider(provider);
+                woleet.transaction.get('0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c4')
+                    .then(function (tx) {
+                        expect(tx).toBeUndefined();
+                        done();
+                    }, function (error) {
+                        expect(error instanceof Error).toBe(true);
+                        expect(error.message).toBe('tx_not_found');
+                        done();
+                    });
+            });
+        });
+    }
+
 });
 
 describe("receipt.get suite", function () {
