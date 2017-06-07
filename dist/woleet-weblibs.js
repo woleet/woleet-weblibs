@@ -800,15 +800,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }
 
         return new Promise(function (resolve) {
-            var syncDetectionScript = "onmessage = function(e) { postMessage(!!FileReaderSync); };";
+            var syncDetectionScript = "onmessage = function(e) { postMessage(!!FileReaderSync); close() };";
             try {
-                var worker = makeWorker(syncDetectionScript);
-                if (worker) {
-                    worker.onmessage = function (e) {
-                        resolve(e.data);
-                    };
-                    worker.postMessage({});
-                } else resolve(false);
+                (function () {
+                    var worker = makeWorker(syncDetectionScript);
+                    if (worker) {
+                        worker.onmessage = function (e) {
+                            worker.terminate();
+                            worker = null;
+                            resolve(e.data);
+                        };
+                        worker.postMessage({});
+                    } else resolve(false);
+                })();
             } catch (err) {
                 resolve(false);
             }
@@ -822,6 +826,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             cb_progress = void 0,
             cb_result = void 0,
             cb_error = void 0;
+        var cancel = null;
+        var onCancel = function onCancel(cb) {
+            return cancel = cb;
+        };
 
         /**
          * @param {String} event
@@ -858,7 +866,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
              * @returns {Promise}
              */
             this.hash = function (file) {
+
                 return new Promise(function (next, reject) {
+
+                    onCancel(function () {
+                        worker.terminate();
+                        worker = null;
+                        reject('cancelled');
+                    });
 
                     worker.onmessage = function (message) {
                         //handling worker message
@@ -887,7 +902,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
          * @returns {Promise}
          */
         var hashLocal = function hashLocal(file) {
-
             return new Promise(function (next, reject) {
                 var error = new Error("file_too_big_to_be_hashed_without_worker");
                 if (file.size > 5e7) {
@@ -895,17 +909,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     if (cb_error) return cb_error({ error: error, file: file });else reject(error);
                 }
 
+                var cancelled = false;
                 var reader = new FileReader();
+
+                onCancel(function () {
+                    cancelled = true;
+                    reader.abort();
+                });
 
                 var sha256 = CryptoJS.algo.SHA256.create();
                 var hash = void 0,
                     prev = 0;
-
                 reader.onloadstart = function () {
+                    if (cancelled) return;
                     if (cb_start) cb_start({ start: true, file: file });
                 };
 
                 reader.onloadend = function () {
+                    if (cancelled) return;
+
                     hash.finalize();
                     if (cb_result) cb_result({
                         result: hash._hash.toString(CryptoJS.enc.Hex),
@@ -915,7 +937,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 };
 
                 reader.onprogress = function (e) {
-                    //noinspection JSUnresolvedVariable
+                    if (cancelled) return;
+
                     /** @type ArrayBuffer */
                     var buf = e.target.result;
                     //noinspection JSUnresolvedVariable
@@ -931,6 +954,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     }
                 };
 
+                reader.onabort = function () {
+                    reject('cancelled');
+                };
+
                 reader.readAsArrayBuffer(file);
             });
         };
@@ -941,15 +968,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
          */
         var hashLocalWithNativeAPI = function hashLocalWithNativeAPI(file) {
             return new Promise(function (resolve, reject) {
-                var algo = "SHA-256";
+                var alg = "SHA-256";
+                var cancelled = false;
                 // entry point
                 var reader = new FileReader();
 
+                onCancel(function () {
+                    cancelled = true;
+                    reader.abort();
+                });
+
                 reader.onloadstart = function () {
+                    if (cancelled) return;
                     if (cb_start) cb_start({ start: true, file: file });
                 };
 
                 reader.onprogress = function (e) {
+                    if (cancelled) return;
                     if (cb_progress) {
                         //noinspection JSUnresolvedVariable
                         cb_progress({ progress: e.loaded / e.total, file: file });
@@ -957,9 +992,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 };
 
                 reader.onload = function (event) {
+                    if (cancelled) return;
                     var data = event.target.result;
                     //noinspection JSUnresolvedFunction,JSUnresolvedVariable
-                    window.crypto.subtle.digest(algo, data).then(function (hash) {
+                    window.crypto.subtle.digest(alg, data).then(function (hash) {
                         var hashResult = new Uint8Array(hash);
                         var hexString = hashResult.reduce(function (res, e) {
                             return res + ('00' + e.toString(16)).slice(-2);
@@ -969,6 +1005,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     }).catch(function (error) {
                         return cb_error ? cb_error({ error: error, file: file }) : reject(error);
                     });
+                };
+
+                reader.onabort = function () {
+                    reject('cancelled');
                 };
 
                 reader.readAsArrayBuffer(file);
@@ -1001,7 +1041,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                     if (i >= len) {
                         ready = true;
-                        if (worker) worker.terminate();
+                        if (worker) {
+                            worker.terminate();
+                            worker = null;
+                        }
                     } else {
 
                         // We choose here the better method to hash a file
@@ -1014,11 +1057,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         } else if (typeof CryptoJS !== 'undefined') {
                             hashMethod = hashLocal;
                         } else {
+                            ready = true;
                             throw new Error("no_viable_hash_method");
                         }
 
-                        hashMethod(files[i]).then(function (_worker) {
-                            iter(i + 1, len, files, _worker || worker);
+                        return hashMethod(files[i]).then(function (_worker) {
+                            return iter(i + 1, len, files, _worker || worker);
+                        }).catch(function (err) {
+                            if (err !== 'cancelled') throw err;
                         });
                     }
                 }
@@ -1026,12 +1072,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 // entry point
                 if (files instanceof FileList) {
                     // files is a FileList
-                    iter(0, files.length, files);
+                    return iter(0, files.length, files);
                 } else if (files instanceof File) {
                     // files is a single file
-                    iter(0, 1, [files]);
+                    return iter(0, 1, [files]);
                 }
             });
+        };
+
+        this.cancel = function () {
+            if (cancel) {
+                cancel();
+                cancel = null;
+                ready = true;
+            }
         };
 
         this.isReady = function () {

@@ -14,6 +14,7 @@
 
     <!-- Woleet web libs (regular version) -->
     <script src="../dist/woleet-hashfile.js"></script>
+    <script src="../dist/crypto.js"></script>
 
     <!-- Woleet web libs (minified version) -->
     <!--<script src="../dist/woleet-weblibs.min.js"></script>-->
@@ -48,6 +49,7 @@
 <body>
 <h3>Hash file(s) demo</h3>
 <input type="file" id="input" multiple onchange="hasher.start(this.files)">
+<button onclick="hasher.cancel()">Cancel</button>
 <ul id="hashes"></ul>
 </body>
 </html>
