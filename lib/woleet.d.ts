@@ -6,6 +6,9 @@ interface Transaction {
     txId: string
 }
 
+interface Hash extends string {
+}
+
 interface Branch {
     parent: string
     left: string
@@ -25,24 +28,25 @@ interface Receipt {
         "target_uri": string,
         "target_proof": Array<Branch>
     },
+    signature?: {
+        signedHash: string,
+        pubKey: string,
+        signature: string,
+        identityURL?: string
+    },
     extra: Array<Object>
-}
-
-interface AnchorIDsPage {
-    content: Array<string>
-    totalPages: number
-    totalElements: number
-    last: boolean
-    first: boolean
-    numberOfElements: number
-    size: number
-    number: number
 }
 
 interface Proof {
     confirmations: number
     confirmedOn: Date
     receipt: Receipt
+    signature?: SignatureValidationResult
+}
+
+interface SignatureValidationResult {
+    valid: boolean
+    reason?: string
 }
 
 declare namespace woleet {
@@ -60,18 +64,32 @@ declare namespace woleet {
     }
 
     namespace anchor {
-        function getAnchorIDs(hash: string, size?: Number): Promise<AnchorIDsPage>;
+        const types: {
+            FILE_HASH: number;
+            SIGNATURE: number;
+            BOTH: number;
+        };
 
-        function create(hash: string|File, progressCallback?: Function): Promise<>;
+        function getAnchorIDs(hash: string, type?: number, size?: Number): Promise<Array<string>>;
+
+        function create(hash: string | File, progressCallback?: Function): Promise<>;
+    }
+
+    namespace signature {
+        function validateIdentity(identityUrl: string, pubKey: string): Promise<SignatureValidationResult>;
+
+        function validateSignature(message: string, address: string, signature: string): Promise<SignatureValidationResult>;
     }
 
     namespace file {
         class Hasher {
             constructor();
 
-            on(event: string, callback: Function);
+            on(event: 'start' | 'result' | 'progress' | 'error', callback: Function);
 
-            start(files: File|FileList);
+            start(files: File | FileList);
+
+            cancel();
 
             isReady(): boolean;
         }
@@ -80,8 +98,8 @@ declare namespace woleet {
     function isSHA256(hash: string): boolean;
 
     namespace verify {
-        function WoleetDAB(hash: string|File, progressCallback?: Function): Promise<Array<Proof>>;
+        function WoleetDAB(hash: string | File, progressCallback?: Function): Promise<Array<Proof>>;
 
-        function DAB(hash: string|File, receipt: Object, progressCallback?: Function): Promise<Proof>;
+        function DAB(hash: string | File, receipt: Object, progressCallback?: Function): Promise<Proof>;
     }
 }

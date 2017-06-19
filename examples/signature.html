@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>verify.DAB</title>
+    <title>verify.signature</title>
 
     <!-- IE ZONE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
@@ -13,7 +13,8 @@
     <!-- END IE ZONE -->
 
     <!-- Woleet web libs (regular version) -->
-    <script src="../dist/woleet-weblibs.js"></script>
+    <script src="../dist/woleet-api.js"></script>
+    <script src="../dist/woleet-signature.js"></script>
 
     <!-- Woleet web libs (minified version) -->
     <!--<script src="../dist/woleet-weblibs.min.js"></script>-->
@@ -22,14 +23,7 @@
         window.onload = function () {
 
             var r = document.getElementById('result');
-            var _file = null;
             var _receipt = null;
-
-            window.setFile = function (file) {
-                r.innerText = '';
-                _file = file;
-                check();
-            };
 
             window.setReceipt = function (receipt) {
                 r.innerText = '';
@@ -48,28 +42,30 @@
                 reader.readAsText(receipt);
             };
 
-            var check = function () {
+            function check() {
+                r.innerText = 'pending ...';
 
-                if (_file && _receipt) {
-                    r.innerText = 'pending ...';
-                    woleet.verify.DAB(_file, _receipt)
-                        .then(function (result) {
-                            r.innerText = 'The file matches the receipt and the blockchain confirmed it ' + result.confirmations
-                                + ' times on ' + result.confirmedOn.toISOString();
-                        }, function (error) {
-                            console.error(error);
-                            r.innerText = 'Error: ' + error.message
-                        })
+                if (!_receipt.signature || !_receipt.signature.signedHash || !_receipt.signature.pubKey || !_receipt.signature.signature)
+                    return r.innerText = 'No signature in receipt';
+
+                var validation = woleet.signature.validateSignature(_receipt.signature.signedHash, _receipt.signature.pubKey, _receipt.signature.signature);
+
+                if (validation.valid) {
+                    r.innerText = 'Signature is valid'
+                } else {
+                    r.innerText = 'Error: Signature is not valid ' + validation.reason ? validation.reason : ''
                 }
             }
         }
     </script>
+
+    <script>
+
+    </script>
+
 </head>
 <body>
-<h3>Verify DAB demo</h3>
-Set a file:
-<input type="file" onchange="setFile(this.files.item(0))">
-<br>
+<h3>Verify signature demo</h3>
 Set a receipt:
 <input type="file" onchange="setReceipt(this.files.item(0))">
 <p id="result"></p>

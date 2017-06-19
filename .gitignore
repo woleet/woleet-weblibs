@@ -10,3 +10,6 @@
 
 # Bower components
 **/bower_components
+
+*.tgz
+/dist/

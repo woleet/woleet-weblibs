@@ -16,3 +16,7 @@ test
 # Bower components
 **/bower_components
 bower.json
+.gitignore
+build.sh
+gulpfile.js
+*.tgz

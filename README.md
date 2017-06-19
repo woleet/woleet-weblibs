@@ -13,8 +13,7 @@ the Woleet API, but can be configured to use other independent providers like [b
 # Building Woleet web libraries
 
 Type `./build.sh` on the project's root to:
-- install build tools into the `./node_modules/` directory
-- install runtime dependencies into the `./bower_components/` directory
+- install build tools and runtime dependencies into the `./node_modules/` directory
 - build the libraries into the `./dist/`directory
 
 # Using Woleet web libraries
@@ -24,9 +23,9 @@ Type `./build.sh` on the project's root to:
 These libraries have been tested on all modern web browsers and should work on any browser supporting
 [Promises](https://developer.mozilla.org/en-US/docs/Web/API/Promise)
 and [Workers](https://developer.mozilla.org/en-US/docs/Web/API/Worker) (note that if Workers are not supported,
-it is still possible to hash files whose size do not exceed 50MB).
+it is still possible to hash files whose size do not exceed 100MB).
 
-Since Internet Explorer 11 does not support promises, you will have to 
+Since Internet Explorer 11 does not fully support promises, you will have to 
 include a third party library such as [bluebird](http://bluebirdjs.com/):
 
 ```html
@@ -47,32 +46,28 @@ Woleet web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)**
  The minified version of this library (**crypto.min.js**) must be present in the directory containing Woleet web libraries,
  which is done by the default build process.
 
-## Installation using Bower
+## Installation using npm
 
-You can use Bower to add Woleet web libraries to your project:
+You can use npm to add Woleet web libraries to your project:
 
-```json
-  "dependencies": {
-    "woleet-weblibs": "*"
-  }
-```
-
-***In this documentation, it is supposed that Bower is used to install Woleet web libraries.***
+```npm i woleet-weblibs --save```
 
 ## Initialization
 
 To use Woleet web libraries you have to include the following components:
 ```html
-<script src="../bower_components/woleet-weblibs/dist/woleet-api.js"></script>
-<script src="../bower_components/woleet-weblibs/dist/woleet-hashfile.js"></script>
-<script src="../bower_components/woleet-weblibs/dist/woleet-chainpoint.js"></script>
-<script src="../bower_components/woleet-weblibs/dist/woleet-verify.js"></script>
+<script src="/node_modules/woleet-weblibs/dist/woleet-api.js"></script>
+<script src="/node_modules/woleet-weblibs/dist/woleet-crypto.js"></script>
+<script src="/node_modules/woleet-weblibs/dist/woleet-hashfile.js"></script>
+<script src="/node_modules/woleet-weblibs/dist/woleet-signature.js"></script>
+<script src="/node_modules/woleet-weblibs/dist/woleet-chainpoint.js"></script>
+<script src="/node_modules/woleet-weblibs/dist/woleet-verify.js"></script>
 ```
 
 or their minimized equivalent:
 
 ```html
-<script src="../bower_components/woleet-weblibs/dist/woleet-weblibs.min.js"></script>
+<script src="/node_modules/woleet-weblibs/dist/woleet-weblibs.min.js"></script>
 ```
 
 ## Basic usage
@@ -120,6 +115,7 @@ See example at [examples/verifyDAB.html](examples/verifyDAB.html)
     - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
     - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
     - `transaction_not_found`: the receipt's Bitcoin transaction cannot be found.
+    - `invalid_receipt_signature`: the receipt's signature is not valid.
     - `opReturn_mismatches_merkleRoot`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
 
 ### <a name="hashfile"></a>Compute the SHA256 hash of a file
@@ -154,7 +150,6 @@ This functions allows to start the hashing process.
     - `file_too_big_to_be_hashed_without_worker`: workers are not supported and the file exceeds the maximum size of the worker free hash function.
     - `invalid_parameter`: `files` parameter is not a File nor a FileList.
     - `not_ready`: the hasher is already hashing, you must wait for it to finish.
-    - `no_viable_hash_method`: workers are not supported ***and*** crypto-js lib is not included on the page.
 
 **`hasher.isReady()`**
 
@@ -162,11 +157,15 @@ This function check if the hasher is ready to be used.
 
 - Returns `true` if the hasher is ready to be used (i.e. is not currently hashing).
 
+**`hasher.cancel()`**
+
+Cancels the current hash process (if several files are in the stack, the whole stack will be cancelled).
+
 ## Advanced usage
 
 ### <a name="receiptValidate"></a>Validate a anchoring receipt
  
-**`woleet.receipt.validate(receipt)`*
+**`woleet.receipt.validate(receipt)`**
 
 This function allows to validate an anchoring receipt.
 
@@ -193,7 +192,7 @@ This function allows to retreive from the Wollet platform all public anchors mat
     - `hash`: the SHA256 hash of the file (as an hexadecimal characters String).
     - `size`: optional parameters setting the size of pages to retrieve.
 - Returns a promise witch forwards:
-  - on success: a [AnchorIDsPage](#object_anchorIdsPage) object containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
+  - on success: containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
   - on error: 
     - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText) for any other case.
 
@@ -228,28 +227,66 @@ This function allows to retreive from the Wollet platform all public anchors mat
 - Parameter:
     - `provider: the provider to use as default provider: "woleet.io", "blockcypher.com" or "chain.so" (default is "woleet.io").
 
+### Verify a signature
+
+**`woleet.signature.validateSignature(message, pubKey, signature)`**
+
+See example at [examples/signature.html](examples/signature.html)
+
+- Parameters:
+    - `message`: the string that have been signed.
+    - `pubKey`: a bitcoin address (in base 58).
+    - `signature`: the signature (in base 64).
+- Returns a Promise witch forwards an object: `{ valid: true }` if the signature is valid,
+`{ valid: false, reason: string }` otherwise. Note that the **error** attribute may not be defined depending on the kind of failure.
+
+**`woleet.signature.validateIdentity(identityUrl, pubKey)`**
+
+- Parameters:
+    - `identityUrl`: the provided identity URL.
+    - `pubKey`: a bitcoin address (in base 58).
+- Returns a Promise witch forwards:
+  - on success: the same response than `signature.validateSignature`
+  - on bad server response: 
+    - A `bad_server_response` error if the server did not returned the expected data.
+  - on network/server error: 
+    - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText).
+
+
 ## Dependencies
 
-Woleet web libraries are provided as 5 separate javascript files. For convenience, all these files are also wrapped
+Woleet web libraries are provided in several separate javascript files. For convenience, all these files are also wrapped
 into a single *woleet-weblibs.js* file and minified versions are available.
 
   - *woleet-verify.js* provides file verification methods. It relies on:
-    - *woleet-chainpoint.js*
     - *woleet-api.js*
-    - *woleet-hashfile.js* (optional)
+    - *woleet-crypto.js*
+    - *woleet-hashfile.js*
+    - *woleet-signature.js*
+    - *woleet-chainpoint.js*
 
   - *woleet-chainpoint.js* provides the receipt.validate method, it relies on
-    - *woleet-api.js*
+    - *woleet-crypto.js*
 
   - *woleet-hashfile.js* provides the file.Hasher class witch is an interface to hash files, it relies on:
-    - *crypto-js.js* library (optional): only if the browser does not support workers
+    - *woleet-crypto.js*
     - *woleet-hashfile-worker.js*
 
   - *woleet-hashfile-worker.js* defines a worker used to hash files, it needs:
     - *crypto-js.js* library (only to be accessible, not to include)
+
+  - *woleet-signature.js* provides the signature.validateIdentity and signature.validateSignature methods, as this file is essentially 
+  a browserified version of [bitcoinjs-message](https://www.npmjs.com/package/bitcoinjs-message) it also exposes the Buffer class under signature.Buffer.
     
   - *woleet-api.js* provides miscellaneous method wrapping the Woleet API
-    
+
+#### Note:
+In order to use a worker for hashing big files, you may have to indicates the worker's location before the libraries definitions:
+```
+<script>woleet = {workerScriptPath: '/my/path/woleet-hashfile-worker.js'}</script>
+```
+the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-worker.js*.
+
 ## Objects definitions
 
 ### <a name="object_transaction"></a>Transaction object
@@ -278,7 +315,11 @@ into a single *woleet-weblibs.js* file and minified versions are available.
 {
     confirmations: {Number} number of confirmations of the block containing the transaction
     confirmedOn: {Date} confirmation date of the block containing the transaction
-    receipt: {Receipt} anchoring receipt
+    receipt: {Receipt} anchoring receipt,
+    signature?: { // may not be present
+        valid: {boolean}
+        error?: {String}
+    }
 }
 ```
 #### Example
@@ -286,21 +327,7 @@ into a single *woleet-weblibs.js* file and minified versions are available.
 {
     "confirmedOn": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "confirmations": 3897,
-    "receipt": [object Receipt]
-}
-```
-
-### <a name="object_anchorIdsPage"></a>AnchorIDsPage object
-```
-{
-    content: {String[]} array of anchor identifiers
-    totalPages: {Number} total number of pages available
-    totalElements: {Number} total number of anchor identifiers available
-    first: {boolean} true if the current page is the first one
-    last: {boolean} true if the current page is the last one
-    numberOfElements: {Number} number of anchors identifier on the current page
-    size: {Number} size of the current page
-    number: {Number} index of the current page number (starting from 0)
+    "receipt": [Receipt object]
 }
 ```
 #### Example
