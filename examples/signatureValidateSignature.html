@@ -48,21 +48,17 @@
                 if (!_receipt.signature || !_receipt.signature.signedHash || !_receipt.signature.pubKey || !_receipt.signature.signature)
                     return r.innerText = 'No signature in receipt';
 
-                var validation = woleet.signature.validateSignature(_receipt.signature.signedHash, _receipt.signature.pubKey, _receipt.signature.signature);
-
-                if (validation.valid) {
-                    r.innerText = 'Signature is valid'
-                } else {
-                    r.innerText = 'Error: Signature is not valid ' + validation.reason ? validation.reason : ''
-                }
+                woleet.signature.validateSignature(_receipt.signature.signedHash, _receipt.signature.pubKey, _receipt.signature.signature)
+                    .then(validation => {
+                        if (validation.valid) {
+                            r.innerText = 'Signature is valid'
+                        } else {
+                            r.innerText = 'Error: Signature is not valid ' + validation.reason ? validation.reason : ''
+                        }
+                    });
             }
         }
     </script>
-
-    <script>
-
-    </script>
-
 </head>
 <body>
 <h3>Verify signature demo</h3>

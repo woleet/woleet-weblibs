@@ -169,7 +169,7 @@ Cancels the current hash process (if several files are in the stack, the whole s
 
 This function allows to validate an anchoring receipt.
 
-See example at [examples/validateReceipt.html](examples/validateReceipt.html)
+See example at [examples/validateReceipt.html](examples/receiptValidate.html)
 
 - Parameters:
     - `receipt`: a JSON parsed anchoring receipt
@@ -231,7 +231,7 @@ This function allows to retreive from the Wollet platform all public anchors mat
 
 **`woleet.signature.validateSignature(message, pubKey, signature)`**
 
-See example at [examples/signature.html](examples/signature.html)
+See example at [examples/signature.html](examples/signatureValidateSignature.html)
 
 - Parameters:
     - `message`: the string that have been signed.
