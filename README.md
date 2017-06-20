@@ -2,11 +2,12 @@
 
 This repository contains the sources code of **Woleet web libraries**.
 These libraries can be used in any web application to:
-- verify the integrity and timestamp of any data anchored on the Bitcoin blockchain (so called DAB) by Woleet or by any third party using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible anchoring receipts,
+- verify the proof of existence and get the timestamp of any data anchored in the Bitcoin blockchain by Woleet or by any third party using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible anchoring receipts,
+- verify the proof of signature, get the signature timestamp and verify the signee identity of any data anchored in the Bitcoin blockchain by Woleet (using signature anchoring, which is an extension of the Chainpoint 1.0 format) 
 - compute the SHA256 hash of any file (even larger than 50MB).
 
 Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`**,
-**`woleet.receipt.get`** and **`woleet.anchor.getAnchorIds`** functions) and so don't require any Woleet account nor the
+**`woleet.receipt.get`** and **`woleet.anchor.getAnchorIds`** functions, which allow retrieving proof receipts from Woleet) and so don't require any Woleet account nor the
 availability of the Woleet service to work: they only need to access Bitcoin transactions, which by default is done using
 the Woleet API, but can be configured to use other independent providers like [blockcypher.com](https://blockcypher.com). 
  
@@ -91,7 +92,7 @@ See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
   - on error: 
     - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
     - any error thrown by the [Hasher](#hashfile) object (see below).
-    - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting for anchoring.
+    - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting to be anchored.
     - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
 
 ### Verify a file (with its anchoring receipt) 
@@ -99,7 +100,7 @@ See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 **`verify.DAB(file, receipt)`** or **`verify.DAB(hash, receipt)`**
 
 This function allows to verify files anchored using the Woleet platform but flagged as **private**, or files anchored by third party platforms,
-you must provide a anchoring receipt.
+you must provide an anchoring receipt.
 
 See example at [examples/verifyDAB.html](examples/verifyDAB.html)
 
@@ -163,7 +164,7 @@ Cancels the current hash process (if several files are in the stack, the whole s
 
 ## Advanced usage
 
-### <a name="receiptValidate"></a>Validate a anchoring receipt
+### <a name="receiptValidate"></a>Validate an anchoring receipt
  
 **`woleet.receipt.validate(receipt)`**
 
@@ -227,7 +228,7 @@ This function allows to retreive from the Wollet platform all public anchors mat
 - Parameter:
     - `provider: the provider to use as default provider: "woleet.io", "blockcypher.com" or "chain.so" (default is "woleet.io").
 
-### Verify a signature
+### Verify a signature and a signee identity
 
 **`woleet.signature.validateSignature(message, pubKey, signature)`**
 
