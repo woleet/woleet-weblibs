@@ -1,6 +1,6 @@
 interface Transaction {
     blockHash: string
-    confirmations: 3897
+    confirmations: number
     confirmedOn: Date
     opReturn: string
     txId: string
