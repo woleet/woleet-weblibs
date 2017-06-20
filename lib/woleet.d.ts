@@ -83,7 +83,7 @@ declare namespace woleet {
 
     namespace crypto {
         class sha256 {
-            update(data:Uint8Array):this
+            update(data:Uint8Array|string):this
             digest(encoding?:string):string
         }
     }

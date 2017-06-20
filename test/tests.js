@@ -330,44 +330,57 @@ describe("hasher suite", function () {
     const blob = new Blob(['abcdef123456789']);
     const file = new File([blob], "image.png", {type: "image/png"});
 
-    it('hasher with valid file should return valid hash', (done) => {
+    testHasher('hasher with valid file should return valid hash', file, "a888e3c6de1f90d12f889952c0c7d0ac230e9014189914f65c548b8a3b44ef45");
 
-        const hasher = new woleet.file.Hasher;
-        expect(hasher.isReady()).toBe(true);
+    const midBlob = new Blob([(() => {
+        let r = '', i = 1e6;
+        while (i--) r += 'abcdef123456789';
+        return r;
+    })()]);
+    const midFile = new File([midBlob], "image.png", {type: "image/png"});
 
-        hasher.on('start', (message) => {
-            expect(message.start).toBeDefined();
-            expect(message.file).toBeDefined();
-            expect(message.file).toEqual(file);
-            expect(hasher.isReady()).toBe(false);
-        });
-        hasher.on('progress', (message) => {
-            console.log(message.progress);
-            expect(message.progress).toBeDefined();
-            expect(message.file).toBeDefined();
-            expect(message.file).toEqual(file);
-            expect(hasher.isReady()).toBe(false);
-        });
-        hasher.on('error', (error) => {
-            console.trace(error);
-            expect(error).toBeDefined();
-            expect(error instanceof Error).toBe(true);
-            expect(error).toBeUndefined();
-        });
-        hasher.on('result', (message) => {
-            expect(message.result).toBeDefined();
-            expect(message.file).toBeDefined();
-            expect(message.file).toEqual(file);
-            expect(message.result).toEqual("a888e3c6de1f90d12f889952c0c7d0ac230e9014189914f65c548b8a3b44ef45");
-            expect(hasher.isReady()).toBe(false);
-            setTimeout(() => {
-                expect(hasher.isReady()).toBe(true);
-                done();
-            }, 100);
-        });
+    testHasher('hasher with valid 1MB file should return valid hash', midFile, "0c3185d8e1b4370037d32f2c30eb163dbd8d95733fe59f8cc45fdee468ee0544");
 
-        hasher.start(file);
-    });
+    function testHasher(name, file, expectation) {
+        it(name, (done) => {
+
+            const hasher = new woleet.file.Hasher;
+            expect(hasher.isReady()).toBe(true);
+
+            hasher.on('start', (message) => {
+                expect(message.start).toBeDefined();
+                expect(message.file).toBeDefined();
+                expect(message.file).toEqual(file);
+                expect(hasher.isReady()).toBe(false);
+            });
+            hasher.on('progress', (message) => {
+                console.log(message.progress);
+                expect(message.progress).toBeDefined();
+                expect(message.file).toBeDefined();
+                expect(message.file).toEqual(file);
+                expect(hasher.isReady()).toBe(false);
+            });
+            hasher.on('error', (error) => {
+                console.trace(error);
+                expect(error).toBeDefined();
+                expect(error instanceof Error).toBe(true);
+                expect(error).toBeUndefined();
+            });
+            hasher.on('result', (message) => {
+                expect(message.result).toBeDefined();
+                expect(message.file).toBeDefined();
+                expect(message.file).toEqual(file);
+                expect(message.result).toEqual(expectation);
+                expect(hasher.isReady()).toBe(false);
+                setTimeout(() => {
+                    expect(hasher.isReady()).toBe(true);
+                    done();
+                }, 100);
+            });
+
+            hasher.start(file);
+        });
+    }
 
     it('hasher with invalid parameter should throw invalid_parameter', function () {
         const hasher = new woleet.file.Hasher;
