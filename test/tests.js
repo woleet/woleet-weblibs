@@ -342,14 +342,17 @@ describe("hasher suite", function () {
             expect(hasher.isReady()).toBe(false);
         });
         hasher.on('progress', (message) => {
+            console.log(message.progress);
             expect(message.progress).toBeDefined();
             expect(message.file).toBeDefined();
             expect(message.file).toEqual(file);
             expect(hasher.isReady()).toBe(false);
         });
         hasher.on('error', (error) => {
+            console.trace(error);
             expect(error).toBeDefined();
             expect(error instanceof Error).toBe(true);
+            expect(error).toBeUndefined();
         });
         hasher.on('result', (message) => {
             expect(message.result).toBeDefined();
