@@ -196,11 +196,11 @@ describe("receipt.validate suite", function () {
         expect(result).toThrowError('non_sha256_target_proof_element');
     });
 
-    it('receipt.validate with bad proof element should throw merkle_root_mismatch', function () {
+    it('receipt.validate with bad proof element should throw invalid_parent_in_proof_element', function () {
         const invalidReceipt = safeCopy(validReceipt);
         invalidReceipt.target.target_proof[0].left = "4715c9d59d8cc7f006c086997ac2c10b8081bc32e374262877299c8cd1f06dca";
         const result = () => woleet.receipt.validate(invalidReceipt);
-        expect(result).toThrowError('merkle_root_mismatch');
+        expect(result).toThrowError('invalid_parent_in_proof_element');
     });
 });
 
@@ -223,7 +223,7 @@ describe("transaction.get suite", function () {
                         expect(tx.blockHash).toEqual("00000000000000000276fb1e87fa581e09d943f198a8b9114167df0e2230c247");
                         expect(tx.opReturn).toEqual(validReceipt.header.merkle_root);
                         expect(tx.confirmations).toBeGreaterThan(4500);
-                        expect(tx.confirmedOn instanceof Date).toBe(true);
+                        expect(tx.timestamp instanceof Date).toBe(true);
                         done();
                     }, (error) => {
                         expect(error).toBeUndefined();
@@ -414,7 +414,7 @@ describe("verify.WoleetDAB suite", function () {
                 expect(len).toBeGreaterThan(0);
                 expect(results[0]).toBeDefined();
                 expect(results[0].confirmations).toBeGreaterThan(0);
-                expect(results[0].confirmedOn instanceof Date).toBe(true);
+                expect(results[0].timestamp instanceof Date).toBe(true);
                 done();
             }, (error) => {
                 expect(error).toBeUndefined();
@@ -447,7 +447,7 @@ describe("verify.DAB suite", function () {
             .then((result) => {
                 expect(result).toBeDefined();
                 expect(result.confirmations).toBeGreaterThan(0);
-                expect(result.confirmedOn instanceof Date).toBe(true);
+                expect(result.timestamp instanceof Date).toBe(true);
                 done();
             }, (error) => {
                 expect(error).toBeUndefined();
@@ -460,10 +460,7 @@ describe("verify.DAB suite", function () {
             .then((result) => {
                 expect(result).toBeDefined();
                 expect(result.confirmations).toBeGreaterThan(0);
-                expect(result.confirmedOn instanceof Date).toBe(true);
-                expect(result.signature).toBeDefined();
-                expect(result.signature.valid).toBeDefined();
-                expect(result.signature.valid).toBe(true);
+                expect(result.timestamp instanceof Date).toBe(true);
                 done();
             }, (error) => {
                 expect(error).toBeUndefined();
@@ -533,7 +530,7 @@ describe("verify.DAB suite", function () {
             .then((result) => {
                 expect(result).toBeDefined();
                 expect(result.confirmations).toBeDefined();
-                expect(result.confirmedOn instanceof Date).toBe(true);
+                expect(result.timestamp instanceof Date).toBe(true);
                 done();
             }, (error) => {
                 expect(error).toBeUndefined();

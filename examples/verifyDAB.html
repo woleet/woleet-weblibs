@@ -52,10 +52,15 @@
 
                 if (_file && _receipt) {
                     r.innerText = 'pending ...';
+                    //noinspection NodeModulesDependencies,ES6ModulesDependencies
                     woleet.verify.DAB(_file, _receipt)
                         .then(function (result) {
-                            r.innerText = 'The file matches the receipt and the blockchain confirmed it ' + result.confirmations
-                                + ' times on ' + result.confirmedOn.toISOString();
+                            if (result.error) {
+                                r.innerText = 'Error: ' + result.error
+                            } else {
+                                r.innerText = 'The file matches the receipt and the blockchain confirmed it ' + result.confirmations
+                                    + ' times on ' + result.timestamp.toISOString();
+                            }
                         }, function (error) {
                             console.error(error);
                             r.innerText = 'Error: ' + error.message

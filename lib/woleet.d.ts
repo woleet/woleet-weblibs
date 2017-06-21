@@ -1,13 +1,12 @@
 interface Transaction {
     blockHash: string
     confirmations: number
-    confirmedOn: Date
+    timestamp: Date
     opReturn: string
     txId: string
 }
 
-interface Hash extends string {
-}
+interface Hash extends string {}
 
 interface Branch {
     parent: string
@@ -37,16 +36,20 @@ interface Receipt {
     extra: Array<Object>
 }
 
-interface Proof {
+interface Proof extends ProofError, ProofSuccess {}
+
+interface ProofSuccess {
     confirmations: number
-    confirmedOn: Date
+    timestamp: Date
     receipt: Receipt
-    signature?: SignatureValidationResult
+}
+
+interface ProofError {
+    error: string
 }
 
 interface SignatureValidationResult {
     valid: boolean
-    reason?: string
 }
 
 declare namespace woleet {
@@ -83,8 +86,9 @@ declare namespace woleet {
 
     namespace crypto {
         class sha256 {
-            update(data:Uint8Array|string):this
-            digest(encoding?:string):string
+            update(data: Uint8Array | string): this
+
+            digest(encoding?: string): string
         }
     }
 
@@ -100,6 +104,8 @@ declare namespace woleet {
 
             isReady(): boolean;
         }
+
+        function hashFileOrCheckHash(file: File | string, progressCallback?: Function)
     }
 
     function isSHA256(hash: string): boolean;

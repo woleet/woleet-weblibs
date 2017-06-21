@@ -89,8 +89,12 @@ See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
     - `hash`: a SHA256 hash (as an hexadecimal characters String).
 - Returns a Promise witch forwards:
   - on success: a list of Proof* object (can be empty).
-  - on error: 
-    - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
+    - ProofError object can contain:
+      - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
+      - `invalid_receipt_signature`: the receipt's signature is not valid.
+      - `identity_verification_failed`: the receipt's identityURL is not valid or returned a bad response.
+      - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
+  - on error:
     - any error thrown by the [Hasher](#hashfile) object (see below).
     - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting to be anchored.
     - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
@@ -110,14 +114,18 @@ See example at [examples/verifyDAB.html](examples/verifyDAB.html)
     - `receipt`: a JSON parsed anchoring receipt.
 - Returns a Promise witch forwards:
   - on success: a [Proof](#object_proof) object.
+    - ProofError object can contain:
+      - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
+      - `invalid_receipt_signature`: the receipt's signature is not valid.
+      - `identity_verification_failed`: the receipt's identityURL is not valid or returned a bad response.
+      - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
+      - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
   - on error: 
     - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
-    - any error thrown by the [Hasher](#hashfile) object (see below).
-    - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
-    - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
+    - any error thrown by the [Hasher](#hashfile) object (see below).    
     - `transaction_not_found`: the receipt's Bitcoin transaction cannot be found.
-    - `invalid_receipt_signature`: the receipt's signature is not valid.
-    - `opReturn_mismatches_merkleRoot`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
+    - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
+    - `error_while_getting_transaction`: the receipt's Bitcoin transaction cannot be found.
 
 ### <a name="hashfile"></a>Compute the SHA256 hash of a file
 
@@ -185,13 +193,17 @@ See example at [examples/validateReceipt.html](examples/receiptValidate.html)
 
 ### Get Woleet public anchors matching a given file
 
-**`woleet.anchor.getAnchorIDs(hash[, size])`**
+**`woleet.anchor.getAnchorIDs(hash, type, size)`**
 
-This function allows to retreive from the Wollet platform all public anchors matching a given file.
+This function allows to retrieve from the Woleet platform all public anchors matching a given file.
 
 - Parameters:
     - `hash`: the SHA256 hash of the file (as an hexadecimal characters String).
-    - `size`: optional parameters setting the size of pages to retrieve.
+    - `type` (_optional_): type of anchor to retrieve among constants defined in woleet.anchor.types:
+      - FILE_HASH
+      - SIGNATURE
+      - BOTH
+    - `size` (_optional_): parameters setting the maximum number of anchor to retrieve (default: 20).
 - Returns a promise witch forwards:
   - on success: containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
   - on error: 
@@ -295,7 +307,7 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
 {
     txId: {String} identifier of the transaction
     confirmations: {Number} number of confirmations of the block containing the transaction
-    confirmedOn: {Date} confirmation date of the block containing the transaction
+    timestamp: {Date} confirmation date of the block containing the transaction
     blockHash: {String} identifier of the block containing the transaction
     opReturn: {String} OP_RETURN of the transaction
 }
@@ -305,30 +317,40 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
 {
     "blockHash": "00000000000000000276fb1e87fa581e09d943f198a8b9114167df0e2230c247",
     "confirmations": 3897,
-    "confirmedOn": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
+    "timestamp": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "opReturn": "bf53f456227b377527349f337b8d11687e461a6ff01790deadb862bf1fa57fe9",
     "txId": "0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c5"
 }
 ```
 
 ### <a name="object_proof"></a>Proof object
+A Proof object can be either a **ProofSuccess** object or a **ProofError** object 
+##### <a name="object_proof_success"></a> ProofSuccess
 ```
-{
+ProofSuccess {
     confirmations: {Number} number of confirmations of the block containing the transaction
-    confirmedOn: {Date} confirmation date of the block containing the transaction
+    timestamp: {Date} confirmation date of the block containing the transaction
     receipt: {Receipt} anchoring receipt,
-    signature?: { // may not be present
-        valid: {boolean}
-        error?: {String}
-    }
+}
+```
+##### <a name="object_proof_error"></a>ProofError
+```
+ProofError {
+    error: {String} error code
 }
 ```
 #### Example
-```json
+```
 {
-    "confirmedOn": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
+    "timestamp": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "confirmations": 3897,
     "receipt": [Receipt object]
+}
+```
+or
+```
+{
+    "error": "op_return_mismatches_merkle_root"
 }
 ```
 #### Example
@@ -358,41 +380,47 @@ The receipt object matches the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) 
 {
     "header": {
         "chainpoint_version": "1.0",
+        "merkle_root": "76280be77b005ee3a4e61a3301717289362e1a9106343c7afba21b55be33b39b",
+        "tx_id": "01b321351b6a1dd315e08d5613c68c2cafc36e76239b9c3f3aced5e72194bded",
         "hash_type": "SHA-256",
-        "merkle_root": "bf53f456227b377527349f337b8d11687e461a6ff01790deadb862bf1fa57fe9",
-        "tx_id": "0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c5",
-        "timestamp": 1479831225
+        "timestamp": 1497625706
+    },
+    "signature": {
+        "signature": "HxVxyhfiJ1EyEDlhXidshWs3QQxb3JUcAvKpt1NLMonLXWWKXL39OLH3XXGofTho5JKjrZUY32sRoX6g2mh/Os0=",
+        "signedHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "pubKey": "19itkAbBMnjpC8xL4nHWWebgANEGUS2coQ"
     },
     "target": {
-        "target_hash": "0bf8e69866ff5db9efc108ea87953081ba627fb524a2c457dfb6c1b7df9430f9",
-        "target_uri": "https://www.someurl.com/target/id",
+        "target_hash": "626484929addc065a418b5a036642f30f6995945c3c75c7003c1ce2779d96a6b",
         "target_proof": [
             {
-                "parent": "275036918865f2bc25da43487e9d6d24a59b730753758935a68d8b8f2d27cdc5",
-                "left": "0bf8e69866ff5db9efc108ea87953081ba627fb524a2c457dfb6c1b7df9430f9",
-                "right": "259debf1b85cb6c962349945be88d504f2a79dbf0771c93fc5c76c5afad15794"
+                "parent": "568cf14e36229a6b81fa19b49c46a4ab36629d154572151af869619c225fa289",
+                "left": "626484929addc065a418b5a036642f30f6995945c3c75c7003c1ce2779d96a6b",
+                "right": "7bf003add22b5472106cbd92467dd09b1bafd2c14b53337c8f5f0cb3b73d8712"
             },
             {
-                "parent": "9022cfc24650e3efbafa648e3b930b58ee0db0686ce7d0717f9f81be7ee45f2c",
-                "left": "307a39911f22f16d7d97e6d66168ff65a49b6c07825cdceb0e6f5907d87fe9f4",
-                "right": "275036918865f2bc25da43487e9d6d24a59b730753758935a68d8b8f2d27cdc5"
+                "parent": "1b79f991a650f97ca1f6e391aa5850894b9d8c4c3151c1c4ee58dc1429abe478",
+                "left": "2d626ed118e1d84929f5977f8c4eb1cfb77459a8d6ea4b141e7e8651dcb48e5c",
+                "right": "568cf14e36229a6b81fa19b49c46a4ab36629d154572151af869619c225fa289"
             },
             {
-                "parent": "bf53f456227b377527349f337b8d11687e461a6ff01790deadb862bf1fa57fe9",
-                "left": "9022cfc24650e3efbafa648e3b930b58ee0db0686ce7d0717f9f81be7ee45f2c",
-                "right": "31ec828ab1de576e8ae5f711d42aa28c59f0bb9242d23c27b9d12448e0e1cfee"
+                "parent": "229f9863f84f095584b6b1f043b59b51934666d0100475c8f814455b2f87d3e8",
+                "left": "1b79f991a650f97ca1f6e391aa5850894b9d8c4c3151c1c4ee58dc1429abe478",
+                "right": "03926260dcb98d387fe560e6032ce012938cd18cddc25283a01de8ecef98feb3"
+            },
+            {
+                "parent": "76280be77b005ee3a4e61a3301717289362e1a9106343c7afba21b55be33b39b",
+                "left": "229f9863f84f095584b6b1f043b59b51934666d0100475c8f814455b2f87d3e8",
+                "right": "8c6d7d8fa5a4418d79ef9699af0a58bc63a43f603e0f41533b743ba656a76fcf"
             }
         ]
     },
     "extra": [
         {
-            "size": "93259"
+            "size": "0"
         },
         {
-            "type": "application/pdf"
-        },
-        {
-            "anchorid": "c2f25d10-eae5-413c-82eb-1bdb6cf499b6"
+            "anchorid": "561920c1-68a0-468e-82c9-982e7c4b1c63"
         }
     ]
 }
