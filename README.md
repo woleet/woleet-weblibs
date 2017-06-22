@@ -24,7 +24,7 @@ Type `./build.sh` on the project's root to:
 These libraries have been tested on all modern web browsers and should work on any browser supporting
 [Promises](https://developer.mozilla.org/en-US/docs/Web/API/Promise)
 and [Workers](https://developer.mozilla.org/en-US/docs/Web/API/Worker) (note that if Workers are not supported,
-it is still possible to hash files whose size do not exceed 100MB).
+it is still possible to hash files whose size do not exceed 50MB).
 
 Since Internet Explorer 11 does not fully support promises, you will have to 
 include a third party library such as [bluebird](http://bluebirdjs.com/):
@@ -88,16 +88,19 @@ See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
     - `file`: a [File](#object_file) object.
     - `hash`: a SHA256 hash (as an hexadecimal characters String).
 - Returns a Promise witch forwards:
-  - on success: a list of Proof* object (can be empty).
-    - ProofError object can contain:
-      - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
+  - on success: a list of [ReceiptVerificationStatus](#receipt_verification_status_object) object (can be empty).
+    - the `code` attribute can be:
+      - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below).
+      - any error code thrown by the [Hasher](#hashfile) object (see below).
       - `invalid_receipt_signature`: the receipt's signature is not valid.
+      - `invalid_receipt_signature_format`: the receipt's signature has not an expected format.
       - `identity_verification_failed`: the receipt's identityURL is not valid or returned a bad response.
       - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
-  - on error:
-    - any error thrown by the [Hasher](#hashfile) object (see below).
-    - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting to be anchored.
-    - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
+      - `tx_not_found`: the receipt's Bitcoin transaction cannot be found.
+      - `error_while_getting_transaction`: the receipt's Bitcoin transaction cannot be found.
+      - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting to be anchored.
+      - `http_error` on a http request error.
+
 
 ### Verify a file (with its anchoring receipt) 
 
@@ -113,19 +116,18 @@ See example at [examples/verifyDAB.html](examples/verifyDAB.html)
     - `hash`: a SHA256 hash (as an hexadecimal characters String).
     - `receipt`: a JSON parsed anchoring receipt.
 - Returns a Promise witch forwards:
-  - on success: a [Proof](#object_proof) object.
-    - ProofError object can contain:
-      - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
+  - on success: a [ReceiptVerificationStatus](#receipt_verification_status_object) object.
+    - the `code` attribute can be:
+      - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below).
+      - any error code thrown by the [Hasher](#hashfile) object (see below).    
       - `invalid_receipt_signature`: the receipt's signature is not valid.
+      - `invalid_receipt_signature_format`: the receipt's signature has not an expected format.
       - `identity_verification_failed`: the receipt's identityURL is not valid or returned a bad response.
-      - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
       - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
-  - on error: 
-    - any error thrown by [woleet.receipt.validate](#receiptValidate) (see below).
-    - any error thrown by the [Hasher](#hashfile) object (see below).    
-    - `transaction_not_found`: the receipt's Bitcoin transaction cannot be found.
-    - `missing_woleet_hash_dependency`: woleet-hashfile.js was not found.
-    - `error_while_getting_transaction`: the receipt's Bitcoin transaction cannot be found.
+      - `tx_not_found`: the receipt's Bitcoin transaction cannot be found.
+      - `error_while_getting_transaction`: the receipt's Bitcoin transaction cannot be found.
+      - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
+      - `http_error` on a http request error.
 
 ### <a name="hashfile"></a>Compute the SHA256 hash of a file
 
@@ -182,7 +184,7 @@ See example at [examples/validateReceipt.html](examples/receiptValidate.html)
 
 - Parameters:
     - `receipt`: a JSON parsed anchoring receipt
-- Returns: 
+- Returns:
     - `true` if the receipt is valid.
 - Throws:
     - `invalid_receipt_format`: the receipt format is not supported.
@@ -207,7 +209,7 @@ This function allows to retrieve from the Woleet platform all public anchors mat
 - Returns a promise witch forwards:
   - on success: containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
   - on error: 
-    - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText) for any other case.
+    - `http_error` on a http request error.
 
 ### Get the anchoring receipt of a Woleet public anchor
 
@@ -219,7 +221,7 @@ This function allows to retrieve from the Woleet platform all public anchors mat
   - on success: a [Receipt](#object_receipt) object.
   - on error: 
     - `not_found` if the anchor does not exist or is not public.
-    - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText) for any other case.
+    - `http_error` on a http request error.
 
 ### Get a Bitcoin transaction
 
@@ -230,8 +232,8 @@ This function allows to retrieve from the Woleet platform all public anchors mat
 - Returns a promise witch forwards:
   - on succeed: a [Transaction](#object_transaction) object.
   - on error: 
-    - `transaction_not_found` if the transaction does not exits on the Bitcoin blockchain.
-    - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText) for any other case.
+    - `tx_not_found` if the transaction does not exits on the Bitcoin blockchain.
+    - `http_error` on a http request error.
 
 ### Set the Bitcoin transaction provider
 
@@ -263,7 +265,7 @@ See example at [examples/signature.html](examples/signatureValidateSignature.htm
   - on bad server response: 
     - A `bad_server_response` error if the server did not returned the expected data.
   - on network/server error: 
-    - the request's [statusText](https://developer.mozilla.org/fr/docs/Web/API/Response/statusText).
+    - `http_error` on a http request error.
 
 
 ## Dependencies
@@ -323,20 +325,16 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
 }
 ```
 
-### <a name="object_proof"></a>Proof object
-A Proof object can be either a **ProofSuccess** object or a **ProofError** object 
-##### <a name="object_proof_success"></a> ProofSuccess
+### <a name="receipt_verification_status_object"></a>ReceiptVerificationStatus object
 ```
-ProofSuccess {
+{
     confirmations: {Number} number of confirmations of the block containing the transaction
     timestamp: {Date} confirmation date of the block containing the transaction
-    receipt: {Receipt} anchoring receipt,
-}
-```
-##### <a name="object_proof_error"></a>ProofError
-```
-ProofError {
-    error: {String} error code
+    receipt: {Receipt} anchoring receipt
+    code: {String} verifcations status code
+    identityVerificationStatus: {
+            code: 'verfied' | 'http_error' | 'identity_verification_failed' identity verifcations status code
+        }
 }
 ```
 #### Example
@@ -344,32 +342,9 @@ ProofError {
 {
     "timestamp": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "confirmations": 3897,
-    "receipt": [Receipt object]
+    "receipt": [Receipt object],
+    "code": "verified"
 }
-```
-or
-```
-{
-    "error": "op_return_mismatches_merkle_root"
-}
-```
-#### Example
-```json
-{
-    "content": [
-      "c2f25d10-eae5-413c-82eb-1bdb6cf499b6",
-      "aef56767-feef-0123-9000-1bdb6cf499b6"
-    ],
-    "totalPages": 1,
-    "totalElements": 1,
-    "last": true,
-    "sort": null,
-    "first": true,
-    "numberOfElements": 1,
-    "size": 20,
-    "number": 0
-}
-```
 
 ### <a name="object_receipt"></a>Receipt object
 

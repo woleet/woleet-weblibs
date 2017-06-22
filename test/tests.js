@@ -2,6 +2,9 @@
  * @namespace woleet
  */
 
+/**
+ * @type {Receipt}
+ */
 const validReceipt = {
     "header": {
         "chainpoint_version": "1.0",
@@ -43,6 +46,9 @@ const validReceipt = {
         }
     ]
 };
+/**
+ * @type {Receipt}
+ */
 const emptyFileValidReceipt = {
     "header": {
         "chainpoint_version": "1.0",
@@ -62,6 +68,9 @@ const emptyFileValidReceipt = {
     },
     "extra": [{"anchorid": "616980d1-7672-4558-b101-6c94bf7cee41"}]
 };
+/**
+ * @type {Receipt}
+ */
 const emptyFileValidSignedReceipt = {
     "header": {
         "chainpoint_version": "1.0",
@@ -113,6 +122,10 @@ const emptyFileValidSignedReceipt = {
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
 Object.freeze(validReceipt);
+
+function noop() {
+
+}
 
 function safeCopy(obj) {
     return JSON.parse(JSON.stringify(obj))
@@ -224,50 +237,53 @@ describe("transaction.get suite", function () {
                         expect(tx.opReturn).toEqual(validReceipt.header.merkle_root);
                         expect(tx.confirmations).toBeGreaterThan(4500);
                         expect(tx.timestamp instanceof Date).toBe(true);
-                        done();
-                    }, (error) => {
-                        expect(error).toBeUndefined();
-                        done();
-                    });
+                    })
+                    .catch(noErrorExpected)
+                    .then(done);
             });
 
-            it('transaction.get with invalid tx id should return an error', (done) => {
+            it('transaction.get with invalid tx id should throw "tx_not_found"', (done) => {
                 woleet.transaction.setDefaultProvider(provider);
                 woleet.transaction.get('invalid_tx')
-                    .then((tx) => {
-                        expect(tx).toBeUndefined();
-                        done();
-                    }, (error) => {
+                    .then((tx) => expect(tx).toBeUndefined())
+                    .catch((error) => {
                         expect(error instanceof Error).toBe(true);
                         expect(error.message).toBe('tx_not_found');
-                        done();
-                    });
+                    })
+                    .then(done);
             });
 
-            it('transaction.get with unknown tx id should return an error', (done) => {
+            it('transaction.get with unknown tx id should throw "tx_not_found"', (done) => {
                 woleet.transaction.setDefaultProvider(provider);
                 woleet.transaction.get('invalid_tx')
-                    .then((tx) => {
-                        expect(tx).toBeUndefined();
-                        done();
-                    }, (error) => {
+                    .then((tx) => expect(tx).toBeUndefined())
+                    .catch((error) => {
                         expect(error instanceof Error).toBe(true);
                         expect(error.message).toBe('tx_not_found');
-                        done();
-                    });
+                    })
+                    .then(done);
+            });
+
+            it('non-existing transaction should throw "tx_not_found"', (done) => {
+                woleet.transaction.setDefaultProvider(provider);
+                woleet.transaction.get('0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c4')
+                    .then(noResultExpected)
+                    .catch((error) => {
+                        expect(error instanceof Error).toBe(true);
+                        expect(error.message).toBe('tx_not_found');
+                    })
+                    .then(done);
             });
 
             it('transaction.get without parameter should return an error', (done) => {
                 woleet.transaction.setDefaultProvider(provider);
-                woleet.transaction.get('0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c4')
-                    .then((tx) => {
-                        expect(tx).toBeUndefined();
-                        done();
-                    }, (error) => {
+                woleet.transaction.get()
+                    .then(noResultExpected)
+                    .catch((error) => {
                         expect(error instanceof Error).toBe(true);
                         expect(error.message).toBe('tx_not_found');
-                        done();
-                    });
+                    })
+                    .then(done);
             });
         });
     }
@@ -278,25 +294,19 @@ describe("receipt.get suite", function () {
 
     it('receipt.get with valid anchor id should return valid receipt', (done) => {
         woleet.receipt.get("c2f25d10-eae5-413c-82eb-1bdb6cf499b6")
-            .then((receipt) => {
-                expect(woleet.receipt.validate(receipt)).toBe(true);
-                done();
-            }, (error) => {
-                expect(error).toBeUndefined();
-                done();
-            });
+            .then((receipt) => expect(woleet.receipt.validate(receipt)).toBe(true))
+            .catch(noErrorExpected)
+            .then(done);
     });
 
     it('receipt.get with unknown anchor id should return "not_found"', (done) => {
         woleet.receipt.get('invalid_anchor_id')
-            .then((tx) => {
-                expect(tx).toBeUndefined();
-                done();
-            }, (error) => {
+            .then((tx) => expect(tx).toBeUndefined())
+            .catch((error) => {
                 expect(error instanceof Error).toBe(true);
                 expect(error.message).toBe("not_found");
-                done();
-            });
+            })
+            .then(done);
     });
 
 });
@@ -305,24 +315,16 @@ describe("anchor.getAnchorIDs suite", function () {
 
     it('anchor.getAnchorIDs with unknown/invalid file hash should return empty list', (done) => {
         woleet.anchor.getAnchorIDs('invalid_tx')
-            .then((resultPage) => {
-                expect(resultPage.length).toEqual(0);
-                done();
-            }, (error) => {
-                expect(error).toBeUndefined();
-                done();
-            });
+            .then((resultPage) => expect(resultPage.length).toEqual(0))
+            .catch(noErrorExpected)
+            .then(done);
     });
 
     it('anchor.getAnchorIDs with invalid page size should return an error', (done) => {
         woleet.anchor.getAnchorIDs('invalid_tx', 1, -1)
-            .then((resultPage) => {
-                expect(resultPage).toBeUndefined();
-                done();
-            }, (error) => {
-                expect(error instanceof Error).toBe(true);
-                done();
-            });
+            .then((resultPage) => expect(resultPage).toBeUndefined())
+            .catch((error) => expect(error instanceof Error).toBe(true))
+            .then(done);
     });
 });
 
@@ -390,6 +392,35 @@ describe("hasher suite", function () {
     });
 });
 
+function testErrorCode(expected) {
+    return function (result) {
+        expect(result).toBeDefined();
+        expect(result.confirmations).toBeUndefined();
+        expect(result.timestamp).toBeUndefined();
+        expect(result.code).toBeDefined();
+        expect(result.code).toBe(expected);
+    }
+}
+
+function noErrorExpected(error) {
+    expect(error).toBeUndefined();
+}
+
+function noResultExpected(result) {
+    expect(result).toBeUndefined();
+}
+
+function validationExpected(result) {
+    expect(result).toBeDefined();
+    expect(result.code).toBeDefined();
+    expect(result.code).toBe('verified');
+    expect(result.receipt).toBeDefined();
+    expect(result.timestamp).toBeDefined();
+    expect(result.confirmations).toBeDefined();
+    expect(result.confirmations).toBeGreaterThan(0);
+    expect(result.timestamp instanceof Date).toBe(true);
+}
+
 describe("verify.WoleetDAB suite", function () {
 
     // Wait one second after each test not to exceed the API limit
@@ -398,40 +429,31 @@ describe("verify.WoleetDAB suite", function () {
     it('verify.WoleetDAB with unknown file should return empty list', (done) => {
         woleet.verify.WoleetDAB(new File([new Blob(['abcdef123456789'])], "image.png", {type: "image/png"}))
             .then((results) => {
-                const len = results.length;
-                expect(len).toEqual(0);
-                done();
-            }, (error) => {
-                expect(error).toBeUndefined();
-                done();
+                expect(results.length).toEqual(0);
             })
+            .catch(noErrorExpected)
+            .then(done)
     });
 
     it('verify.WoleetDAB with known file should not return empty list', (done) => {
         woleet.verify.WoleetDAB(new File([new Blob([''])], "image.png", {type: "image/png"}))
             .then((results) => {
-                const len = results.length;
-                expect(len).toBeGreaterThan(0);
-                expect(results[0]).toBeDefined();
-                expect(results[0].confirmations).toBeGreaterThan(0);
-                expect(results[0].timestamp instanceof Date).toBe(true);
-                done();
-            }, (error) => {
-                expect(error).toBeUndefined();
-                done();
+                expect(results.length).toBeGreaterThan(0);
+                results.forEach((res) => validationExpected(res, noop));
             })
+            .catch(noErrorExpected)
+            .then(done)
     });
 
     it('WoleetDAB with invalid parameter should throw "invalid_parameter" Error', (done) => {
         //noinspection JSCheckFunctionSignatures
-        woleet.verify.WoleetDAB().then((results) => {
-            expect(results).toBeUndefined();
-            done();
-        }, (err) => {
-            expect(err instanceof Error).toBe(true);
-            expect(err.message).toBe("invalid_parameter");
-            done();
-        });
+        woleet.verify.WoleetDAB()
+            .then((results) => noResultExpected(results))
+            .catch((err) => {
+                expect(err instanceof Error).toBe(true);
+                expect(err.message).toBe("invalid_parameter");
+            })
+            .then(done)
     });
 });
 
@@ -444,98 +466,69 @@ describe("verify.DAB suite", function () {
 
     it('verify.DAB with valid file and valid corresponding receipt should return valid result', (done) => {
         woleet.verify.DAB(file, emptyFileValidReceipt)
-            .then((result) => {
-                expect(result).toBeDefined();
-                expect(result.confirmations).toBeGreaterThan(0);
-                expect(result.timestamp instanceof Date).toBe(true);
-                done();
-            }, (error) => {
-                expect(error).toBeUndefined();
-                done();
-            })
+            .then(validationExpected)
+            .catch(noErrorExpected)
+            .then(done)
     });
 
     it('verify.DAB with valid file and valid corresponding signed receipt should return valid result', (done) => {
         woleet.verify.DAB(file, emptyFileValidSignedReceipt)
-            .then((result) => {
-                expect(result).toBeDefined();
-                expect(result.confirmations).toBeGreaterThan(0);
-                expect(result.timestamp instanceof Date).toBe(true);
-                done();
-            }, (error) => {
-                expect(error).toBeUndefined();
-                done();
-            })
+            .then(validationExpected)
+            .catch(noErrorExpected)
+            .then(done)
+    });
+
+    let invalidIdentityReceipt = safeCopy(emptyFileValidSignedReceipt);
+    invalidIdentityReceipt.signature.identityURL = 'https://dve.woleet.io/v1/identity';
+    it('verify.DAB with valid file and corresponding signed receipt with invalid identityURL should return code http_error', (done) => {
+        woleet.verify.DAB(file, invalidIdentityReceipt)
+            .then(testErrorCode('http_error'))
+            .catch(noErrorExpected)
+            .then(done)
     });
 
     let invalidSignedReceipt = safeCopy(emptyFileValidSignedReceipt);
     invalidSignedReceipt.signature.signedHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b854";
 
-    it('verify.DAB with valid file and corresponding signed receipt with invalid signedHash should throw target_hash_mismatch', (done) => {
+    it('verify.DAB with valid file and corresponding signed receipt with invalid signedHash should return code target_hash_mismatch', (done) => {
         woleet.verify.DAB(file, invalidSignedReceipt)
-            .then((result) => {
-                expect(result).toBeUndefined();
-                done();
-            }, (error) => {
-                expect(error instanceof Error).toBe(true);
-                expect(error.message).toBe('target_hash_mismatch');
-                done();
-            })
+            .then(testErrorCode('target_hash_mismatch'))
+            .catch(noErrorExpected)
+            .then(done)
     });
 
     let invalidSignedReceipt2 = safeCopy(emptyFileValidSignedReceipt);
     invalidSignedReceipt2.signature.pubKey = "19itkAbBMnjpC8xL4nHWWebgAMEGUS2coQ";
 
-    it('verify.DAB with valid file and corresponding signed receipt with invalid pubKey should throw invalid_receipt_signature', (done) => {
+    it('verify.DAB with valid file and corresponding signed receipt with invalid pubKey should return code invalid_receipt_signature', (done) => {
         woleet.verify.DAB(file, invalidSignedReceipt2)
-            .then((result) => {
-                expect(result).toBeUndefined();
-                done();
-            }, (error) => {
-                expect(error instanceof Error).toBe(true);
-                expect(error.message).toBe('invalid_receipt_signature');
-                done();
-            })
+            .then(testErrorCode('invalid_receipt_signature'))
+            .catch(noErrorExpected)
+            .then(done)
     });
 
     let invalidSignedReceipt3 = safeCopy(emptyFileValidSignedReceipt);
     invalidSignedReceipt3.signature.signature = "HxVxyhfiJ1EyEDlhXidshWs3QQxb3JUcAvKpt1NLMonLXWWKXL39OLH3XXGofThp5JKjrZUY32sRoX6g2mh/Os0=";
 
-    it('verify.DAB with valid file and corresponding signed receipt with invalid pubKey should throw invalid_receipt_signature', (done) => {
+    it('verify.DAB with valid file and corresponding signed receipt with invalid pubKey should return code invalid_receipt_signature', (done) => {
         woleet.verify.DAB(file, invalidSignedReceipt3)
-            .then((result) => {
-                expect(result).toBeUndefined();
-                done();
-            }, (error) => {
-                expect(error instanceof Error).toBe(true);
-                expect(error.message).toBe('invalid_receipt_signature');
-                done();
-            })
+            .then(testErrorCode('invalid_receipt_signature'))
+            .catch(noErrorExpected)
+            .then(done)
     });
 
-    it('verify.DAB with valid file and valid NOT corresponding receipt should throw target_hash_mismatch', (done) => {
+    it('verify.DAB with valid file and valid NOT corresponding receipt should return code target_hash_mismatch', (done) => {
         woleet.verify.DAB(file, validReceipt)
-            .then((result) => {
-                expect(result).toBeUndefined();
-                done();
-            }, (error) => {
-                expect(error instanceof Error).toBe(true);
-                expect(error.message).toBe('target_hash_mismatch');
-                done();
-            })
+            .then(testErrorCode('target_hash_mismatch'))
+            .catch(noErrorExpected)
+            .then(done)
     });
 
     it('verify.DAB with valid hash and valid corresponding receipt should return return valid result', (done) => {
         woleet.verify.DAB('0bf8e69866ff5db9efc108ea87953081ba627fb524a2c457dfb6c1b7df9430f9', validReceipt)
-            .then((result) => {
-                expect(result).toBeDefined();
-                expect(result.confirmations).toBeDefined();
-                expect(result.timestamp instanceof Date).toBe(true);
-                done();
-            }, (error) => {
-                expect(error).toBeUndefined();
-                done();
-            })
+            .then(validationExpected)
+            .catch(noErrorExpected)
+            .then(done)
     });
 });
 
@@ -545,6 +538,14 @@ describe("signature suite", function () {
 
         const validateSignature = woleet.signature.validateSignature;
 
+        function testSignature(expected) {
+            return function (validation) {
+                expect(validation).toBeDefined();
+                expect(validation.valid).toBeDefined();
+                expect(validation.valid).toBe(expected);
+            };
+        }
+
         const s = {
             "signature": "H4WyBAEqIj1Oc/sQDFLjwylJqZLHNv7bnvrgkzgkpzt6eryI4GHQrwvFfylZk1DDiI9796r6mZuTRdkWOyXFEA4=",
             "signedHash": "fd071b9817c9efccac5a144d69893a4a5323cbde4a74d5691c3cf3ab979d4160",
@@ -553,50 +554,30 @@ describe("signature suite", function () {
 
         it('valid signature should be valid', (done) => {
             validateSignature(s.signedHash, s.pubKey, s.signature)
-                .then((validation) => {
-                    expect(validation).toBeDefined();
-                    expect(validation.valid).toBe(true);
-                    done();
-                }, (error) => {
-                    expect(error).toBeUndefined();
-                    done();
-                })
+                .then(testSignature(true))
+                .catch(noErrorExpected)
+                .then(done)
         });
 
         it('invalid hash should not be valid', (done) => {
             validateSignature("fd071b9817c9efccbc5a144d69893a4a5323cbde4a74d5691c3cf3ab979d4160", s.pubKey, s.signature)
-                .then((validation) => {
-                    expect(validation).toBeDefined();
-                    expect(validation.valid).toBe(false);
-                    done();
-                }, (error) => {
-                    expect(error).toBeUndefined();
-                    done();
-                })
+                .then(testSignature(false))
+                .catch(noErrorExpected)
+                .then(done)
         });
 
         it('invalid signature should not be valid', (done) => {
             validateSignature(s.signedHash, s.pubKey, "H4WyBAEqIj1Oc/sQDFLjvylJqZLHNv7bnvrgkzgkpzt6eryI4GHQrwvFfylZk1DDiI9796r6mZuTRdkWOyXFEA4=")
-                .then((validation) => {
-                    expect(validation).toBeDefined();
-                    expect(validation.valid).toBe(false);
-                    done();
-                }, (error) => {
-                    expect(error).toBeUndefined();
-                    done();
-                })
+                .then(testSignature(false))
+                .catch(noErrorExpected)
+                .then(done)
         });
 
         it('invalid public key should not be valid', (done) => {
             validateSignature(s.signedHash, '19jtkAbBMnjpC8xL4nHWWebgANEGUS2coQ', s.signature)
-                .then((validation) => {
-                    expect(validation).toBeDefined();
-                    expect(validation.valid).toBe(false);
-                    done();
-                }, (error) => {
-                    expect(error).toBeUndefined();
-                    done();
-                })
+                .then(testSignature(false))
+                .catch(noErrorExpected)
+                .then(done)
         });
 
     });
@@ -617,33 +598,29 @@ describe("signature suite", function () {
                 .then((validation) => {
                     expect(validation).toBeDefined();
                     expect(validation.valid).toBe(true);
-                    done();
-                }, (error) => {
-                    expect(error).toBeUndefined();
-                    done();
                 })
+                .catch(noErrorExpected)
+                .then(done)
         });
 
         it('validating valid identity but bad url should throw an error', (done) => {
             validateIdentity("https://dve.woleet.io/v1/identity", s.pubKey)
-                .then((validation) => {
-                    expect(validation).toBeUndefined();
-                    done();
-                }, (error) => {
+                .then(noResultExpected)
+                .catch((error) => {
                     expect(error instanceof Error).toBe(true);
-                    done();
+                    expect(error.message).toBe('http_error');
                 })
+                .then(done)
         });
 
         it('validating valid identity but bad pubKey should throw error', (done) => {
             validateIdentity(s.identityURL, 'mxpZfrKUekYRFRf95tqH1ttrhjHK5GtJ3X')
-                .then((validation) => {
-                    expect(validation).toBeUndefined();
-                    done();
-                }, (error) => {
+                .then(noResultExpected)
+                .catch((error) => {
                     expect(error instanceof Error).toBe(true);
-                    done();
+                    expect(error.message).toBe('http_error');
                 })
+                .then(done)
         });
 
     })

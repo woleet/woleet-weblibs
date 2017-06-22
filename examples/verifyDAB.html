@@ -55,11 +55,16 @@
                     //noinspection NodeModulesDependencies,ES6ModulesDependencies
                     woleet.verify.DAB(_file, _receipt)
                         .then(function (result) {
-                            if (result.error) {
-                                r.innerText = 'Error: ' + result.error
+                            if (result.code != 'verified') {
+                                r.innerText = 'Invalid: ' + result.code
                             } else {
-                                r.innerText = 'The file matches the receipt and the blockchain confirmed it ' + result.confirmations
-                                    + ' times on ' + result.timestamp.toISOString();
+                                r.innerText = 'The file matches the receipt and the blockchain confirmed it '
+                                    + result.confirmations
+                                    + ' times on '
+                                    + result.timestamp.toISOString();
+                                if (_receipt.signature) {
+                                    r.innerText += ', it has been signed by ' + _receipt.signature.pubKey
+                                }
                             }
                         }, function (error) {
                             console.error(error);

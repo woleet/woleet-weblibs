@@ -36,16 +36,14 @@ interface Receipt {
     extra: Array<Object>
 }
 
-interface Proof extends ProofError, ProofSuccess {}
-
-interface ProofSuccess {
-    confirmations: number
-    timestamp: Date
+interface ReceiptVerificationStatus {
+    confirmations?: number
+    timestamp?: Date
     receipt: Receipt
-}
-
-interface ProofError {
-    error: string
+    code: string
+    identityVerificationStatus?: {
+        code: string
+    }
 }
 
 interface SignatureValidationResult {
@@ -111,8 +109,8 @@ declare namespace woleet {
     function isSHA256(hash: string): boolean;
 
     namespace verify {
-        function WoleetDAB(hash: string | File, progressCallback?: Function): Promise<Array<Proof>>;
+        function WoleetDAB(hash: string | File, progressCallback?: Function): Promise<Array<ReceiptVerificationStatus>>;
 
-        function DAB(hash: string | File, receipt: Object, progressCallback?: Function): Promise<Proof>;
+        function DAB(hash: string | File, receipt: Object, progressCallback?: Function): Promise<ReceiptVerificationStatus>;
     }
 }

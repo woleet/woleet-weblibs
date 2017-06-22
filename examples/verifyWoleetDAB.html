@@ -19,6 +19,9 @@
     <!--<script src="../dist/woleet-weblibs.min.js"></script>-->
 
     <script>
+        /**
+         * @namespace woleet
+         */
         window.onload = function () {
 
             var r = document.getElementById('result');
@@ -26,6 +29,7 @@
             window.check = function (file) {
                 woleet.verify.WoleetDAB(file)
                     .then(function (results) {
+                        console.log(results);
                         var len = results.length;
                         if (len == 0) {
                             r.innerText = 'There is no match for "' + file.name
@@ -35,9 +39,15 @@
                             r.innerText = 'There is ' + len + ' match(es) for this file:';
                             results.forEach(function (result) {
                                 var li = document.createElement('li');
-                                li.innerText += 'confirmed ' + result.confirmations + ' times';
-                                if (result.confirmations)
-                                    li.innerText += ' on ' + result.timestamp;
+                                if (result.code != 'verified') {
+                                    r.innerText = 'Invalid: ' + result.code;
+                                } else {
+                                    li.innerText += 'confirmed ' + result.confirmations + ' times';
+                                    if (result.confirmations)
+                                        li.innerText += ' on ' + result.timestamp;
+                                    if (result.receipt && result.receipt.signature)
+                                        li.innerText += ' and signed by ' + result.receipt.signature.pubKey;
+                                }
                                 r.appendChild(li);
                             });
                         }
