@@ -63,10 +63,12 @@
                                     + result.timestamp.toISOString();
                                 if (_receipt.signature) {
                                     r.innerText += ', it has been signed by ' + _receipt.signature.pubKey;
-                                    if (result.identityVerificationStatus && result.identityVerificationStatus.code != 'verified')
-                                        r.innerText += ' (but identity cannot be verified using ' + _receipt.signature.identityURL + ')';
-                                    else
-                                        r.innerText += ' (identity verified using ' + _receipt.signature.identityURL + ')';
+                                    if (result.identityVerificationStatus) {
+                                        if (result.identityVerificationStatus.code != 'verified')
+                                            r.innerText += ' (but identity cannot be verified using ' + _receipt.signature.identityURL + ')';
+                                        else
+                                            r.innerText += ' (identity verified using ' + _receipt.signature.identityURL + ')';
+                                    }
                                 }
                             }
                         }, function (error) {

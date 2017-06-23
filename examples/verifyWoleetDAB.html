@@ -43,10 +43,12 @@
                                         li.innerText += ' on ' + result.timestamp;
                                     if (result.receipt && result.receipt.signature)
                                         li.innerText += ' and signed by ' + result.receipt.signature.pubKey;
-                                    if (result.identityVerificationStatus && result.identityVerificationStatus.code != 'verified')
-                                        li.innerText += ' (but identity cannot be verified using ' + result.receipt.signature.identityURL + ')';
-                                    else
-                                        li.innerText += ' (identity verified using ' + result.receipt.signature.identityURL + ')';
+                                    if (result.identityVerificationStatus) {
+                                        if (result.identityVerificationStatus.code != 'verified')
+                                            li.innerText += ' (but identity cannot be verified using ' + result.receipt.signature.identityURL + ')';
+                                        else
+                                            li.innerText += ' (identity verified using ' + result.receipt.signature.identityURL + ')';
+                                    }
                                 }
                                 r.appendChild(li);
                             });
