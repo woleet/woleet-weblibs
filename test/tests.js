@@ -399,6 +399,7 @@ function testErrorCode(expected) {
         expect(result.timestamp).toBeUndefined();
         expect(result.code).toBeDefined();
         expect(result.code).toBe(expected);
+        return result;
     }
 }
 
@@ -419,6 +420,7 @@ function validationExpected(result) {
     expect(result.confirmations).toBeDefined();
     expect(result.confirmations).toBeGreaterThan(0);
     expect(result.timestamp instanceof Date).toBe(true);
+    return result;
 }
 
 describe("verify.WoleetDAB suite", function () {
@@ -439,7 +441,7 @@ describe("verify.WoleetDAB suite", function () {
         woleet.verify.WoleetDAB(new File([new Blob([''])], "image.png", {type: "image/png"}))
             .then((results) => {
                 expect(results.length).toBeGreaterThan(0);
-                results.forEach((res) => validationExpected(res, noop));
+                results.forEach((res) => validationExpected(res));
             })
             .catch(noErrorExpected)
             .then(done)
@@ -480,9 +482,14 @@ describe("verify.DAB suite", function () {
 
     let invalidIdentityReceipt = safeCopy(emptyFileValidSignedReceipt);
     invalidIdentityReceipt.signature.identityURL = 'https://dve.woleet.io/v1/identity';
-    it('verify.DAB with valid file and corresponding signed receipt with invalid identityURL should return code http_error', (done) => {
+    it('verify.DAB with valid file and corresponding signed receipt with invalid identityURL should have identityVerificationStatus.code set to "http_error"', (done) => {
         woleet.verify.DAB(file, invalidIdentityReceipt)
-            .then(testErrorCode('http_error'))
+            .then(validationExpected)
+            .then((result) => {
+                expect(result.identityVerificationStatus).toBeDefined();
+                expect(result.identityVerificationStatus.code).toBeDefined();
+                expect(result.identityVerificationStatus.code).toBe("http_error")
+            })
             .catch(noErrorExpected)
             .then(done)
     });
