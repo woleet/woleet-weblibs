@@ -2,8 +2,8 @@
 
 This repository contains the sources code of **Woleet web libraries**.
 These libraries can be used in any web application to:
-- verify the proof of existence and retrieve the timestamp of any data anchored in the Bitcoin blockchain by Woleet or by any third party using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible anchoring receipts,
-- verify the proof of signature, retrieve the signature timestamp and verify the signee identity of any data signed and anchored in the Bitcoin blockchain by Woleet (using signature anchoring, which is an extension of the Chainpoint 1.0 format) 
+- verify the proof of existence and retrieve the timestamp of any data anchored in the Bitcoin blockchain by Woleet or by any third party providing [Chainpoint 1.x](http://www.chainpoint.org/#v1x) compatible proof receipts,
+- verify the proof of signature, retrieve the signature timestamp and verify the signee identity of any data signed and anchored in the Bitcoin blockchain by Woleet (using signature anchoring, an extension of the Chainpoint 1.0 format proposed by Woleet) 
 - compute the SHA256 hash of any file (even larger than 50MB).
 
 Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`**,
@@ -39,7 +39,9 @@ include a third party library such as [bluebird](http://bluebirdjs.com/):
 <!-- END IE ZONE -->
 ```
 
-These libraries currently only support anchoring receipts compatible with the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) standard.
+These libraries currently only support proof of existence receipts compatible with the [Chainpoint 1.x](http://www.chainpoint.org/#v1x) standard
+and proof of signature receipts (an extension of the Chainpoint 1.x standard proposed by Woleet).
+
 
 ## <a name="runtime-dependencies"></a>Runtime dependencies
  
@@ -75,20 +77,24 @@ or their minimized equivalent:
 
 All methods are provided by the `woleet` object. As an example, to get a Bitcoin transaction, the code is `woleet.transaction.get(txId)`.
 
-### Verify a file (without its anchoring receipt)
+### Verify a file (without an proof receipt)
 
 **`woleet.verify.WoleetDAB(file)`** or **`woleet.verify.WoleetDAB(hash)`**
 
-This function provides an easy way to verify a file that was anchored using the Woleet platform and flagged as **public** (which is the default):
- in that case, the anchoring receipt is retrieved automatically by the library from the platform, and so can be omitted.
+This function provides an easy way to retrieve and verify all public proof receipts related to a given file/hash and
+ created using the Woleet platform.
+
+Proof of existence receipts (created when anchoring data) and proof of signature receipts (created when anchoring signature) are retrieved
+ from the platform and verified automatically.
 
 See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 
 - Parameters:
-    - `file`: a [File](#object_file) object.
-    - `hash`: a SHA256 hash (as an hexadecimal characters String).
+    - `file`: the [File](#object_file) object containing the data to verify.
+    - `hash`: the SHA256 hash of the data to verify (as an hexadecimal characters String).
 - Returns a Promise witch forwards a list of [ReceiptVerificationStatus](#receipt_verification_status_object) object (can be empty).
 The `code` attribute can be:
+    - `verified` on success
     - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below).
     - any error code thrown by the [Hasher](#hashfile) object (see below).
     - `invalid_receipt_signature`: the receipt's signature is not valid.
@@ -97,23 +103,24 @@ The `code` attribute can be:
     - `tx_not_found`: the Bitcoin transaction does not exist.
     - `error_while_getting_transaction`: the Bitcoin transaction cannot be retrieved.
     - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting to be anchored.
-    - `http_error` on a HTTP request error.
+    - `http_error`: an unexpected HTTP error occurred during the verification process.
 
-### Verify a file (with its anchoring receipt) 
+### Verify a file (with a proof receipt) 
 
 **`verify.DAB(file, receipt)`** or **`verify.DAB(hash, receipt)`**
 
-This function allows to verify files anchored using the Woleet platform but flagged as **private**, or files anchored by third party platforms,
-you must provide an anchoring receipt.
+This function allows to verify any proof of existence receipt compatible with the Chainpoint 1.x format,
+ or any proof of signature receipt compatible with the Chainpoint 1.x extension proposed by Woleet for signature anchoring. 
 
 See example at [examples/verifyDAB.html](examples/verifyDAB.html)
 
 - Parameters:
-    - `file`: a [File](#object_file) object.
-    - `hash`: a SHA256 hash (as an hexadecimal characters String).
-    - `receipt`: a JSON parsed anchoring receipt.
+    - `file`: the [File](#object_file) object containing the data to verify.
+    - `hash`: the SHA256 hash of the data to verify (as an hexadecimal characters String).
+    - `receipt`: a JSON parsed proof of existence or proof of signature receipt.
 - Returns a Promise witch forwards a [ReceiptVerificationStatus](#receipt_verification_status_object) object.
 The `code` attribute can be:
+    - `verified` on success
     - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below).
     - any error code thrown by the [Hasher](#hashfile) object (see below).    
     - `invalid_receipt_signature`: the receipt's signature is not valid.
@@ -122,11 +129,11 @@ The `code` attribute can be:
     - `tx_not_found`: the Bitcoin transaction does not exist.
     - `error_while_getting_transaction`: the Bitcoin transaction cannot be retrieved.
     - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
-    - `http_error` on a http request error.
+    - `http_error`: an unexpected HTTP error occurred during the verification process.
 
 ### <a name="hashfile"></a>Compute the SHA256 hash of a file
 
-To compute the SHA256 hash of a file, you have to instance a Hasher object: `var hasher = new woleet.file.Hasher`.
+To compute the SHA256 hash of a file, you have to instantiate a Hasher object: `var hasher = new woleet.file.Hasher`.
 This object provides an interface to hash files in the browser:
 
 See example at [examples/hashfile.html](examples/hashfile.html)
@@ -169,17 +176,17 @@ Cancels the current hash process (if several files are in the stack, the whole s
 
 ## Advanced usage
 
-### <a name="receiptValidate"></a>Validate an anchoring receipt
+### <a name="receiptValidate"></a>Validate a proof receipt
 
 **`woleet.receipt.validate(receipt)`**
 
-This function allows to validate the format of an anchoring receipt.
+This function allows to validate the format of a proof receipt.
 It does not check the Bitcoin transaction, nor the signature, nor the signee identity (if any).
 
 See example at [examples/validateReceipt.html](examples/receiptValidate.html)
 
 - Parameters:
-    - `receipt`: a JSON parsed anchoring receipt
+    - `receipt`: a JSON parsed proof receipt
 - Returns:
     - `true` if the receipt is valid.
 - Throws:
@@ -240,12 +247,12 @@ This function allows to retrieve from the Woleet platform all public anchors mat
   - on error: 
     - `http_error` on a http request error.
 
-### Get the anchoring receipt of a Woleet public anchor
+### Get the proof receipt of a public anchor created by Woleet
 
 **`woleet.receipt.get(anchorID)`**
 
 - Parameters:
-    - `anchorID`: the identifier of the anchor to retrieve.
+    - `anchorID`: the identifier of the anchor for which to retrieve the proof receipt.
 - Returns a promise witch forwards:
   - on success: a [Receipt](#object_receipt) object.
   - on error: 
@@ -312,7 +319,7 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
 {
     confirmations: {Number} number of confirmations of the block containing the transaction
     timestamp: {Date} proven timestamp of the data (for a data anchor) or of the signature (for a signature anchor)
-    receipt: {Receipt} anchoring receipt
+    receipt: {Receipt} proof receipt
     code: {'verified' | error message} verifcations status code
     identityVerificationStatus: {
             code: {'verfied' | 'http_error' | 'invalid_signature'} identity verifcations status code 
@@ -352,7 +359,7 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
 
 ### <a name="object_receipt"></a>Receipt object
 
-The receipt object matches the [Chainpoint 1.0](http://www.chainpoint.org/#v1x) format.
+The receipt object matches the [Chainpoint 1.x](http://www.chainpoint.org/#v1x) format.
 
 #### Example
 ```json
