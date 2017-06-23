@@ -2,8 +2,8 @@
 
 This repository contains the sources code of **Woleet web libraries**.
 These libraries can be used in any web application to:
-- verify the proof of existence and get the timestamp of any data anchored in the Bitcoin blockchain by Woleet or by any third party using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible anchoring receipts,
-- verify the proof of signature, get the signature timestamp and verify the signee identity of any data anchored in the Bitcoin blockchain by Woleet (using signature anchoring, which is an extension of the Chainpoint 1.0 format) 
+- verify the proof of existence and retrieve the timestamp of any data anchored in the Bitcoin blockchain by Woleet or by any third party using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible anchoring receipts,
+- verify the proof of signature, retrieve the signature timestamp and verify the signee identity of any data signed and anchored in the Bitcoin blockchain by Woleet (using signature anchoring, which is an extension of the Chainpoint 1.0 format) 
 - compute the SHA256 hash of any file (even larger than 50MB).
 
 Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`**,
@@ -87,20 +87,17 @@ See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 - Parameters:
     - `file`: a [File](#object_file) object.
     - `hash`: a SHA256 hash (as an hexadecimal characters String).
-- Returns a Promise witch forwards:
-  - on success: a list of [ReceiptVerificationStatus](#receipt_verification_status_object) object (can be empty).
-    - the `code` attribute can be:
-      - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below).
-      - any error code thrown by the [Hasher](#hashfile) object (see below).
-      - `invalid_receipt_signature`: the receipt's signature is not valid.
-      - `invalid_receipt_signature_format`: the receipt's signature has not an expected format.
-      - `identity_verification_failed`: the receipt's identityURL is not valid or returned a bad response.
-      - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
-      - `tx_not_found`: the receipt's Bitcoin transaction cannot be found.
-      - `error_while_getting_transaction`: the receipt's Bitcoin transaction cannot be found.
-      - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting to be anchored.
-      - `http_error` on a http request error.
-
+- Returns a Promise witch forwards a list of [ReceiptVerificationStatus](#receipt_verification_status_object) object (can be empty).
+The `code` attribute can be:
+    - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below).
+    - any error code thrown by the [Hasher](#hashfile) object (see below).
+    - `invalid_receipt_signature`: the receipt's signature is not valid.
+    - `invalid_receipt_signature_format`: the receipt's signature is not of the expected format.
+    - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
+    - `tx_not_found`: the Bitcoin transaction does not exist.
+    - `error_while_getting_transaction`: the Bitcoin transaction cannot be retrieved.
+    - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting to be anchored.
+    - `http_error` on a HTTP request error.
 
 ### Verify a file (with its anchoring receipt) 
 
@@ -115,19 +112,17 @@ See example at [examples/verifyDAB.html](examples/verifyDAB.html)
     - `file`: a [File](#object_file) object.
     - `hash`: a SHA256 hash (as an hexadecimal characters String).
     - `receipt`: a JSON parsed anchoring receipt.
-- Returns a Promise witch forwards:
-  - on success: a [ReceiptVerificationStatus](#receipt_verification_status_object) object.
-    - the `code` attribute can be:
-      - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below).
-      - any error code thrown by the [Hasher](#hashfile) object (see below).    
-      - `invalid_receipt_signature`: the receipt's signature is not valid.
-      - `invalid_receipt_signature_format`: the receipt's signature has not an expected format.
-      - `identity_verification_failed`: the receipt's identityURL is not valid or returned a bad response.
-      - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
-      - `tx_not_found`: the receipt's Bitcoin transaction cannot be found.
-      - `error_while_getting_transaction`: the receipt's Bitcoin transaction cannot be found.
-      - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
-      - `http_error` on a http request error.
+- Returns a Promise witch forwards a [ReceiptVerificationStatus](#receipt_verification_status_object) object.
+The `code` attribute can be:
+    - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below).
+    - any error code thrown by the [Hasher](#hashfile) object (see below).    
+    - `invalid_receipt_signature`: the receipt's signature is not valid.
+    - `invalid_receipt_signature_format`: the receipt's signature is not of the expected format.
+    - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
+    - `tx_not_found`: the Bitcoin transaction does not exist.
+    - `error_while_getting_transaction`: the Bitcoin transaction cannot be retrieved.
+    - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` or to the `file` hash.
+    - `http_error` on a http request error.
 
 ### <a name="hashfile"></a>Compute the SHA256 hash of a file
 
@@ -175,7 +170,7 @@ Cancels the current hash process (if several files are in the stack, the whole s
 ## Advanced usage
 
 ### <a name="receiptValidate"></a>Validate an anchoring receipt
- 
+
 **`woleet.receipt.validate(receipt)`**
 
 This function allows to validate an anchoring receipt.
@@ -192,6 +187,37 @@ See example at [examples/validateReceipt.html](examples/receiptValidate.html)
     - `invalid_parent_in_proof_element`: the receipt's Merkle proof is invalid (parent != SHA256(left + right)).
     - `non_sha256_target_proof_element`: the receipt's Merkle proof is invalid (parent, left or right not a SHA256 hash).
     - `merkle_root_mismatch`: the receipt's Merkle proof is invalid (Merkle proof result does not match the merkle_root attribute).
+
+### <a name="signatureValidateSignature"></a>Validate a signature
+
+**`woleet.signature.validateSignature(message, pubKey, signature)`**
+
+This function allows to validate a signature.
+
+See example at [examples/signature.html](examples/signatureValidateSignature.html)
+
+- Parameters:
+    - `message`: the string that have been signed.
+    - `pubKey`: a bitcoin address (in base 58).
+    - `signature`: the signature (in base 64).
+- Returns a Promise witch forwards an object: `{ valid: true }` if the signature is valid,
+`{ valid: false, reason: string }` otherwise. Note that the **reason** attribute may not be defined depending on the kind of failure.
+
+### <a name="signatureValidateIdentity"></a>Validate a signee identity
+ 
+**`woleet.signature.validateIdentity(identityUrl, pubKey)`**
+
+This function allows to validate the identity of a signee, ie. validates that the identity URL controls the signee's Bitcoin address.
+
+See example at [examples/signature.html](examples/signatureValidateIdentity.html)
+
+- Parameters:
+    - `identityUrl`: the provided identity URL.
+    - `pubKey`: a bitcoin address (in base 58).
+- Returns a Promise witch forwards an object: `{ valid: true }` if the identity is valid,
+`{ valid: false, reason: string }` otherwise. Note that the **reason** attribute may not be defined depending on the kind of failure.
+- If the identity URL does not return the expected data, `bad_server_response` is returned.
+- If a network/server error occurred while calling the identity URL, `http_error` is returned.
 
 ### Get Woleet public anchors matching a given file
 
@@ -242,32 +268,6 @@ This function allows to retrieve from the Woleet platform all public anchors mat
 - Parameter:
     - `provider: the provider to use as default provider: "woleet.io", "blockcypher.com" or "chain.so" (default is "woleet.io").
 
-### Verify a signature and a signee identity
-
-**`woleet.signature.validateSignature(message, pubKey, signature)`**
-
-See example at [examples/signature.html](examples/signatureValidateSignature.html)
-
-- Parameters:
-    - `message`: the string that have been signed.
-    - `pubKey`: a bitcoin address (in base 58).
-    - `signature`: the signature (in base 64).
-- Returns a Promise witch forwards an object: `{ valid: true }` if the signature is valid,
-`{ valid: false, reason: string }` otherwise. Note that the **error** attribute may not be defined depending on the kind of failure.
-
-**`woleet.signature.validateIdentity(identityUrl, pubKey)`**
-
-- Parameters:
-    - `identityUrl`: the provided identity URL.
-    - `pubKey`: a bitcoin address (in base 58).
-- Returns a Promise witch forwards:
-  - on success: the same response than `signature.validateSignature`
-  - on bad server response: 
-    - A `bad_server_response` error if the server did not returned the expected data.
-  - on network/server error: 
-    - `http_error` on a http request error.
-
-
 ## Dependencies
 
 Woleet web libraries are provided in several separate javascript files. For convenience, all these files are also wrapped
@@ -304,6 +304,28 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
 
 ## Objects definitions
 
+### <a name="receipt_verification_status_object"></a>ReceiptVerificationStatus object
+```
+{
+    confirmations: {Number} number of confirmations of the block containing the transaction
+    timestamp: {Date} proven timestamp of the data (for a data anchor) or of the signature (for a signature anchor)
+    receipt: {Receipt} anchoring receipt
+    code: {'verified' | error message} verifcations status code
+    identityVerificationStatus: {
+            code: {'verfied' | 'http_error' | 'invalid_signature'} identity verifcations status code 
+        }
+}
+```
+#### Example
+```
+{
+    "timestamp": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
+    "confirmations": 3897,
+    "receipt": [Receipt object],
+    "code": "verified"
+}
+```
+
 ### <a name="object_transaction"></a>Transaction object
 ```
 {
@@ -324,27 +346,6 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
     "txId": "0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c5"
 }
 ```
-
-### <a name="receipt_verification_status_object"></a>ReceiptVerificationStatus object
-```
-{
-    confirmations: {Number} number of confirmations of the block containing the transaction
-    timestamp: {Date} confirmation date of the block containing the transaction
-    receipt: {Receipt} anchoring receipt
-    code: {String} verifcations status code
-    identityVerificationStatus: {
-            code: 'verfied' | 'http_error' | 'identity_verification_failed' identity verifcations status code
-        }
-}
-```
-#### Example
-```
-{
-    "timestamp": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
-    "confirmations": 3897,
-    "receipt": [Receipt object],
-    "code": "verified"
-}
 
 ### <a name="object_receipt"></a>Receipt object
 
