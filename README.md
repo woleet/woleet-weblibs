@@ -121,6 +121,28 @@ The `code` attribute can be:
     - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` parameter.
     
 
+### <a name="receiptVerify"></a>Verify a proof receipt
+
+**`woleet.verify.receipt(receipt)`**
+
+This function allows to fully verify an anchoring receipt.
+It checks the Bitcoin transaction, the signature and the signee identity (if any).
+
+See example at [examples/receiptVerify.html](examples/receiptVerify.html)
+
+- Parameters:
+    - `receipt`: a JSON parsed anchoring receipt.
+- Returns a Promise witch forwards a [ReceiptVerificationStatus](#receipt_verification_status_object) object.
+The `code` attribute can be:
+    - `verified` on success
+    - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below)
+    - any error code thrown by the [Hasher](#hashfile) object (see below).
+    - `invalid_receipt_signature`: the receipt's signature is not valid.
+    - `invalid_receipt_signature_format`: the receipt's signature is not of the expected format.
+    - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
+    - `tx_not_found`: the Bitcoin transaction does not exist.
+    - `http_error`: an unexpected HTTP error occurred during the verification process.
+
 ### <a name="hashfile"></a>Compute the SHA256 hash of a file
 
 To compute the SHA256 hash of a file, you have to instantiate a Hasher object: `var hasher = new woleet.file.Hasher`.
@@ -165,28 +187,6 @@ This function check if the hasher is ready to be used.
 Cancels the current hash process (if several files are in the stack, the whole stack will be cancelled).
 
 ## Advanced usage
-
-### <a name="receiptVerify"></a>Verify a proof receipt
-
-**`woleet.receipt.verify(receipt)`**
-
-This function allows to fully verify an anchoring receipt.
-It checks the Bitcoin transaction, the signature and nor the signee identity (if any).
-
-See example at [examples/receiptVerify.html](examples/receiptVerify.html)
-
-- Parameters:
-    - `receipt`: a JSON parsed anchoring receipt.
-- Returns a Promise witch forwards a [ReceiptVerificationStatus](#receipt_verification_status_object) object.
-The `code` attribute can be:
-    - `verified` on success
-    - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below)
-    - any error code thrown by the [Hasher](#hashfile) object (see below).
-    - `invalid_receipt_signature`: the receipt's signature is not valid.
-    - `invalid_receipt_signature_format`: the receipt's signature is not of the expected format.
-    - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
-    - `tx_not_found`: the Bitcoin transaction does not exist.
-    - `http_error`: an unexpected HTTP error occurred during the verification process.
 
 ### <a name="receiptValidate"></a>Validate a proof receipt
 **`woleet.receipt.validate(receipt)`**
@@ -256,7 +256,7 @@ This function allows to retrieve from the Woleet platform all public anchors mat
 - Returns a promise witch forwards:
   - on success: containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
   - on error: 
-    - `http_error` on a http request error.
+    - An `http_error` Error: an unexpected HTTP error occurred during the verification process.
 
 ### Get the proof receipt of a public anchor created by Woleet
 
@@ -267,8 +267,8 @@ This function allows to retrieve from the Woleet platform all public anchors mat
 - Returns a promise witch forwards:
   - on success: a [Receipt](#object_receipt) object.
   - on error: 
-    - `not_found` if the anchor does not exist or is not public.
-    - `http_error` on a http request error.
+    - A `not_found` Error: the anchor does not exist or is not public.
+    - An `http_error` Error: an unexpected HTTP error occurred during the verification process.
 
 ### Get a Bitcoin transaction
 
@@ -279,8 +279,8 @@ This function allows to retrieve from the Woleet platform all public anchors mat
 - Returns a promise witch forwards:
   - on succeed: a [Transaction](#object_transaction) object.
   - on error: 
-    - `tx_not_found` if the transaction does not exits on the Bitcoin blockchain.
-    - `http_error` on a http request error.
+    - A `tx_not_found` Error: the transaction does not exits on the Bitcoin blockchain.
+    - An `http_error` Error: an unexpected HTTP error occurred during the verification process.
 
 ### Set the Bitcoin transaction provider
 
@@ -324,11 +324,6 @@ In order to use a worker for hashing big files, you may have to indicates the wo
 the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-worker.js*.
 
 ## Objects definitions
-
-Codes:
-
-ReceiptVerificationStatus.code can be:
-
 ### <a name="receipt_verification_status_object"></a>ReceiptVerificationStatus object
 ```
 {
@@ -337,7 +332,7 @@ ReceiptVerificationStatus.code can be:
     receipt: {Receipt} proof receipt
     code: {'verified' | error message} verifcations status code
     identityVerificationStatus: {
-            code: {'verfied' | 'http_error' | 'invalid_signature'} identity verifcations status code 
+            code: {'verified' | 'http_error' | 'invalid_signature'} identity verifcations status code 
         }
 }
 ```

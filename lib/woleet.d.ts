@@ -112,5 +112,7 @@ declare namespace woleet {
         function WoleetDAB(hash: string | File, progressCallback?: Function): Promise<Array<ReceiptVerificationStatus>>;
 
         function DAB(hash: string | File, receipt: Object, progressCallback?: Function): Promise<ReceiptVerificationStatus>;
+
+        function receipt(receipt: Object): Promise<ReceiptVerificationStatus>;
     }
 }

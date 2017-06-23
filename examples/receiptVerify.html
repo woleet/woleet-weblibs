@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Validate receipt demo</title>
+
+    <!-- IE ZONE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <script type="text/javascript">
+        if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
+    </script>
+    <!-- END IE ZONE -->
+
+    <!-- Woleet web libs -->
+    <script src="../dist/woleet-weblibs.js"></script>
+
+    <!-- Woleet web libs (minified version) -->
+    <!--<script src="../dist/woleet-weblibs.min.js"></script>-->
+
+    <script type="text/javascript">
+
+        /**
+         * @namespace woleet
+         */
+
+        window.onload = function () {
+            var r = document.getElementById('result');
+
+            window.verify = function (file) {
+                var reader = new FileReader();
+
+                reader.onloadend = function (e) {
+                    var li = document.createElement("li");
+                    // Parse and validate receipt (valid format and Merkle proof)
+                    try {
+                        var receipt = JSON.parse(e.target.result);
+                        woleet.verify.receipt(receipt)
+                            .then((validation) => {
+                                if (validation.code === 'verified') {
+                                    li.innerText = 'Receipt ' + file.name + ' is valid and matches transaction ' + receipt.header.tx_id;
+                                    if (receipt.signature) {
+
+                                        li.innerText += 'it has been signed by ' + receipt.signature.pubKey;
+
+                                        if (receipt.signature.identityURL) {
+                                            if (validation.identityVerificationStatus.code !== 'verified') {
+                                                li.innerText += ' but identity verification failed: ' + validation.identityVerificationStatus.code;
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
+                                    li.innerText += 'Receipt verification failed: ' + validation.code;
+                                }
+
+                            })
+                    } catch (err) {
+                        li.innerText += 'Error: ' + err.message;
+                    }
+                    r.appendChild(li);
+                };
+
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</head>
+<body>
+<h3>Validate receipt demo</h3>
+Choose a receipt:
+<input type="file" onchange="verify(this.files[0])">
+<ul id="result"></ul>
+</body>
+</html>
