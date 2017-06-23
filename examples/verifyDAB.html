@@ -48,10 +48,8 @@
             };
 
             var check = function () {
-
                 if (_file && _receipt) {
                     r.innerText = 'pending ...';
-                    //noinspection NodeModulesDependencies,ES6ModulesDependencies
                     woleet.verify.DAB(_file, _receipt)
                         .then(function (result) {
                             if (result.code != 'verified') {
