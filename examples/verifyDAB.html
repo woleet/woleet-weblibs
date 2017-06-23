@@ -55,19 +55,23 @@
                     woleet.verify.DAB(_file, _receipt)
                         .then(function (result) {
                             if (result.code != 'verified') {
-                                r.innerText = 'Invalid: ' + result.code
+                                r.innerText = 'Error: ' + result.code;
                             } else {
                                 r.innerText = 'The file matches the receipt and the blockchain confirmed it '
                                     + result.confirmations
                                     + ' times on '
                                     + result.timestamp.toISOString();
                                 if (_receipt.signature) {
-                                    r.innerText += ', it has been signed by ' + _receipt.signature.pubKey
+                                    r.innerText += ', it has been signed by ' + _receipt.signature.pubKey;
+                                    if (result.identityVerificationStatus && result.identityVerificationStatus.code != 'verified')
+                                        r.innerText += ' (but identity cannot be verified using ' + _receipt.signature.identityURL + ')';
+                                    else
+                                        r.innerText += ' (identity verified using ' + _receipt.signature.identityURL + ')';
                                 }
                             }
                         }, function (error) {
                             console.error(error);
-                            r.innerText = 'Error: ' + error.message
+                            r.innerText = 'Error: ' + error.message;
                         })
                 }
             }

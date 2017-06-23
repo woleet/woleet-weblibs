@@ -19,9 +19,6 @@
     <!--<script src="../dist/woleet-weblibs.min.js"></script>-->
 
     <script>
-        /**
-         * @namespace woleet
-         */
         window.onload = function () {
 
             var r = document.getElementById('result');
@@ -39,13 +36,17 @@
                             results.forEach(function (result) {
                                 var li = document.createElement('li');
                                 if (result.code != 'verified') {
-                                    r.innerText = 'Invalid: ' + result.code;
+                                    r.innerText = 'Error: ' + result.code;
                                 } else {
                                     li.innerText += 'confirmed ' + result.confirmations + ' times';
                                     if (result.confirmations)
                                         li.innerText += ' on ' + result.timestamp;
                                     if (result.receipt && result.receipt.signature)
                                         li.innerText += ' and signed by ' + result.receipt.signature.pubKey;
+                                    if (result.identityVerificationStatus && result.identityVerificationStatus.code != 'verified')
+                                        li.innerText += ' (but identity cannot be verified using ' + result.receipt.signature.identityURL + ')';
+                                    else
+                                        li.innerText += ' (identity verified using ' + result.receipt.signature.identityURL + ')';
                                 }
                                 r.appendChild(li);
                             });
