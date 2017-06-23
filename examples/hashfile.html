@@ -40,9 +40,9 @@
             // On success, display computed hash
             hasher.on('result', function (message) {
                 console.log(message);
-                var result = document.createElement("li");
-                result.innerText = message.file.name + ': ' + message.result;
-                document.getElementById('hashes').appendChild(result);
+                var li = document.createElement("li");
+                li.innerText = message.file.name + ': ' + message.result;
+                document.getElementById('hashes').appendChild(li);
             });
         }
     </script>

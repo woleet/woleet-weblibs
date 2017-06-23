@@ -173,7 +173,8 @@ Cancels the current hash process (if several files are in the stack, the whole s
 
 **`woleet.receipt.validate(receipt)`**
 
-This function allows to validate an anchoring receipt.
+This function allows to validate the format of an anchoring receipt.
+It does not check the Bitcoin transaction, nor the signature, nor the signee identity (if any).
 
 See example at [examples/validateReceipt.html](examples/receiptValidate.html)
 
@@ -193,6 +194,7 @@ See example at [examples/validateReceipt.html](examples/receiptValidate.html)
 **`woleet.signature.validateSignature(message, pubKey, signature)`**
 
 This function allows to validate a signature.
+It checks that the signature is valid for the message and produced by the public key.
 
 See example at [examples/signature.html](examples/signatureValidateSignature.html)
 
@@ -207,7 +209,8 @@ See example at [examples/signature.html](examples/signatureValidateSignature.htm
  
 **`woleet.signature.validateIdentity(identityUrl, pubKey)`**
 
-This function allows to validate the identity of a signee, ie. validates that the identity URL controls the signee's Bitcoin address.
+This function allows to validate the identity of a signee.
+It checks that the identity URL controls the provided public key by asking it to sign some random data and checking the returned signature.
 
 See example at [examples/signature.html](examples/signatureValidateIdentity.html)
 
@@ -216,14 +219,14 @@ See example at [examples/signature.html](examples/signatureValidateIdentity.html
     - `pubKey`: a bitcoin address (in base 58).
 - Returns a Promise witch forwards an object: `{ valid: true }` if the identity is valid,
 `{ valid: false, reason: string }` otherwise. Note that the **reason** attribute may not be defined depending on the kind of failure.
-- If the identity URL does not return the expected data, `bad_server_response` is returned.
-- If a network/server error occurred while calling the identity URL, `http_error` is returned.
+- If the identity URL does not return the expected data, a `bad_server_response` Error object is returned.
+- If a network/server error occurred while calling the identity URL an `http_error` Error object is returned.
 
-### Get Woleet public anchors matching a given file
+### Get Woleet public anchors matching a file
 
 **`woleet.anchor.getAnchorIDs(hash, type, size)`**
 
-This function allows to retrieve from the Woleet platform all public anchors matching a given file.
+This function allows to retrieve from the Woleet platform all public anchors matching a file.
 
 - Parameters:
     - `hash`: the SHA256 hash of the file (as an hexadecimal characters String).

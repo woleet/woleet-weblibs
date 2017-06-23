@@ -29,7 +29,6 @@
             window.check = function (file) {
                 woleet.verify.WoleetDAB(file)
                     .then(function (results) {
-                        console.log(results);
                         var len = results.length;
                         if (len == 0) {
                             r.innerText = 'There is no match for "' + file.name

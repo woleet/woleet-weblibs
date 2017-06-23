@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Validate signature demo</title>
+    <title>Validate identity demo</title>
 
     <!-- IE ZONE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
@@ -44,22 +44,21 @@
             function check() {
                 r.innerText = 'pending ...';
 
-                if (!_receipt.signature || !_receipt.signature.signedHash || !_receipt.signature.pubKey || !_receipt.signature.signature)
-                    return r.innerText = 'No signature in receipt';
+                if (!_receipt.signature || !_receipt.signature.pubKey || !_receipt.signature.identityURL)
+                    return r.innerText = 'No signature, public key or identity URL in receipt';
 
-                woleet.signature.validateSignature(_receipt.signature.signedHash, _receipt.signature.pubKey, _receipt.signature.signature)
-                    .then(result => {
-                        r.innerText = 'Result: ' + JSON.stringify(result, null, 4);
+                woleet.signature.validateIdentity(_receipt.signature.identityURL, _receipt.signature.pubKey)
+                    .then(success => {
+                        r.innerText = 'Success: ' + JSON.stringify(success, null, 4);
                     }, function (error) {
-                        console.log(error);
-                        r.innerText = 'Error: ' + JSON.stringify(error, null, 4);
+                        r.innerText = 'Error: ' + error.message;
                     });
             }
         }
     </script>
 </head>
 <body>
-<h3>Validate signature demo</h3>
+<h3>Validate identity demo</h3>
 Choose a signature receipt:
 <input type="file" onchange="setReceipt(this.files.item(0))">
 <p id="result"></p>

@@ -21,46 +21,26 @@
 
     <script type="text/javascript">
         window.onload = function () {
-            var rec = document.getElementById('result');
+            var r = document.getElementById('result');
 
             window.validate = function (file) {
                 var reader = new FileReader();
 
                 reader.onloadend = function (e) {
+                    var li = document.createElement("li");
 
                     // Parse and validate receipt (valid format and Merkle proof)
-                    var receipt, isValid;
                     try {
-                        receipt = JSON.parse(e.target.result);
-                        isValid = woleet.receipt.validate(receipt)
+                        var receipt = JSON.parse(e.target.result);
+                        if (woleet.receipt.validate(receipt))
+                            li.innerText += 'Receipt ' + file.name + ' is valid';
+                        else
+                            li.innerText += 'Receipt ' + file.name + ' is not valid';
                     } catch (err) {
-                        isValid = err.message
+                        li.innerText += 'Error: ' + err.message;
                     }
 
-                    var result = document.createElement("li");
-                    rec.appendChild(result);
-
-                    // If receipt is validated
-                    if (isValid == true) {
-                        result.innerText += 'Receipt ' + file.name + ' is valid';
-
-                        // Get Bitcoin transaction
-                        woleet.transaction.get(receipt.header.tx_id)
-                            .then(function (transaction) {
-
-                                // Receipt is verified if Bitcoin transaction OP_RETURN matches receipt Merkle root
-                                if (transaction.opReturn == receipt.header.merkle_root) {
-                                    result.innerText += ' and matches the Bitcoin transaction ' + transaction.txId;
-                                } else {
-                                    result.innerText += ' but does not match the Bitcoin transaction ' + transaction.txId;
-                                }
-                            }, function (error) {
-                                result.innerText += ' but an error occurred while getting the Bitcoin transaction: ' + error.toString();
-                            });
-                    }
-                    else {
-                        result.innerText += 'Receipt is not valid: ' + isValid;
-                    }
+                    r.appendChild(li);
                 };
 
                 reader.readAsText(file);
