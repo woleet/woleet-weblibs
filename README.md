@@ -2,9 +2,9 @@
 
 This repository contains the sources code of **Woleet web libraries**.
 These libraries can be used in any web application to:
-- verify the proof of existence and retrieve the timestamp of any data anchored in the Bitcoin blockchain by Woleet or by any third party providing [Chainpoint 1.x](http://www.chainpoint.org/#v1x) compatible proof receipts,
-- verify the proof of signature, retrieve the signature timestamp and verify the signee identity of any data signed and anchored in the Bitcoin blockchain by Woleet (using signature anchoring, an extension of the Chainpoint 1.0 format proposed by Woleet) 
-- compute the SHA256 hash of any file (even larger than 50MB).
+- **verify the proof of existence** (ie. retrieve the data timestamp) of any data anchored in the Bitcoin blockchain by Woleet or by any third party providing [Chainpoint 1.x](http://www.chainpoint.org/#v1x) compatible proof receipts,
+- **verify the proof of signature** (ie. retrieve the signature timestamp, verify the signature and optionally the identity of the signee) of any data signed and anchored in the Bitcoin blockchain by Woleet or by any third party providing proof receipts compatible with [signature anchoring](https://medium.com/@woleet/beyond-data-anchoring-bee867d9be3a), an extension of the Chainpoint 1.0 format proposed by Woleet
+- **compute the SHA256 hash** of any file (even larger than 50MB).
 
 Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`**,
 **`woleet.receipt.get`** and **`woleet.anchor.getAnchorIds`** functions, which allow retrieving proof receipts from Woleet) and so don't require any Woleet account nor the
@@ -85,7 +85,7 @@ This function provides an easy way to retrieve and verify all public proof recei
  created using the Woleet platform.
 
 Proof of existence receipts (created when anchoring data) and proof of signature receipts (created when anchoring signature) are retrieved
- from the platform and verified automatically.
+ from the Woleet platform and verified automatically.
 
 See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 
@@ -97,15 +97,19 @@ The `code` attribute can be:
     - `verified` on success
     - any `code` value returned by [woleet.receipt.verify](#receiptVerify) (see below).
     - any error code thrown by the [Hasher](#hashfile) object (see below).
-    - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` parameter.
-    - `file_matched_but_anchor_not_yet_processed`: the file has a match in our database but is waiting to be anchored.
+    - `target_hash_mismatch`: the receipt's target hash is not equal to the file hash or to the `hash` parameter.
+    - `file_matched_but_anchor_not_yet_processed`: the file has a match in Woleet database but is waiting to be anchored.
 
 ### Verify a file (with a proof receipt) 
 
 **`verify.DAB(file, receipt)`** or **`verify.DAB(hash, receipt)`**
 
 This function allows to verify any proof of existence receipt compatible with the Chainpoint 1.x format,
- or any proof of signature receipt compatible with the Chainpoint 1.x extension proposed by Woleet for signature anchoring. 
+or any proof of signature receipt compatible with the Chainpoint 1.x extension proposed by Woleet for signature
+anchoring.
+
+It first verifies the proof receipt, and then compare the provided hash (or the hash of the provided file)
+to the anchored or signed hash referred in the receipt.
 
 See example at [examples/verifyDAB.html](examples/verifyDAB.html)
 
@@ -118,15 +122,19 @@ The `code` attribute can be:
     - `verified` on success
     - any `code` value returned by [woleet.receipt.verify](#receiptVerify) (see below).
     - any error code thrown by the [Hasher](#hashfile) object (see below).
-    - `target_hash_mismatch`: the receipt's target hash is not equal to `hash` parameter.
+    - `target_hash_mismatch`: the receipt's target hash is not equal to the file hash or to the `hash` parameter.
     
 
 ### <a name="receiptVerify"></a>Verify a proof receipt
 
 **`woleet.verify.receipt(receipt)`**
 
-This function allows to fully verify an anchoring receipt.
-It checks the Bitcoin transaction, the signature and the signee identity (if any).
+This function allows to verify any proof of existence receipt compatible with the Chainpoint 1.x format,
+or any proof of signature receipt compatible with the Chainpoint 1.x extension proposed by Woleet for signature
+anchoring.
+
+It first verifies the embedded cryptographic proof, then access the Bitcoin transaction to check the timestamp of
+the proof, then verifies the signature (if any) and the signee identity (if any).
 
 See example at [examples/receiptVerify.html](examples/verifyReceipt.html)
 
@@ -212,7 +220,7 @@ It does not check the Bitcoin transaction, nor the signature, nor the signee ide
 This function allows to validate a signature.
 It checks that the signature is valid for the message and produced by the public key.
 
-See example at [examples/signature.html](examples/signatureValidateSignature.html)
+See example at [examples/signature.html](examples/validateSignature.html)
 
 - Parameters:
     - `message`: the string that have been signed.
@@ -228,7 +236,7 @@ See example at [examples/signature.html](examples/signatureValidateSignature.htm
 This function allows to validate the identity of a signee.
 It checks that the identity URL controls the provided public key by asking it to sign some random data and checking the returned signature.
 
-See example at [examples/signature.html](examples/signatureValidateIdentity.html)
+See example at [examples/signature.html](examples/validateIdentity.html)
 
 - Parameters:
     - `identityUrl`: the provided identity URL.
