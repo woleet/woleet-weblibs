@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Validate receipt demo</title>
+    <title>Verify receipt demo</title>
 
     <!-- IE ZONE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
@@ -12,19 +12,15 @@
     </script>
     <!-- END IE ZONE -->
 
-    <!-- Woleet web libs -->
+    <!-- Woleet web libs (regular version) -->
     <script src="../dist/woleet-weblibs.js"></script>
 
     <!-- Woleet web libs (minified version) -->
     <!--<script src="../dist/woleet-weblibs.min.js"></script>-->
 
-    <script type="text/javascript">
-
-        /**
-         * @namespace woleet
-         */
-
+    <script>
         window.onload = function () {
+
             var r = document.getElementById('result');
 
             window.verify = function (file) {
@@ -38,15 +34,14 @@
                         woleet.verify.receipt(receipt)
                             .then((validation) => {
                                 if (validation.code === 'verified') {
-                                    li.innerText = 'Receipt ' + file.name + ' is valid and matches transaction ' + receipt.header.tx_id;
+                                    li.innerText += 'Receipt ' + file.name + ' is valid and matches transaction ' + receipt.header.tx_id;
                                     if (receipt.signature) {
-
-                                        li.innerText += 'it has been signed by ' + receipt.signature.pubKey;
-
-                                        if (receipt.signature.identityURL) {
-                                            if (validation.identityVerificationStatus.code !== 'verified') {
-                                                li.innerText += ' but identity verification failed: ' + validation.identityVerificationStatus.code;
-                                            }
+                                        li.innerText += ' it has been signed by ' + receipt.signature.pubKey;
+                                        if (validation.identityVerificationStatus) {
+                                            if (validation.identityVerificationStatus.code != 'verified')
+                                                r.innerText += ' (but identity cannot be verified using ' + receipt.signature.identityURL + ')';
+                                            else
+                                                r.innerText += ' (identity verified using ' + receipt.signature.identityURL + ')';
                                         }
                                     }
                                 }
@@ -67,7 +62,7 @@
     </script>
 </head>
 <body>
-<h3>Validate receipt demo</h3>
+<h3>Verify receipt demo</h3>
 Choose a receipt:
 <input type="file" onchange="verify(this.files[0])">
 <ul id="result"></ul>

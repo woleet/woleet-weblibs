@@ -128,7 +128,7 @@ The `code` attribute can be:
 This function allows to fully verify an anchoring receipt.
 It checks the Bitcoin transaction, the signature and the signee identity (if any).
 
-See example at [examples/receiptVerify.html](examples/receiptVerify.html)
+See example at [examples/receiptVerify.html](examples/verifyReceipt.html)
 
 - Parameters:
     - `receipt`: a JSON parsed anchoring receipt.
@@ -193,8 +193,6 @@ Cancels the current hash process (if several files are in the stack, the whole s
 
 This function allows to validate the format of a proof receipt.
 It does not check the Bitcoin transaction, nor the signature, nor the signee identity (if any).
-
-See example at [examples/receiptValidate.html](examples/receiptValidate.html)
 
 - Parameters:
     - `receipt`: a JSON parsed proof receipt.
