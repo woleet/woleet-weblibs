@@ -319,6 +319,8 @@ into a single *woleet-weblibs.js* file and minified versions are available.
 
   - *woleet-signature.js* provides the signature.validateIdentity and signature.validateSignature methods, as this file is essentially 
   a browserified version of [bitcoinjs-message](https://www.npmjs.com/package/bitcoinjs-message) it also exposes the Buffer class under signature.Buffer.
+  It relies on:
+    - *woleet-api.js*
     
   - *woleet-api.js* provides miscellaneous method wrapping the Woleet API
 

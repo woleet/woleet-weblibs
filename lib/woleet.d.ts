@@ -82,6 +82,10 @@ declare namespace woleet {
         function validateSignature(message: string, address: string, signature: string): Promise<SignatureValidationResult>;
     }
 
+    namespace identity {
+        function getRandomSignature(identityUrl: string, pubKey: string, leftData: string): Promise<{ signature: string, rightData: string }>;
+    }
+
     namespace crypto {
         class sha256 {
             update(data: Uint8Array | string): this
