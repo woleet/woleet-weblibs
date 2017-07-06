@@ -100,7 +100,7 @@ declare namespace woleet {
 
             on(event: 'start' | 'result' | 'progress' | 'error', callback: Function);
 
-            start(files: File | FileList);
+            start(files: File | FileList | File[]);
 
             cancel();
 

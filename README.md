@@ -178,7 +178,10 @@ event name | callback prototype
 This functions allows to start the hashing process.
 
 - Parameters:
-    - `files`: a [FileList](#object_fileList) object.
+    - `files` can be:
+        - a [FileList](#object_fileList) object.
+        - a single [File](#object_file) object.
+        - a [File](#object_file) object array.
 - Throws:
     - `file_too_big_to_be_hashed_without_worker`: workers are not supported and the file exceeds the maximum size of the worker free hash function.
     - `invalid_parameter`: `files` parameter is not a File nor a FileList.

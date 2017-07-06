@@ -27,6 +27,16 @@
             var hasher = new woleet.file.Hasher;
             window.hasher = hasher;
 
+            window.start = function (files) {
+
+                // This transformation is for testing purpose only
+                // we could pass directly "files" as it is a FileList object
+                var arr = [];
+                for (var i = 0; i < files.length; i++) arr.push(files[i]);
+
+                hasher.start(arr);
+            };
+
             hasher.on('start', function (message) {
                 console.log(message)
             });
@@ -49,7 +59,7 @@
 </head>
 <body>
 <h3>Hash file(s) demo</h3>
-<input type="file" id="input" multiple onchange="hasher.start(this.files)">
+<input type="file" id="input" multiple onchange="start(this.files)">
 <button onclick="hasher.cancel()">Cancel</button>
 <ul id="hashes"></ul>
 </body>
