@@ -119,8 +119,6 @@ const emptyFileValidSignedReceipt = {
     }
 };
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
-
 Object.freeze(validReceipt);
 
 function noop() {
@@ -130,6 +128,23 @@ function noop() {
 function safeCopy(obj) {
     return JSON.parse(JSON.stringify(obj))
 }
+
+if (typeof window === 'undefined') {
+
+    const stream = require('stream');
+    const woleet = global.woleet = require('../index');
+
+    function Blob([string]) {
+        return Buffer.from(string, 'utf-8')
+    }
+
+    function File([blob]) {
+        return blob;
+    }
+
+}
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
 // Force the blockchain provider (default is woleet.io)
 //woleet.transaction.setDefaultProvider('woleet.io');
@@ -287,6 +302,11 @@ describe("transaction.get suite", function () {
             });
         });
     }
+
+    afterAll(() => {
+        // We reset default provider to woleet.io as the others can be stingy on request limit
+        woleet.transaction.setDefaultProvider('woleet.io');
+    })
 
 });
 

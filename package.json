@@ -1,9 +1,10 @@
 {
   "name": "woleet-weblibs",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": false,
   "scripts": {
-    "build": "gulp"
+    "build": "gulp",
+    "test": "jasmine --config=jasmine.json"
   },
   "devDependencies": {
     "babel-preset-latest": "^6.22.0",
@@ -44,7 +45,7 @@
     ]
   },
   "description": "This repository contains the sources code of **Woleet web libraries**. These libraries can be used in any web application to: - verify the integrity and timestamp of any data anchored on the Bitcoin blockchain (so called DAB) by Woleet or by any third party using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible anchoring receipts, - compute the SHA256 hash of any file (even larger than 50MB).",
-  "main": "dist/woleet-weblibs.js",
+  "main": "index.js",
   "directories": {
     "example": "examples",
     "test": "test"

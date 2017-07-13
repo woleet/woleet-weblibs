@@ -2,7 +2,7 @@
 
 This repository contains the sources code of **Woleet web libraries**.
 These libraries can be used in any web application to:
-- **verify the proof of existence** (ie. retrieve the data timestamp) of any data anchored in the Bitcoin blockchain by Woleet or by any third party providing [Chainpoint 1.x](http://www.chainpoint.org/#v1x) compatible proof receipts,
+- **verify the proof of existence** (ie. retrieve the data timestamp) of any data anchored in the Bitcoin blockchain by Woleet or by any third party providing [Chainpoint 1.x]([chainpoint-link]) compatible proof receipts,
 - **verify the proof of signature** (ie. retrieve the signature timestamp, verify the signature and optionally the identity of the signee) of any data signed and anchored in the Bitcoin blockchain by Woleet or by any third party providing proof receipts compatible with [signature anchoring](https://medium.com/@woleet/beyond-data-anchoring-bee867d9be3a), an extension of the Chainpoint 1.0 format proposed by Woleet
 - **compute the SHA256 hash** of any file (even larger than 50MB).
 
@@ -39,7 +39,7 @@ include a third party library such as [bluebird](http://bluebirdjs.com/):
 <!-- END IE ZONE -->
 ```
 
-These libraries currently only support proof of existence receipts compatible with the [Chainpoint 1.x](http://www.chainpoint.org/#v1x) standard
+These libraries currently only support proof of existence receipts compatible with the [Chainpoint 1.x]([chainpoint-link]) standard
 and proof of signature receipts (an extension of the Chainpoint 1.x standard proposed by Woleet).
 
 
@@ -90,7 +90,7 @@ Proof of existence receipts (created when anchoring data) and proof of signature
 See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 
 - Parameters:
-    - `file`: the [File](#object_file) object containing the data to verify.
+    - `file`: the [File](#object_file) object containing the data to verify (with node: a [Buffer]([buffer-link]) or a [Readable]([readable-link]) object).
     - `hash`: the SHA256 hash of the data to verify (as an hexadecimal characters String).
 - Returns a Promise witch forwards a list of [ReceiptVerificationStatus](#receipt_verification_status_object) object (can be empty).
 The `code` attribute can be:
@@ -114,7 +114,7 @@ to the anchored or signed hash referred in the receipt.
 See example at [examples/verifyDAB.html](examples/verifyDAB.html)
 
 - Parameters:
-    - `file`: the [File](#object_file) object containing the data to verify.
+    - `file`: the [File](#object_file) object containing the data to verify (with node: a [Buffer]([buffer-link]) or a [Readable]([readable-link]) object).
     - `hash`: the SHA256 hash of the data to verify (as an hexadecimal characters String).
     - `receipt`: a JSON parsed proof of existence or proof of signature receipt.
 - Returns a Promise witch forwards a [ReceiptVerificationStatus](#receipt_verification_status_object) object.
@@ -182,6 +182,8 @@ This functions allows to start the hashing process.
         - a [FileList](#object_fileList) object.
         - a single [File](#object_file) object.
         - a [File](#object_file) object array.
+        - with node: a [Buffer]([buffer-link]) or a [Readable]([readable-link]) object.
+        - with node: a [Buffer]([buffer-link]) or a [Readable]([readable-link]) object array.
 - Throws:
     - `file_too_big_to_be_hashed_without_worker`: workers are not supported and the file exceeds the maximum size of the worker free hash function.
     - `invalid_parameter`: `files` parameter is not a File nor a FileList.
@@ -321,7 +323,7 @@ into a single *woleet-weblibs.js* file and minified versions are available.
     - *crypto-js.js* library (only to be accessible, not to include)
 
   - *woleet-signature.js* provides the signature.validateIdentity and signature.validateSignature methods, as this file is essentially 
-  a browserified version of [bitcoinjs-message](https://www.npmjs.com/package/bitcoinjs-message) it also exposes the Buffer class under signature.Buffer.
+  a browserified version of [bitcoinjs-message]([bitcoinjs-message-link]) it also exposes the Buffer class under signature.Buffer.
   It relies on:
     - *woleet-api.js*
     
@@ -380,7 +382,7 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
 
 ### <a name="object_receipt"></a>Receipt object
 
-The receipt object matches the [Chainpoint 1.x](http://www.chainpoint.org/#v1x) format.
+The receipt object matches the [Chainpoint 1.x]([chainpoint-link]) format.
 
 #### Example
 ```json
@@ -440,3 +442,8 @@ See https://developer.mozilla.org/fr/docs/Web/API/FileList
 ### <a name="object_file"></a>File object
 
 See https://developer.mozilla.org/fr/docs/Web/API/File
+
+[buffer-link]: https://nodejs.org/api/buffer.html
+[readable-link]: https://nodejs.org/api/stream.html#stream_readable_streams
+[chainpoint-link]: http://www.chainpoint.org/#v1x
+[bitcoinjs-message-link]: https://www.npmjs.com/package/bitcoinjs-message
