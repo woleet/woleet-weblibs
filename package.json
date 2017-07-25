@@ -43,7 +43,7 @@
       ]
     ]
   },
-  "description": "This repository contains the sources code of **Woleet web libraries**. These libraries can be used in any web application to: - verify the integrity and timestamp of any data anchored on the Bitcoin blockchain (so called DAB) by Woleet or by any third party using [Chainpoint 1.0](http://www.chainpoint.org/#v1x) compatible anchoring receipts, - compute the SHA256 hash of any file (even larger than 50MB).",
+  "description": "This repository contains the sources code of **Woleet web libraries**.",
   "main": "dist/woleet-weblibs.js",
   "directories": {
     "example": "examples",
