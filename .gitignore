@@ -8,8 +8,5 @@
 # Node module
 **/node_modules
 
-# Bower components
-**/bower_components
-
 *.tgz
 /dist/
