@@ -3,7 +3,7 @@
 This repository contains the sources code of **Woleet web libraries**.
 These libraries can be used in any web application to:
 - **verify the proof of existence** (ie. retrieve the data timestamp) of any data anchored in the Bitcoin blockchain by Woleet or by any third party providing [Chainpoint 1.x]([chainpoint-link]) compatible proof receipts,
-- **verify the proof of signature** (ie. retrieve the signature timestamp, verify the signature and optionally the identity of the signee) of any data signed and anchored in the Bitcoin blockchain by Woleet or by any third party providing proof receipts compatible with [signature anchoring](https://medium.com/@woleet/beyond-data-anchoring-bee867d9be3a), an extension of the Chainpoint 1.0 format proposed by Woleet
+- **verify the proof of signature** (ie. retrieve the signature timestamp, verify the signature and optionally the identity of the signee) of any data signed and anchored in the Bitcoin blockchain by Woleet or by any third party providing proof receipts compatible with [signature anchoring](https://medium.com/@woleet/beyond-data-anchoring-bee867d9be3a), an extension of the Chainpoint 1.x format proposed by Woleet
 - **compute the SHA256 hash** of any file (even larger than 50MB).
 
 Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`**,
