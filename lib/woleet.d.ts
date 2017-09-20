@@ -6,13 +6,19 @@ interface Transaction {
     txId: string
 }
 
-interface Hash extends string {
-}
+interface Hash extends string {}
 
 interface Branch {
     parent: string
     left: string
     right: string
+}
+
+interface ReceiptSignature {
+    signedHash: string,
+    pubKey: string,
+    signature: string,
+    identityURL?: string
 }
 
 interface Receipt {
@@ -28,12 +34,7 @@ interface Receipt {
         "target_uri": string,
         "target_proof": Array<Branch>
     },
-    signature?: {
-        signedHash: string,
-        pubKey: string,
-        signature: string,
-        identityURL?: string
-    },
+    signature?: ReceiptSignature,
     extra: Array<Object>
 }
 
@@ -44,12 +45,7 @@ interface ReceiptV2 {
     merkleRoot: string,
     proof: Array<{ left?: string, right?: string }>,
     anchors: Array<{ type: string, sourceId: string }>,
-    signature?: {
-        signedHash: string,
-        pubKey: string,
-        signature: string,
-        identityURL?: string
-    }
+    signature?: ReceiptSignature
 }
 
 interface ReceiptVerificationStatus {

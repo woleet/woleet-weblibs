@@ -146,6 +146,31 @@ const validReceiptV2 = {
 };
 
 /** @type {ReceiptV2} */
+const validReceiptV22 = {
+        "@context": "https://w3id.org/chainpoint/v2",
+        "type": "ChainpointSHA256v2",
+        "targetHash": "bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2",
+        "merkleRoot": "51296468ea48ddbcc546abb85b935c73058fd8acdb0b953da6aa1ae966581a7a",
+        "proof": [
+            {
+                "left": "bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2"
+            },
+            {
+                "left": "cb0dbbedb5ec5363e39be9fc43f56f321e1572cfcf304d26fc67cb6ea2e49faf"
+            },
+            {
+                "right": "cb0dbbedb5ec5363e39be9fc43f56f321e1572cfcf304d26fc67cb6ea2e49faf"
+            }
+        ],
+        "anchors": [
+            {
+                "type": "BTCOpReturn",
+                "sourceId": "f3be82fe1b5d8f18e009cb9a491781289d2e01678311fe2b2e4e84381aafadee"
+            }
+        ]
+    };
+
+/** @type {ReceiptV2} */
 const invalidReceiptV2 = {
     "targetHash": "8de1de49d84480c8d0142ee23d82595d5046a40e3958b4161ac37cb75d7ef0da",
     "signature": {
@@ -167,6 +192,31 @@ const invalidReceiptV2 = {
     ],
     "type": "ChainpointSHA256v2",
     "@context": "https://w3id.org/chainpoint/v2"
+};
+
+/** @type {ReceiptV2} */
+const invalidReceiptV22 = {
+    "@context": "https://w3id.org/chainpoint/v2",
+    "type": "ChainpointSHA256v2",
+    "targetHash": "bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2",
+    "merkleRoot": "51296468ea48ddbcc546abb85b935c73058fd8acdb0b953da6aa1ae966581a7a",
+    "proof": [
+        {
+            "left": "bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef3"
+        },
+        {
+            "left": "cb0dbbedb5ec5363e39be9fc43f56f321e1572cfcf304d26fc67cb6ea2e49faf"
+        },
+        {
+            "right": "cb0dbbedb5ec5363e39be9fc43f56f321e1572cfcf304d26fc67cb6ea2e49faf"
+        }
+    ],
+    "anchors": [
+        {
+            "type": "BTCOpReturn",
+            "sourceId": "f3be82fe1b5d8f18e009cb9a491781289d2e01678311fe2b2e4e84381aafadee"
+        }
+    ]
 };
 
 Object.freeze(validReceipt);
@@ -192,6 +242,8 @@ if (typeof window === 'undefined') {
         return blob;
     }
 
+} else {
+    Buffer = woleet.crypto.Buffer;
 }
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
@@ -231,7 +283,6 @@ describe("isSHA256 suite", function () {
 
 describe("short hash suite", function () {
 
-    const Buffer = woleet.crypto.Buffer;
     const sha224 = woleet.crypto.sha224;
     const sha256 = woleet.crypto.sha256;
     const sha384 = woleet.crypto.sha384;
@@ -340,7 +391,12 @@ describe("receipt.validate suite", function () {
 
     it('invalid chainpoint 2 receipt should not be valid', function () {
         const result = () => woleet.receipt.validate(invalidReceiptV2);
-        expect(result).toThrowError('invalid_receipt_format');
+        expect(result).toThrowError('merkle_root_mismatch');
+    });
+
+    it('invalid chainpoint 2 receipt should not be valid', function () {
+        const result = () => woleet.receipt.validate(invalidReceiptV22);
+        expect(result).toThrowError('merkle_root_mismatch');
     });
 
     it('receipt.validate without param should throw invalid_receipt_format', function () {
@@ -652,6 +708,13 @@ describe("verify.DAB suite", function () {
 
     it('verify.DAB with valid file and valid corresponding signed receipt should return valid result', (done) => {
         woleet.verify.DAB(file, emptyFileValidSignedReceipt)
+            .then(validationExpected)
+            .catch(noErrorExpected)
+            .then(done)
+    });
+
+    it('verify.DAB with valid file and valid corresponding Chainpoint 2 receipt should return valid result', (done) => {
+        woleet.verify.DAB("bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2", validReceiptV22)
             .then(validationExpected)
             .catch(noErrorExpected)
             .then(done)
