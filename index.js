@@ -74,7 +74,10 @@ const woleet = require('./lib/woleet-api')({}, getJSON);
 // defining crypto
 woleet.crypto = {
     createHash: crypto.createHash,
+    sha224: () => crypto.createHash('sha224'),
     sha256: () => crypto.createHash('sha256'),
+    sha384: () => crypto.createHash('sha384'),
+    sha512: () => crypto.createHash('sha512'),
 };
 
 // defining receipt.validate (woleet-chainpoint)

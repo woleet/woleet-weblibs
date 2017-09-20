@@ -6,7 +6,8 @@ interface Transaction {
     txId: string
 }
 
-interface Hash extends string {}
+interface Hash extends string {
+}
 
 interface Branch {
     parent: string
@@ -34,6 +35,21 @@ interface Receipt {
         identityURL?: string
     },
     extra: Array<Object>
+}
+
+interface ReceiptV2 {
+    '@context': string,
+    type: string,
+    targetHash: string,
+    merkleRoot: string,
+    proof: Array<{ left?: string, right?: string }>,
+    anchors: Array<{ type: string, sourceId: string }>,
+    signature?: {
+        signedHash: string,
+        pubKey: string,
+        signature: string,
+        identityURL?: string
+    }
 }
 
 interface ReceiptVerificationStatus {

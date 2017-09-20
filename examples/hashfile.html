@@ -38,18 +38,20 @@
             };
 
             hasher.on('start', function (message) {
-                console.log(message)
+                console.log(message);
+                console.time('hash');
             });
             hasher.on('progress', function (message) {
                 console.log(message)
             });
             hasher.on('error', function (error) {
-                console.error(error)
+                console.error(error);
             });
 
             // On success, display computed hash
             hasher.on('result', function (message) {
                 console.log(message);
+                console.timeEnd('hash');
                 var li = document.createElement("li");
                 li.innerText = message.file.name + ': ' + message.result;
                 document.getElementById('hashes').appendChild(li);

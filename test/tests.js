@@ -2,9 +2,7 @@
  * @namespace woleet
  */
 
-/**
- * @type {Receipt}
- */
+/** @type {Receipt} */
 const validReceipt = {
     "header": {
         "chainpoint_version": "1.0",
@@ -46,9 +44,8 @@ const validReceipt = {
         }
     ]
 };
-/**
- * @type {Receipt}
- */
+
+/** @type {Receipt} */
 const emptyFileValidReceipt = {
     "header": {
         "chainpoint_version": "1.0",
@@ -60,17 +57,22 @@ const emptyFileValidReceipt = {
     "target": {
         "target_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "target_uri": "null",
-        "target_proof": [{
-            "parent": "628968521ab483a75de893f6a27132bae3ea55384c67f22ebb94199d07e0878e",
-            "left": "764b64442f530395050237e09a646ee81b5798915e47818f5c5d1053773ca80b",
-            "right": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        }]
+        "target_proof": [
+            {
+                "parent": "628968521ab483a75de893f6a27132bae3ea55384c67f22ebb94199d07e0878e",
+                "left": "764b64442f530395050237e09a646ee81b5798915e47818f5c5d1053773ca80b",
+                "right": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+        ]
     },
-    "extra": [{"anchorid": "616980d1-7672-4558-b101-6c94bf7cee41"}]
+    "extra": [
+        {
+            "anchorid": "616980d1-7672-4558-b101-6c94bf7cee41"
+        }
+    ]
 };
-/**
- * @type {Receipt}
- */
+
+/** @type {Receipt} */
 const emptyFileValidSignedReceipt = {
     "header": {
         "chainpoint_version": "1.0",
@@ -117,6 +119,54 @@ const emptyFileValidSignedReceipt = {
             }
         ]
     }
+};
+
+/** @type {ReceiptV2} */
+const validReceiptV2 = {
+    "targetHash": "8de1de49d84480c8d0142ee23d82595d5046a40e3958b4161ac37cb75d7ef0da",
+    "signature": {
+        "signature": "H5aUT2noAzB7CeT0YTgIpcEx1xQ1KhBetYoewDVDrImgEYgSUKTg/5v0wbVfY4tky3EJyWgYH1PwFrwosfgE670=",
+        "signedHash": "b8f0ccf1484379c957bb1a2d1806998e2662ebde731266dbd9b953d59fd81a5b",
+        "pubKey": "1BGLkyG7SCHH32bALDnMP2YrS84JMCimc3"
+    },
+    "merkleRoot": "9a094a28c667633c6e6868124a694673cc8b440ab1a8205dad748c6a4455e8d9",
+    "proof": [
+        {
+            "right": "dda086255a9d62e90a791307de7aa1bdb973333f8da8ac53f402b9d72db8d9d9"
+        }
+    ],
+    "anchors": [
+        {
+            "sourceId": "cf85e40a989414fcba072434fbead5d7b51899c95e63bdc641561294fbaf7687",
+            "type": "BTCOpReturn"
+        }
+    ],
+    "type": "ChainpointSHA256v2",
+    "@context": "https://w3id.org/chainpoint/v2"
+};
+
+/** @type {ReceiptV2} */
+const invalidReceiptV2 = {
+    "targetHash": "8de1de49d84480c8d0142ee23d82595d5046a40e3958b4161ac37cb75d7ef0da",
+    "signature": {
+        "signature": "H5aUT2noAzB7CeT0YTgIpcEx1xQ1KhBetYoewDVDrImgEYgSUKTg/5v0wbVfY4tky3EJyWgYH1PwFrwosfgE670=",
+        "signedHash": "b8f0ccf1484379c957bb1a2d1806998e2662ebde731266dbd9b953d59fd81a5b",
+        "pubKey": "1BGLkyG7SCHH32bALDnMP2YrS84JMCimc3"
+    },
+    "merkleRoot": "9a094a28c667633c6e6868124a694673cc8b440ab1a8205dad748c6a4455e8d9",
+    "proof": [
+        {
+            "right": "eda086255a9d62e90a791307de7aa1bdb973333f8da8ac53f402b9d72db8d9d9"
+        }
+    ],
+    "anchors": [
+        {
+            "sourceId": "cf85e40a989414fcba072434fbead5d7b51899c95e63bdc641561294fbaf7687",
+            "type": "BTCOpReturn"
+        }
+    ],
+    "type": "ChainpointSHA256v2",
+    "@context": "https://w3id.org/chainpoint/v2"
 };
 
 Object.freeze(validReceipt);
@@ -179,11 +229,118 @@ describe("isSHA256 suite", function () {
     });
 });
 
+describe("short hash suite", function () {
+
+    const Buffer = woleet.crypto.Buffer;
+    const sha224 = woleet.crypto.sha224;
+    const sha256 = woleet.crypto.sha256;
+    const sha384 = woleet.crypto.sha384;
+    const sha512 = woleet.crypto.sha512;
+
+    it('should correctly perform a sha224 on string', function () {
+        const r1 = sha224().update("").digest();
+        const r2 = sha224().update(r1).digest('hex');
+        const r3 = sha224().update(r1.toString('hex')).digest('hex');
+        expect(r1.toString('hex')).toEqual("d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f");
+        expect(r2).toEqual("4126b5221637da7df60d24eaa2822a0a1a19a4c2c4cfa7f1034475be"); // r1 hex parsed
+        expect(r3).toEqual("9350828c49590226348a43854e9deb42ab802d4291b71d06166e38a4"); // r1 as utf-8
+    });
+
+    it('should correctly perform a sha224 on Buffer', function () {
+        const r1 = sha224().update(new Buffer('')).digest('hex');
+        const r2 = sha224().update(r1, 'hex').digest('hex');
+        const r3 = sha224().update(r1).digest('hex');
+        expect(r1).toEqual("d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f");
+        expect(r2).toEqual("4126b5221637da7df60d24eaa2822a0a1a19a4c2c4cfa7f1034475be"); // r1 hex parsed
+        expect(r3).toEqual("9350828c49590226348a43854e9deb42ab802d4291b71d06166e38a4"); // r1 as utf-8
+    });
+
+    it('should correctly perform a sha224 on binary string', function () {
+        const r1 = sha224().update(new Buffer('')).digest('binary');
+        const r2 = sha224().update(r1, 'binary').digest('hex');
+        const r22 = sha224().update(new Buffer(r1, 'binary')).digest('hex');
+        const r3 = sha224().update(new Buffer(r1, 'binary').toString('hex'), 'utf8').digest('hex');
+        const r32 = sha224().update(new Buffer(r1, 'binary').toString('hex')).digest('hex');
+        const r4 = sha224().update(new Buffer(r1, 'binary').toString('base64'), 'base64').digest('hex');
+        expect(new Buffer(r1, 'binary').toString('hex')).toEqual("d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f");
+        expect(r2).toEqual("4126b5221637da7df60d24eaa2822a0a1a19a4c2c4cfa7f1034475be"); // r1 hex parsed
+        expect(r2).toEqual(r22);
+        expect(r3).toEqual("9350828c49590226348a43854e9deb42ab802d4291b71d06166e38a4"); // r1 as utf-8
+        expect(r3).toEqual(r32);
+        expect(r4).toEqual("4126b5221637da7df60d24eaa2822a0a1a19a4c2c4cfa7f1034475be"); // r1 hex parsed
+    });
+
+    it('should correctly perform a sha256 on string', function () {
+        const r1 = sha256().update("").digest();
+        const r2 = sha256().update(r1).digest('hex');
+        const r3 = sha256().update(r1.toString('hex')).digest('hex');
+        expect(r1.toString('hex')).toEqual("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+        expect(r2).toEqual("5df6e0e2761359d30a8275058e299fcc0381534545f55cf43e41983f5d4c9456"); // r1 hex parsed
+        expect(r3).toEqual("cd372fb85148700fa88095e3492d3f9f5beb43e555e5ff26d95f5a6adc36f8e6"); // r1 as utf-8
+    });
+
+    it('should correctly perform a sha256 on Buffer', function () {
+        const r1 = sha256().update(new Buffer('')).digest('hex');
+        const r2 = sha256().update(new Buffer(r1, 'hex')).digest('hex');
+        const r3 = sha256().update(r1).digest('hex');
+        expect(r1.toString('hex')).toEqual("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+        expect(r2).toEqual("5df6e0e2761359d30a8275058e299fcc0381534545f55cf43e41983f5d4c9456"); // r1 hex parsed
+        expect(r3).toEqual("cd372fb85148700fa88095e3492d3f9f5beb43e555e5ff26d95f5a6adc36f8e6"); // r1 as utf-8
+    });
+
+    it('should correctly perform a sha384 on string', function () {
+        const r1 = sha384().update("").digest();
+        const r2 = sha384().update(r1).digest('hex');
+        const r3 = sha384().update(r1.toString('hex')).digest('hex');
+        expect(r1.toString('hex')).toEqual("38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b");
+        expect(r2).toEqual("b035c6baed2533e26bda63b69d2e45daa9d14ecdf7118feb40e912d14b4355114c00f3989e07a23aeacbf07e9872f7db"); // r1 hex parsed
+        expect(r3).toEqual("7e4a22bac84bf4653c27cf66fdbfc94b1f7aa38fda6777d60b2598ea5a353af6e6091bd1e1c789209548a4f1e16c0f55"); // r1 as utf-8
+    });
+
+    it('should correctly perform a sha384 on Buffer', function () {
+        const r1 = sha384().update(new Buffer('')).digest('hex');
+        const r2 = sha384().update(new Buffer(r1, 'hex')).digest('hex');
+        const r3 = sha384().update(r1).digest('hex');
+        expect(r1.toString('hex')).toEqual("38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b");
+        expect(r2).toEqual("b035c6baed2533e26bda63b69d2e45daa9d14ecdf7118feb40e912d14b4355114c00f3989e07a23aeacbf07e9872f7db"); // r1 hex parsed
+        expect(r3).toEqual("7e4a22bac84bf4653c27cf66fdbfc94b1f7aa38fda6777d60b2598ea5a353af6e6091bd1e1c789209548a4f1e16c0f55"); // r1 as utf-8
+    });
+
+    it('should correctly perform a sha512 on string', function () {
+        const r1 = sha512().update("").digest();
+        const r2 = sha512().update(r1).digest('hex');
+        const r3 = sha512().update(r1.toString('hex')).digest('hex');
+        expect(r1.toString('hex')).toEqual("cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e");
+        expect(r2).toEqual("826df068457df5dd195b437ab7e7739ff75d2672183f02bb8e1089fabcf97bd9dc80110cf42dbc7cff41c78ecb68d8ba78abe6b5178dea3984df8c55541bf949"); // r1 hex parsed
+        expect(r3).toEqual("8fb29448faee18b656030e8f5a8b9e9a695900f36a3b7d7ebb0d9d51e06c8569d81a55e39b481cf50546d697e7bde1715aa6badede8ddc801c739777be77f166"); // r1 as utf-8
+    });
+
+    it('should correctly perform a sha512 on Buffer', function () {
+        const r1 = sha512().update(new Buffer('')).digest('hex');
+        const r2 = sha512().update(new Buffer(r1, 'hex')).digest('hex');
+        const r3 = sha512().update(r1).digest('hex');
+        expect(r1.toString('hex')).toEqual("cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e");
+        expect(r2).toEqual("826df068457df5dd195b437ab7e7739ff75d2672183f02bb8e1089fabcf97bd9dc80110cf42dbc7cff41c78ecb68d8ba78abe6b5178dea3984df8c55541bf949"); // r1 hex parsed
+        expect(r3).toEqual("8fb29448faee18b656030e8f5a8b9e9a695900f36a3b7d7ebb0d9d51e06c8569d81a55e39b481cf50546d697e7bde1715aa6badede8ddc801c739777be77f166"); // r1 as utf-8
+    });
+
+});
+
 describe("receipt.validate suite", function () {
 
     it('valid receipt should be valid', function () {
         const result = woleet.receipt.validate(validReceipt);
         expect(result).toBe(true);
+    });
+
+    it('valid chainpoint 2 receipt should be valid', function () {
+        const result = woleet.receipt.validate(validReceiptV2);
+        expect(result).toBe(true);
+    });
+
+    it('invalid chainpoint 2 receipt should not be valid', function () {
+        const result = () => woleet.receipt.validate(invalidReceiptV2);
+        expect(result).toThrowError('invalid_receipt_format');
     });
 
     it('receipt.validate without param should throw invalid_receipt_format', function () {
