@@ -2,8 +2,8 @@
 
 This repository contains the sources code of **Woleet web libraries**.
 These libraries can be used in any web application to:
-- **verify the proof of existence** (ie. retrieve the data timestamp) of any data anchored in the Bitcoin blockchain by Woleet or by any third party providing [Chainpoint 1.x]([chainpoint-link]) compatible proof receipts,
-- **verify the proof of signature** (ie. retrieve the signature timestamp, verify the signature and optionally the identity of the signee) of any data signed and anchored in the Bitcoin blockchain by Woleet or by any third party providing proof receipts compatible with [signature anchoring](https://medium.com/@woleet/beyond-data-anchoring-bee867d9be3a), an extension of the Chainpoint 1.x format proposed by Woleet
+- **verify the proof of existence** (ie. retrieve the data timestamp) of any data anchored in the Bitcoin blockchain by Woleet or by any third party providing [Chainpoint]([chainpoint-link]) compatible proof receipts,
+- **verify the proof of signature** (ie. retrieve the signature timestamp, verify the signature and optionally the identity of the signee) of any data signed and anchored in the Bitcoin blockchain by Woleet or by any third party providing proof receipts compatible with [signature anchoring](https://medium.com/@woleet/beyond-data-anchoring-bee867d9be3a), an extension of the Chainpoint format proposed by Woleet
 - **compute the SHA256 hash** of any file (even larger than 50MB).
 
 Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`**,
@@ -39,8 +39,8 @@ include a third party library such as [bluebird](http://bluebirdjs.com/):
 <!-- END IE ZONE -->
 ```
 
-These libraries currently only support proof of existence receipts compatible with the [Chainpoint 1.x]([chainpoint-link]) standard
-and proof of signature receipts (an extension of the Chainpoint 1.x standard proposed by Woleet).
+These libraries currently only support proof of existence receipts compatible with the [Chainpoint]([chainpoint-link]) standard
+and proof of signature receipts (an extension of the Chainpoint standard proposed by Woleet).
 
 
 ## <a name="runtime-dependencies"></a>Runtime dependencies
@@ -104,8 +104,8 @@ The `code` attribute can be:
 
 **`verify.DAB(file, receipt)`** or **`verify.DAB(hash, receipt)`**
 
-This function allows to verify any proof of existence receipt compatible with the Chainpoint 1.x format,
-or any proof of signature receipt compatible with the Chainpoint 1.x extension proposed by Woleet for signature
+This function allows to verify any proof of existence receipt compatible with the Chainpoint 1.x and Chainpoint 2 format,
+or any proof of signature receipt compatible with the Chainpoint extension proposed by Woleet for signature
 anchoring.
 
 It first verifies the proof receipt, and then compare the provided hash (or the hash of the provided file)
@@ -129,8 +129,8 @@ The `code` attribute can be:
 
 **`woleet.verify.receipt(receipt)`**
 
-This function allows to verify any proof of existence receipt compatible with the Chainpoint 1.x format,
-or any proof of signature receipt compatible with the Chainpoint 1.x extension proposed by Woleet for signature
+This function allows to verify any proof of existence receipt compatible with the Chainpoint format,
+or any proof of signature receipt compatible with the Chainpoint extension proposed by Woleet for signature
 anchoring.
 
 It first verifies the embedded cryptographic proof, then access the Bitcoin transaction to check the timestamp of
@@ -382,9 +382,9 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
 
 ### <a name="object_receipt"></a>Receipt object
 
-The receipt object matches the [Chainpoint 1.x]([chainpoint-link]) format.
+The receipt object matches the [Chainpoint]([chainpoint-link]) format.
 
-#### Example
+#### Chainpoint 1.x Example
 ```json
 {
     "header": {
@@ -435,6 +435,33 @@ The receipt object matches the [Chainpoint 1.x]([chainpoint-link]) format.
 }
 ```
 
+#### Chainpoint 2 Example
+```json
+{
+ "@context": "https://w3id.org/chainpoint/v2",
+ "type": "ChainpointSHA256v2",
+ "targetHash": "bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2",
+ "merkleRoot": "51296468ea48ddbcc546abb85b935c73058fd8acdb0b953da6aa1ae966581a7a",
+ "proof": [
+   {
+     "left": "bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2"
+   },
+   {
+     "left": "cb0dbbedb5ec5363e39be9fc43f56f321e1572cfcf304d26fc67cb6ea2e49faf"
+   },
+   {
+     "right": "cb0dbbedb5ec5363e39be9fc43f56f321e1572cfcf304d26fc67cb6ea2e49faf"
+   }
+ ],
+ "anchors": [
+   {
+     "type": "BTCOpReturn",
+     "sourceId": "f3be82fe1b5d8f18e009cb9a491781289d2e01678311fe2b2e4e84381aafadee"
+   }
+ ]
+}
+```
+
 ### <a name="object_fileList"></a>FileList object
 
 See https://developer.mozilla.org/fr/docs/Web/API/FileList
@@ -445,5 +472,5 @@ See https://developer.mozilla.org/fr/docs/Web/API/File
 
 [buffer-link]: https://nodejs.org/api/buffer.html
 [readable-link]: https://nodejs.org/api/stream.html#stream_readable_streams
-[chainpoint-link]: http://www.chainpoint.org/#v1x
+[chainpoint-link]: http://www.chainpoint.org/
 [bitcoinjs-message-link]: https://www.npmjs.com/package/bitcoinjs-message
