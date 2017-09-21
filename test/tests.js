@@ -170,55 +170,6 @@ const validReceiptV22 = {
         ]
     };
 
-/** @type {ReceiptV2} */
-const invalidReceiptV2 = {
-    "targetHash": "8de1de49d84480c8d0142ee23d82595d5046a40e3958b4161ac37cb75d7ef0da",
-    "signature": {
-        "signature": "H5aUT2noAzB7CeT0YTgIpcEx1xQ1KhBetYoewDVDrImgEYgSUKTg/5v0wbVfY4tky3EJyWgYH1PwFrwosfgE670=",
-        "signedHash": "b8f0ccf1484379c957bb1a2d1806998e2662ebde731266dbd9b953d59fd81a5b",
-        "pubKey": "1BGLkyG7SCHH32bALDnMP2YrS84JMCimc3"
-    },
-    "merkleRoot": "9a094a28c667633c6e6868124a694673cc8b440ab1a8205dad748c6a4455e8d9",
-    "proof": [
-        {
-            "right": "eda086255a9d62e90a791307de7aa1bdb973333f8da8ac53f402b9d72db8d9d9"
-        }
-    ],
-    "anchors": [
-        {
-            "sourceId": "cf85e40a989414fcba072434fbead5d7b51899c95e63bdc641561294fbaf7687",
-            "type": "BTCOpReturn"
-        }
-    ],
-    "type": "ChainpointSHA256v2",
-    "@context": "https://w3id.org/chainpoint/v2"
-};
-
-/** @type {ReceiptV2} */
-const invalidReceiptV22 = {
-    "@context": "https://w3id.org/chainpoint/v2",
-    "type": "ChainpointSHA256v2",
-    "targetHash": "bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2",
-    "merkleRoot": "51296468ea48ddbcc546abb85b935c73058fd8acdb0b953da6aa1ae966581a7a",
-    "proof": [
-        {
-            "left": "bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef3"
-        },
-        {
-            "left": "cb0dbbedb5ec5363e39be9fc43f56f321e1572cfcf304d26fc67cb6ea2e49faf"
-        },
-        {
-            "right": "cb0dbbedb5ec5363e39be9fc43f56f321e1572cfcf304d26fc67cb6ea2e49faf"
-        }
-    ],
-    "anchors": [
-        {
-            "type": "BTCOpReturn",
-            "sourceId": "f3be82fe1b5d8f18e009cb9a491781289d2e01678311fe2b2e4e84381aafadee"
-        }
-    ]
-};
-
 Object.freeze(validReceipt);
 
 function noop() {
@@ -384,21 +335,6 @@ describe("receipt.validate suite", function () {
         expect(result).toBe(true);
     });
 
-    it('valid chainpoint 2 receipt should be valid', function () {
-        const result = woleet.receipt.validate(validReceiptV2);
-        expect(result).toBe(true);
-    });
-
-    it('invalid chainpoint 2 receipt should not be valid', function () {
-        const result = () => woleet.receipt.validate(invalidReceiptV2);
-        expect(result).toThrowError('merkle_root_mismatch');
-    });
-
-    it('invalid chainpoint 2 receipt should not be valid', function () {
-        const result = () => woleet.receipt.validate(invalidReceiptV22);
-        expect(result).toThrowError('merkle_root_mismatch');
-    });
-
     it('receipt.validate without param should throw invalid_receipt_format', function () {
         //noinspection JSCheckFunctionSignatures
         const result = () => woleet.receipt.validate();
@@ -443,6 +379,29 @@ describe("receipt.validate suite", function () {
         const result = () => woleet.receipt.validate(invalidReceipt);
         expect(result).toThrowError('invalid_parent_in_proof_element');
     });
+
+    // CHAINPOINT 2
+
+    it('valid chainpoint 2 receipt should be valid', function () {
+        const result = woleet.receipt.validate(validReceiptV2);
+        expect(result).toBe(true);
+    });
+
+    it('invalid chainpoint 2 receipt should not be valid', function () {
+        const invalidReceiptV2 = safeCopy(validReceiptV2);
+        invalidReceiptV2.proof[0].right = 'eda086255a9d62e90a791307de7aa1bdb973333f8da8ac53f402b9d72db8d9d9';
+        const result = () => woleet.receipt.validate(invalidReceiptV2);
+        expect(result).toThrowError('merkle_root_mismatch');
+    });
+
+    it('invalid chainpoint 2 receipt should not be valid', function () {
+        const invalidReceiptV22 = safeCopy(validReceiptV22);
+        invalidReceiptV22.proof[0].left = 'ddf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2';
+        const result = () => woleet.receipt.validate(invalidReceiptV22);
+        expect(result).toThrowError('merkle_root_mismatch');
+    });
+
+
 });
 
 describe("transaction.get suite", function () {
