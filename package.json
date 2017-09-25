@@ -1,6 +1,6 @@
 {
   "name": "woleet-weblibs",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": false,
   "scripts": {
     "build": "gulp",
@@ -10,7 +10,7 @@
   "devDependencies": {
     "babel-preset-latest": "^6.22.0",
     "babelify": "^7.3.0",
-    "crypto-js": "^3.1.9-1",
+    "crypto-js": "3.1.9-1",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-browserify": "^0.5.1",

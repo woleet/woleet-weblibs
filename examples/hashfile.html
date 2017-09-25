@@ -34,7 +34,11 @@
                 var arr = [];
                 for (var i = 0; i < files.length; i++) arr.push(files[i]);
 
-                hasher.start(arr);
+                try {
+                    hasher.start(arr);
+                } catch (err) {
+                    console.warn(err);
+                }
             };
 
             hasher.on('start', function (message) {
