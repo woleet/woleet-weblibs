@@ -46,6 +46,7 @@ const validReceipt = {
         }
     ]
 };
+
 /**
  * @type {Receipt}
  */
@@ -68,6 +69,7 @@ const emptyFileValidReceipt = {
     },
     "extra": [{"anchorid": "616980d1-7672-4558-b101-6c94bf7cee41"}]
 };
+
 /**
  * @type {Receipt}
  */
@@ -122,7 +124,6 @@ const emptyFileValidSignedReceipt = {
 Object.freeze(validReceipt);
 
 function noop() {
-
 }
 
 function safeCopy(obj) {
@@ -141,7 +142,6 @@ if (typeof window === 'undefined') {
     function File([blob]) {
         return blob;
     }
-
 }
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
@@ -307,7 +307,6 @@ describe("transaction.get suite", function () {
         // We reset default provider to woleet.io as the others can be stingy on request limit
         woleet.transaction.setDefaultProvider('woleet.io');
     })
-
 });
 
 describe("receipt.get suite", function () {
@@ -328,7 +327,6 @@ describe("receipt.get suite", function () {
             })
             .then(done);
     });
-
 });
 
 describe("anchor.getAnchorIDs suite", function () {
@@ -365,7 +363,6 @@ describe("hasher suite", function () {
 
     function testHasher(name, file, expectation) {
         it(name, (done) => {
-
             const hasher = new woleet.file.Hasher;
             expect(hasher.isReady()).toBe(true);
 
@@ -376,17 +373,18 @@ describe("hasher suite", function () {
                 expect(hasher.isReady()).toBe(false);
             });
             hasher.on('progress', (message) => {
-                console.log(message.progress);
                 expect(message.progress).toBeDefined();
                 expect(message.file).toBeDefined();
                 expect(message.file).toEqual(file);
                 expect(hasher.isReady()).toBe(false);
             });
             hasher.on('error', (error) => {
-                console.trace(error);
+                console.error(error);
                 expect(error).toBeDefined();
+                expect(error.file).toBeDefined();
+                expect(error.file).toEqual(file);
                 expect(error instanceof Error).toBe(true);
-                expect(error).toBeUndefined();
+                expect(false); // we don't expect an error message during tests
             });
             hasher.on('result', (message) => {
                 expect(message.result).toBeDefined();
@@ -606,7 +604,6 @@ describe("signature suite", function () {
                 .catch(noErrorExpected)
                 .then(done)
         });
-
     });
 
     describe('identity validation', function () {
@@ -649,7 +646,5 @@ describe("signature suite", function () {
                 })
                 .then(done)
         });
-
     })
-
 });

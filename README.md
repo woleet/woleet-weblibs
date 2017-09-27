@@ -163,7 +163,7 @@ See example at [examples/hashfile.html](examples/hashfile.html)
 This function allows to set the various callback functions used to monitor the hashing process and get the result.
 
 - Parameters:
-    - `event`: the event name
+    - `event`: the name of the event to catch
     - `callback`: a callback function to be called when the event is triggered
 
 event name | callback prototype
