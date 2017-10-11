@@ -21,16 +21,16 @@
     <script>
         window.onload = function () {
 
-            var r = document.getElementById('result');
+            let r = document.getElementById('result');
 
             window.verify = function (file) {
-                var reader = new FileReader();
+                let reader = new FileReader();
 
                 reader.onloadend = function (e) {
-                    var li = document.createElement("li");
+                    let li = document.createElement("li");
                     // Parse and validate receipt (valid format and Merkle proof)
                     try {
-                        var receipt = JSON.parse(e.target.result);
+                        let receipt = JSON.parse(e.target.result);
                         woleet.verify.receipt(receipt)
                             .then((validation) => {
                                 if (validation.code === 'verified') {
@@ -38,7 +38,7 @@
                                     if (receipt.signature) {
                                         li.innerText += ' it has been signed by ' + receipt.signature.pubKey;
                                         if (validation.identityVerificationStatus) {
-                                            if (validation.identityVerificationStatus.code != 'verified')
+                                            if (validation.identityVerificationStatus.code !== 'verified')
                                                 r.innerText += ' (but identity cannot be verified using ' + receipt.signature.identityURL + ')';
                                             else
                                                 r.innerText += ' (identity verified using ' + receipt.signature.identityURL + ')';

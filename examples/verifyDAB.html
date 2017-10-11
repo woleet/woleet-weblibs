@@ -21,9 +21,9 @@
     <script>
         window.onload = function () {
 
-            var r = document.getElementById('result');
-            var _file = null;
-            var _receipt = null;
+            let r = document.getElementById('result');
+            let _file = null;
+            let _receipt = null;
 
             window.setFile = function (file) {
                 r.innerText = '';
@@ -33,7 +33,7 @@
 
             window.setReceipt = function (receipt) {
                 r.innerText = '';
-                var reader = new FileReader();
+                let reader = new FileReader();
 
                 reader.onloadend = function (e) {
                     try {
@@ -47,12 +47,12 @@
                 reader.readAsText(receipt);
             };
 
-            var check = function () {
+            let check = function () {
                 if (_file && _receipt) {
                     r.innerText = 'pending ...';
                     woleet.verify.DAB(_file, _receipt)
                         .then(function (result) {
-                            if (result.code != 'verified') {
+                            if (result.code !== 'verified') {
                                 r.innerText = 'Error: ' + result.code;
                             } else {
                                 r.innerText = 'The file matches the receipt and the blockchain confirmed it '
@@ -62,7 +62,7 @@
                                 if (_receipt.signature) {
                                     r.innerText += ', it has been signed by ' + _receipt.signature.pubKey;
                                     if (result.identityVerificationStatus) {
-                                        if (result.identityVerificationStatus.code != 'verified')
+                                        if (result.identityVerificationStatus.code !== 'verified')
                                             r.innerText += ' (but identity cannot be verified using ' + _receipt.signature.identityURL + ')';
                                         else
                                             r.innerText += ' (identity verified using ' + _receipt.signature.identityURL + ')';

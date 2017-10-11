@@ -21,21 +21,21 @@
     <script>
         window.onload = function () {
 
-            var r = document.getElementById('result');
+            let r = document.getElementById('result');
 
             window.check = function (file) {
                 woleet.verify.WoleetDAB(file)
                     .then(function (results) {
-                        var len = results.length;
-                        if (len == 0) {
+                        let len = results.length;
+                        if (len === 0) {
                             r.innerText = 'There is no match for "' + file.name
                                 + '", that means that the file was not anchored by Woleet or that the anchor is not public';
                         }
                         else {
                             r.innerText = 'There is ' + len + ' match(es) for this file:';
                             results.forEach(function (result) {
-                                var li = document.createElement('li');
-                                if (result.code != 'verified') {
+                                let li = document.createElement('li');
+                                if (result.code !== 'verified') {
                                     r.innerText = 'Error: ' + result.code;
                                 } else {
                                     li.innerText += 'confirmed ' + result.confirmations + ' times';
@@ -44,7 +44,7 @@
                                     if (result.receipt && result.receipt.signature)
                                         li.innerText += ' and signed by ' + result.receipt.signature.pubKey;
                                     if (result.identityVerificationStatus) {
-                                        if (result.identityVerificationStatus.code != 'verified')
+                                        if (result.identityVerificationStatus.code !== 'verified')
                                             li.innerText += ' (but identity cannot be verified using ' + result.receipt.signature.identityURL + ')';
                                         else
                                             li.innerText += ' (identity verified using ' + result.receipt.signature.identityURL + ')';

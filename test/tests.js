@@ -173,27 +173,26 @@ const validReceiptV22 = {
 Object.freeze(validReceipt);
 
 function noop() {
-
 }
 
 function safeCopy(obj) {
     return JSON.parse(JSON.stringify(obj))
 }
 
-if (typeof window === 'undefined') {
+let PolyBlob, PolyFile;
 
+if (typeof window === 'undefined') {
     const stream = require('stream');
     const woleet = global.woleet = require('../index');
-
-    function Blob([string]) {
+    PolyBlob = function ([string]) {
         return Buffer.from(string, 'utf-8')
-    }
-
-    function File([blob]) {
+    };
+    PolyFile = function ([blob]) {
         return blob;
-    }
-
+    };
 } else {
+    PolyBlob = window.Blob;
+    PolyFile = window.File;
     Buffer = woleet.crypto.Buffer;
 }
 
@@ -479,7 +478,6 @@ describe("transaction.get suite", function () {
         // We reset default provider to woleet.io as the others can be stingy on request limit
         woleet.transaction.setDefaultProvider('woleet.io');
     })
-
 });
 
 describe("receipt.get suite", function () {
@@ -500,7 +498,6 @@ describe("receipt.get suite", function () {
             })
             .then(done);
     });
-
 });
 
 describe("anchor.getAnchorIDs suite", function () {
@@ -521,23 +518,22 @@ describe("anchor.getAnchorIDs suite", function () {
 });
 
 describe("hasher suite", function () {
-    const blob = new Blob(['abcdef123456789']);
-    const file = new File([blob], "image.png", {type: "image/png"});
+    const blob = new PolyBlob(['abcdef123456789']);
+    const file = new PolyFile([blob], "image.png", {type: "image/png"});
 
     testHasher('hasher with valid file should return valid hash', file, "a888e3c6de1f90d12f889952c0c7d0ac230e9014189914f65c548b8a3b44ef45");
 
-    const midBlob = new Blob([(() => {
+    const midBlob = new PolyBlob([(() => {
         let r = '', i = 1e6;
         while (i--) r += 'abcdef123456789';
         return r;
     })()]);
-    const midFile = new File([midBlob], "image.png", {type: "image/png"});
+    const midFile = new PolyFile([midBlob], "image.png", {type: "image/png"});
 
     testHasher('hasher with valid 1MB file should return valid hash', midFile, "0c3185d8e1b4370037d32f2c30eb163dbd8d95733fe59f8cc45fdee468ee0544");
 
     function testHasher(name, file, expectation) {
         it(name, (done) => {
-
             const hasher = new woleet.file.Hasher;
             expect(hasher.isReady()).toBe(true);
 
@@ -548,17 +544,18 @@ describe("hasher suite", function () {
                 expect(hasher.isReady()).toBe(false);
             });
             hasher.on('progress', (message) => {
-                console.log(message.progress);
                 expect(message.progress).toBeDefined();
                 expect(message.file).toBeDefined();
                 expect(message.file).toEqual(file);
                 expect(hasher.isReady()).toBe(false);
             });
             hasher.on('error', (error) => {
-                console.trace(error);
+                console.error(error);
                 expect(error).toBeDefined();
+                expect(error.file).toBeDefined();
+                expect(error.file).toEqual(file);
                 expect(error instanceof Error).toBe(true);
-                expect(error).toBeUndefined();
+                expect(false); // we don't expect an error message during tests
             });
             hasher.on('result', (message) => {
                 expect(message.result).toBeDefined();
@@ -621,7 +618,7 @@ describe("verify.WoleetDAB suite", function () {
     afterEach((done) => setInterval(done, 1000));
 
     it('verify.WoleetDAB with unknown file should return empty list', (done) => {
-        woleet.verify.WoleetDAB(new File([new Blob(['abcdef123456789'])], "image.png", {type: "image/png"}))
+        woleet.verify.WoleetDAB(new PolyFile([new PolyBlob(['abcdef123456789'])], "image.png", {type: "image/png"}))
             .then((results) => {
                 expect(results.length).toEqual(0);
             })
@@ -630,7 +627,7 @@ describe("verify.WoleetDAB suite", function () {
     });
 
     it('verify.WoleetDAB with known file should not return empty list', (done) => {
-        woleet.verify.WoleetDAB(new File([new Blob([''])], "image.png", {type: "image/png"}))
+        woleet.verify.WoleetDAB(new PolyFile([new PolyBlob([''])], "image.png", {type: "image/png"}))
             .then((results) => {
                 expect(results.length).toBeGreaterThan(0);
                 results.forEach((res) => validationExpected(res));
@@ -652,8 +649,8 @@ describe("verify.WoleetDAB suite", function () {
 });
 
 describe("verify.DAB suite", function () {
-    const blob = new Blob(['']);
-    const file = new File([blob], "image.png", {type: "image/png"});
+    const blob = new PolyBlob(['']);
+    const file = new PolyFile([blob], "image.png", {type: "image/png"});
 
     // Wait one second after each test not to exceed the API limit
     afterEach((done) => setInterval(done, 1000));
@@ -785,7 +782,6 @@ describe("signature suite", function () {
                 .catch(noErrorExpected)
                 .then(done)
         });
-
     });
 
     describe('identity validation', function () {
@@ -828,7 +824,5 @@ describe("signature suite", function () {
                 })
                 .then(done)
         });
-
     })
-
 });

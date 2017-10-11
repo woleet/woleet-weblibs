@@ -83,8 +83,6 @@ woleet.crypto = {
 // defining receipt.validate (woleet-chainpoint)
 require('./lib/woleet-chainpoint')(woleet);
 
-// defining file (woleet-hashfile)
-
 const validHashParameter = (file) => (file instanceof Readable) || Buffer.isBuffer(file);
 
 /**

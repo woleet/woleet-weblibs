@@ -22,12 +22,12 @@
     <script>
         window.onload = function () {
 
-            var r = document.getElementById('result');
-            var _receipt = null;
+            let r = document.getElementById('result');
+            let _receipt = null;
 
             window.setReceipt = function (receipt) {
                 r.innerText = '';
-                var reader = new FileReader();
+                let reader = new FileReader();
 
                 reader.onloadend = function (e) {
                     try {
