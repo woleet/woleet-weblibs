@@ -104,7 +104,7 @@ The `code` attribute can be:
 
 **`verify.DAB(file, receipt)`** or **`verify.DAB(hash, receipt)`**
 
-This function allows to verify any proof of existence receipt compatible with the Chainpoint 1.x and Chainpoint 2 format,
+This function allows to verify any proof of existence receipt compatible with the Chainpoint 1 and 2 format,
 or any proof of signature receipt compatible with the Chainpoint extension proposed by Woleet for signature
 anchoring.
 
@@ -384,7 +384,7 @@ the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-wor
 
 The receipt object matches the [Chainpoint]([chainpoint-link]) format.
 
-#### Chainpoint 1.x Example
+#### Chainpoint 1 Example
 ```json
 {
     "header": {
