@@ -116,6 +116,8 @@ declare namespace woleet {
 
             cancel();
 
+            skip();
+
             isReady(): boolean;
         }
 

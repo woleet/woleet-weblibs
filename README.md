@@ -172,6 +172,8 @@ event name | callback prototype
 `progress` | `function ({ progress: Number `(between 0.0 and 1.0)`, file: File })`
 `error` | `function ({ error: Error, file: File })`
 `result` | `function ({ result: String `(SHA256 hash of the file)`, file: File })`
+`cancel` | `function ({ file: File })`
+`skip` | `function ({ file: File })`
 
 **`hasher.start(files)`** 
 
@@ -195,9 +197,20 @@ This function check if the hasher is ready to be used.
 
 - Returns `true` if the hasher is ready to be used (i.e. is not currently hashing).
 
+**`hasher.skip()`**
+
+Skips the current hash process (if several files are in the stack, the files beyond the skipped files will be hashed).
+
+Notes: 
+ - the file list passed in `hasher.start(files)` will not be modified, so a skipped file will still be in it
+ but will never emit a `result event.`
+ - **not available** in node if files is a [Buffer]([buffer-link]) or a [Buffer]([buffer-link]) array.
+
 **`hasher.cancel()`**
 
-Cancels the current hash process (if several files are in the stack, the whole stack will be cancelled).
+Cancels the whole hash process stack (if several files are in the stack, the whole stack will be cancelled).
+
+Note: this method is **not available** in node if files is a [Buffer]([buffer-link]) or a [Buffer]([buffer-link]) array.
 
 ## Advanced usage
 

@@ -25,10 +25,10 @@
 
             // Instantiate a new file hasher
             let hasher = new woleet.file.Hasher;
+            let li = null;
             window.hasher = hasher;
 
             window.start = function (files) {
-
                 // This transformation is for testing purpose only
                 // we could pass directly "files" as it is a FileList object
                 let arr = [];
@@ -43,22 +43,29 @@
 
             hasher.on('start', function (message) {
                 console.log(message);
+                li = document.createElement("li");
+                document.getElementById('hashes').appendChild(li);
+                li.innerText = message.file.name + ': started';
                 console.time('hash');
             });
             hasher.on('progress', function (message) {
-                console.log(message)
+                console.log(message);
+                li.innerText = message.file.name + ': ' + (message.progress).toFixed(2) + '%';
             });
             hasher.on('error', function (error) {
                 console.error(error);
             });
-
+            hasher.on('cancel', function (message) {
+                li.innerText = message.file.name + ': cancelled';
+            });
+            hasher.on('skip', function (message) {
+                li.innerText = message.file.name + ': skipped';
+            });
             // On success, display computed hash
             hasher.on('result', function (message) {
                 console.log(message);
                 console.timeEnd('hash');
-                let li = document.createElement("li");
                 li.innerText = message.file.name + ': ' + message.result;
-                document.getElementById('hashes').appendChild(li);
             });
         }
     </script>
@@ -67,6 +74,7 @@
 <h3>Hash file(s) demo</h3>
 <input type="file" id="input" multiple onchange="start(this.files)">
 <button onclick="hasher.cancel()">Cancel</button>
+<button onclick="hasher.skip()">Skip</button>
 <ul id="hashes"></ul>
 </body>
 </html>

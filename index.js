@@ -91,12 +91,19 @@ const validHashParameter = (file) => (file instanceof Readable) || Buffer.isBuf
  */
 function Hasher() {
 
+    const CANCEL_EXCEPTION = '__cancel__';
+    const SKIP_EXCEPTION = '__skip__';
     const self = this;
     let cancel = null;
+    let skip = null;
     let _ready = true;
 
     function handleCancel(err) {
-        if (err !== 'cancel') throw err;
+        if (err !== CANCEL_EXCEPTION) throw err;
+    }
+
+    function handleSkip(err) {
+        if (err !== SKIP_EXCEPTION) throw err;
     }
 
     /**
@@ -137,7 +144,9 @@ function Hasher() {
                 console.log(err.message, fileStream);
                 reject(err);
             }
-            cancel = () => reader.destroy('cancel')
+
+            cancel = () => reader.destroy(CANCEL_EXCEPTION);
+            skip = () => reader.destroy(SKIP_EXCEPTION);
         })
     }
 
@@ -145,7 +154,7 @@ function Hasher() {
      * @param {stream.readable[]} files
      * @returns {Promise.<string>}
      */
-    const hashFiles = (files) => files.reduce((stack, file) => stack.then(hashFile), Promise.resolve());
+    const hashFiles = (files) => files.reduce((stack, file) => stack.then(hashFile).catch(handleSkip), Promise.resolve());
 
     /**
      * @param {stream.readable[]|stream.readable} files
@@ -153,16 +162,20 @@ function Hasher() {
      */
     this.start = (files) => {
         _ready = false;
+        let job;
         if (Array.isArray(files)) {
             if (!files.every(validHashParameter)) throw new Error("invalid_parameter");
-            hashFiles(files).catch(handleCancel).then(() => _ready = true);
+            job = hashFiles(files);
         } else {
             if (!validHashParameter(files)) throw new Error("invalid_parameter");
-            hashFile(files).catch(handleCancel).then(() => _ready = true);
+            job = hashFile(files);
         }
+        return job.catch(handleCancel).then(() => _ready = true)
     };
 
-    this.cancel = () => cancel();
+    this.cancel = () => cancel && cancel();
+
+    this.skip = () => skip && skip();
 
     this.isReady = () => _ready;
 
@@ -171,7 +184,7 @@ function Hasher() {
 Hasher.prototype.__proto__ = EventEmitter.prototype;
 
 /**
- * @param {File|String} file
+ * @param {stream.readable[]|stream.readable|Buffer[]|Buffer|string} file
  * @param {Function} [progressCallback]
  * @returns {Promise<Hash>}
  */
