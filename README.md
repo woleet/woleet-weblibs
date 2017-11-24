@@ -81,7 +81,7 @@ All methods are provided by the `woleet` object. As an example, to get a Bitcoin
 
 **`woleet.verify.WoleetDAB(file)`** or **`woleet.verify.WoleetDAB(hash)`**
 
-This function provides an easy way to retrieve and verify all public proof receipts related to a given file/hash and
+Provides an easy way to retrieve and verify all public proof receipts related to a given file/hash and
  created using the Woleet platform.
 
 Proof of existence receipts (created when anchoring data) and proof of signature receipts (created when anchoring signature) are retrieved
@@ -104,7 +104,7 @@ The `code` attribute can be:
 
 **`verify.DAB(file, receipt)`** or **`verify.DAB(hash, receipt)`**
 
-This function allows to verify any proof of existence receipt compatible with the Chainpoint 1 and 2 format,
+Allows to verify any proof of existence receipt compatible with the Chainpoint 1 and 2 format,
 or any proof of signature receipt compatible with the Chainpoint extension proposed by Woleet for signature
 anchoring.
 
@@ -129,7 +129,7 @@ The `code` attribute can be:
 
 **`woleet.verify.receipt(receipt)`**
 
-This function allows to verify any proof of existence receipt compatible with the Chainpoint format,
+Allows to verify any proof of existence receipt compatible with the Chainpoint format,
 or any proof of signature receipt compatible with the Chainpoint extension proposed by Woleet for signature
 anchoring.
 
@@ -160,7 +160,7 @@ See example at [examples/hashfile.html](examples/hashfile.html)
 
 **`hasher.on(event, callback)`**
 
-This function allows to set the various callback functions used to monitor the hashing process and get the result.
+Allows to set the various callback functions used to monitor the hashing process and get the result.
 
 - Parameters:
     - `event`: the name of the event to catch
@@ -177,7 +177,7 @@ event name | callback prototype
 
 **`hasher.start(files)`** 
 
-This functions allows to start the hashing process.
+Allows to start the hashing process.
 
 - Parameters:
     - `files` can be:
@@ -193,7 +193,7 @@ This functions allows to start the hashing process.
 
 **`hasher.isReady()`**
 
-This function check if the hasher is ready to be used.
+Checks if the hasher is ready to be used.
 
 - Returns `true` if the hasher is ready to be used (i.e. is not currently hashing).
 
@@ -217,7 +217,7 @@ Note: this method is **not available** in node if files is a [Buffer]([buffer-li
 ### <a name="receiptValidate"></a>Validate a proof receipt
 **`woleet.receipt.validate(receipt)`**
 
-This function allows to validate the format of a proof receipt.
+Allows to validate the format of a proof receipt.
 It does not check the Bitcoin transaction, nor the signature, nor the signee identity (if any).
 
 - Parameters:
@@ -235,7 +235,7 @@ It does not check the Bitcoin transaction, nor the signature, nor the signee ide
 
 **`woleet.signature.validateSignature(message, pubKey, signature)`**
 
-This function allows to validate a signature.
+Allows to validate a signature.
 It checks that the signature is valid for the message and produced by the public key.
 
 See example at [examples/signature.html](examples/validateSignature.html)
@@ -251,7 +251,7 @@ See example at [examples/signature.html](examples/validateSignature.html)
  
 **`woleet.signature.validateIdentity(identityUrl, pubKey)`**
 
-This function allows to validate the identity of a signee.
+Allows to validate the identity of a signee.
 It checks that the identity URL controls the provided public key by asking it to sign some random data and checking the returned signature.
 
 See example at [examples/signature.html](examples/validateIdentity.html)
@@ -268,7 +268,7 @@ See example at [examples/signature.html](examples/validateIdentity.html)
 
 **`woleet.anchor.getAnchorIDs(hash, type, size)`**
 
-This function allows to retrieve from the Woleet platform all public anchors matching a file.
+Allows to retrieve from the Woleet platform all public anchors matching a file.
 
 - Parameters:
     - `hash`: the SHA256 hash of the file (as an hexadecimal characters String).
