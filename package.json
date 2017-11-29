@@ -1,6 +1,6 @@
 {
   "name": "woleet-weblibs",
-  "version": "0.4.3",
+  "version": "0.4.5",
   "private": false,
   "scripts": {
     "build": "gulp",
@@ -8,7 +8,7 @@
     "browserify-test": "browserify --im -s=runTests -o test/tests-browser.js test/tests.js"
   },
   "devDependencies": {
-    "babel-preset-latest": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
     "babelify": "^7.3.0",
     "crypto-js": "3.1.9-1",
     "gulp": "^3.9.1",
@@ -30,10 +30,7 @@
   "babel": {
     "presets": [
       [
-        "es2015",
-        {
-          "debug": false
-        }
+        "env"
       ]
     ]
   },
