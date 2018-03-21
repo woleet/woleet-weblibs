@@ -50,7 +50,7 @@
             });
             hasher.on('progress', function (message) {
                 console.log(message);
-                li.innerText = message.file.name + ': ' + (message.progress).toFixed(2) + '%';
+                li.innerText = message.file.name + ': ' + (message.progress * 100).toFixed(2) + '%';
             });
             hasher.on('error', function (error) {
                 console.error(error);
