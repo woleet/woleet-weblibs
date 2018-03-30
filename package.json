@@ -1,5 +1,5 @@
 {
-  "name": "woleet-weblibs",
+  "name": "@woleet/woleet-weblibs",
   "version": "0.4.7",
   "private": false,
   "scripts": {
