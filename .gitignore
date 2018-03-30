@@ -10,3 +10,4 @@
 
 *.tgz
 /dist/
+test-app/

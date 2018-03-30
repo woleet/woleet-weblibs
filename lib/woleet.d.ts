@@ -6,8 +6,7 @@ interface Transaction {
   txId: string
 }
 
-interface Hash extends string {
-}
+interface Hash extends String {}
 
 interface Branch {
   parent: string
@@ -63,7 +62,15 @@ interface SignatureValidationResult {
   valid: boolean
 }
 
+interface HashFunction {
+  update(data: Uint8Array | string): HashFunction
+
+  digest(encoding?: string): string
+}
+
 declare namespace woleet {
+
+  const version: string;
 
   namespace transaction {
     function get(transactionID: string): Promise<Transaction>;
@@ -86,7 +93,7 @@ declare namespace woleet {
 
     function getAnchorIDs(hash: string, type?: number, size?: Number): Promise<Array<string>>;
 
-    function create(hash: string | File, progressCallback?: Function): Promise<>;
+    function create(hash: string | File, progressCallback?: Function): Promise<any>;
   }
 
   namespace signature {
@@ -100,18 +107,14 @@ declare namespace woleet {
   }
 
   namespace crypto {
-    class sha256 {
-      update(data: Uint8Array | string): this
-
-      digest(encoding?: string): string
-    }
+    function sha256(): HashFunction
   }
 
   namespace file {
     class Hasher {
       constructor();
 
-      on(event: 'start' | 'result' | 'progress' | 'error', callback: Function);
+      on(event: 'start' | 'result' | 'progress' | 'error' | 'cancel' | 'skip', callback: Function);
 
       start(files: File | FileList | File[]);
 
@@ -135,3 +138,5 @@ declare namespace woleet {
     function receipt(receipt: Object): Promise<ReceiptVerificationStatus>;
   }
 }
+
+export = woleet

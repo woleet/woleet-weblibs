@@ -57,20 +57,9 @@ You can use npm to add Woleet web libraries to your project:
 
 ## Initialization
 
-To use Woleet web libraries you have to include the following components:
+To use Woleet web libraries you have to include the following component:
 ```html
-<script src="/node_modules/woleet-weblibs/dist/woleet-api.js"></script>
-<script src="/node_modules/woleet-weblibs/dist/woleet-crypto.js"></script>
-<script src="/node_modules/woleet-weblibs/dist/woleet-hashfile.js"></script>
-<script src="/node_modules/woleet-weblibs/dist/woleet-signature.js"></script>
-<script src="/node_modules/woleet-weblibs/dist/woleet-chainpoint.js"></script>
-<script src="/node_modules/woleet-weblibs/dist/woleet-verify.js"></script>
-```
-
-or their minimized equivalent:
-
-```html
-<script src="/node_modules/woleet-weblibs/dist/woleet-weblibs.min.js"></script>
+<script src="/node_modules/woleet-weblibs/dist/woleet-weblibs.js"></script>
 ```
 
 ## Basic usage
@@ -315,32 +304,10 @@ Allows to retrieve from the Woleet platform all public anchors matching a file.
 
 ## Dependencies
 
-Woleet web libraries are provided in several separate javascript files. For convenience, all these files are also wrapped
-into a single *woleet-weblibs.js* file and minified versions are available.
-
-  - *woleet-verify.js* provides file verification methods. It relies on:
-    - *woleet-api.js*
-    - *woleet-crypto.js*
-    - *woleet-hashfile.js*
-    - *woleet-signature.js*
-    - *woleet-chainpoint.js*
-
-  - *woleet-chainpoint.js* provides the receipt.validate method, it relies on
-    - *woleet-crypto.js*
-
-  - *woleet-hashfile.js* provides the file.Hasher class witch is an interface to hash files, it relies on:
-    - *woleet-crypto.js*
-    - *woleet-hashfile-worker.js*
+This library delivered into a single *woleet-weblibs.js* file, a minified versions is available.
 
   - *woleet-hashfile-worker.js* defines a worker used to hash files, it needs:
     - *crypto-js.js* library (only to be accessible, not to include)
-
-  - *woleet-signature.js* provides the signature.validateIdentity and signature.validateSignature methods, as this file is essentially 
-  a browserified version of [bitcoinjs-message]([bitcoinjs-message-link]) it also exposes the Buffer class under signature.Buffer.
-  It relies on:
-    - *woleet-api.js*
-    
-  - *woleet-api.js* provides miscellaneous method wrapping the Woleet API
 
 #### Note:
 In order to use a worker for hashing big files, you may have to indicates the worker's location before the libraries definitions:

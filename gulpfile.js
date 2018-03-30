@@ -1,87 +1,62 @@
-const gulp = require("gulp"),
-  browserify = require("gulp-browserify"),
+const gulp = require('gulp'),
+  browserify = require('gulp-browserify'),
   babel = require('gulp-babel'),
   dest = require('gulp-dest'),
   strip = require('gulp-strip-comments'),
-  concat = require('gulp-concat'),
-  uglify = require('gulp-uglify');
+  uglify = require('gulp-uglify'),
+  rename = require('gulp-rename');
 
 // Uglify hashfile worker
-gulp.task("worker", (done) => {
-  const worker = gulp.src("lib/woleet-hashfile-worker.js")
-    .pipe(gulp.dest("./dist"))
+gulp.task('worker', (done) => {
+  const worker = gulp.src('lib/browser/woleet-hashfile-worker.js')
+    .pipe(gulp.dest('./dist'))
     .pipe(babel())
     .pipe(strip());
 
   const worker_min = worker
     .pipe(uglify())
     .pipe(dest('dist', {ext: '.min.js'}))
-    .pipe(gulp.dest("./"))
+    .pipe(gulp.dest('./'))
+    .on('error', done)
     .on('end', done);
 });
 
-// Uglify other Woleet libraries
-gulp.task("standalone", (done) => {
+function build(standalone, input, output, done) {
 
-  const sources = [
-    {file: './lib/woleet-api.js', out: 'woleet'},
-    {file: './lib/woleet-crypto.js', out: 'woleet.crypto'},
-    {file: './lib/woleet-chainpoint.js', out: 'woleet.receipt.validate'},
-    {file: './lib/woleet-hashfile.js', out: 'woleet.file'},
-    {file: './lib/woleet-verify.js', out: 'woleet.verify'},
-    {file: './lib/woleet-signature.js', out: 'woleet.signature'}
-  ];
+  const params = {
+    standalone: standalone,
+    insertGlobals: false
+  };
 
-  sources.reduce((acc, src) => new Promise((resolve, reject) => {
-
-    const params = {
-      standalone: src.out,
-      insertGlobals: false
-    };
-
-    const standalone = gulp.src(src.file)
-      .pipe(browserify(params))
-      .pipe(strip())
-      .pipe(gulp.dest("dist/"))
-      .on('error', reject);
-
-    const standalone_min = standalone
-      .pipe(uglify())
-      .pipe(dest('./', {ext: '.min.js'}))
-      .pipe(gulp.dest("dist/"))
-      .on('end', resolve)
-      .on('error', reject)
-
-  }), Promise.resolve()).then(done).catch(done);
-
-});
-
-// Uglify other Woleet libraries
-gulp.task("lib", ['standalone'], (done) => {
-
-  const sources = [
-    {file: './dist/woleet-api.js'},
-    {file: './dist/woleet-crypto.js'},
-    {file: './dist/woleet-chainpoint.js'},
-    {file: './dist/woleet-hashfile.js'},
-    {file: './dist/woleet-verify.js'},
-    {file: './dist/woleet-signature.js'}
-  ];
-
-  const weblibs = gulp.src(sources.map((s) => s.file))
-    .pipe(concat('woleet-weblibs.js'))
-    .pipe(gulp.dest("dist/"));
+  const weblibs = gulp.src(input)
+    .pipe(rename(output))
+    .pipe(browserify(params))
+    .pipe(strip())
+    .pipe(gulp.dest('dist/'));
 
   const weblibs_min = weblibs
     .pipe(uglify())
     .pipe(dest('./', {ext: '.min.js'}))
-    .pipe(gulp.dest("dist/"))
+    .pipe(gulp.dest('dist/'))
+    .on('error', done)
     .on('end', done);
+
+}
+
+gulp.task('lib', (done) => {
+
+  build('woleet', './lib/browser/index.js', 'woleet-weblibs.js', done);
+
+});
+
+gulp.task('crypto', (done) => {
+
+  build('woleet.crypto', './lib/browser/woleet-crypto.js', 'woleet-crypto.js', done);
 
 });
 
 gulp.task('default', [
   'worker',
-  'standalone',
+  'crypto',
   'lib'
 ]);
