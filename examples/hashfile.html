@@ -41,29 +41,29 @@
       };
 
       hasher.on('start', function (message) {
-        console.log(message);
         li = document.createElement("li");
         document.getElementById('hashes').appendChild(li);
         li.innerText = message.file.name + ': started';
-        console.time('hash');
+        console.time(message.file.name);
       });
       hasher.on('progress', function (message) {
-        console.log(message);
         li.innerText = message.file.name + ': ' + (message.progress * 100).toFixed(2) + '%';
       });
       hasher.on('error', function (error) {
+        console.timeEnd(message.file.name);
         console.error(error);
       });
       hasher.on('cancel', function (message) {
+        console.timeEnd(message.file.name);
         li.innerText = message.file.name + ': cancelled';
       });
       hasher.on('skip', function (message) {
+        console.timeEnd(message.file.name);
         li.innerText = message.file.name + ': skipped';
       });
       // On success, display computed hash
       hasher.on('result', function (message) {
-        console.log(message);
-        console.timeEnd('hash');
+        console.timeEnd(message.file.name);
         li.innerText = message.file.name + ': ' + message.result;
       });
     }
@@ -72,8 +72,8 @@
 <body>
 <h3>Hash file(s) demo</h3>
 <input type="file" id="input" multiple onchange="start(this.files)">
-<button onclick="hasher.cancel()">Cancel</button>
-<button onclick="hasher.skip()">Skip</button>
+<button onclick="if (!hasher.isReady()) hasher.cancel()">Cancel</button>
+<button onclick="if (!hasher.isReady()) hasher.skip()">Skip</button>
 <ul id="hashes"></ul>
 </body>
 </html>
