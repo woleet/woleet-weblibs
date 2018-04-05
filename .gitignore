@@ -10,4 +10,4 @@
 
 *.tgz
 /dist/
-package-lock.jsonp
+package-lock.json
