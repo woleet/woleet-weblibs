@@ -53,13 +53,13 @@ Woleet web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)**
 
 You can use npm to add Woleet web libraries to your project:
 
-```npm i woleet-weblibs --save```
+```npm i @woleet/woleet-weblibs --save```
 
 ## Initialization
 
 To use Woleet web libraries you have to include the following component:
 ```html
-<script src="/node_modules/woleet-weblibs/dist/woleet-weblibs.js"></script>
+<script src="/node_modules/@woleet/woleet-weblibs/dist/woleet-weblibs.js"></script>
 ```
 
 ## Basic usage
@@ -91,7 +91,7 @@ The `code` attribute can be:
 
 ### Verify a file (with a proof receipt) 
 
-**`verify.DAB(file, receipt)`** or **`verify.DAB(hash, receipt)`**
+**`woleet.verify.DAB(file, receipt)`** or **`woleet.verify.DAB(hash, receipt)`**
 
 Allows to verify any proof of existence receipt compatible with the Chainpoint 1 and 2 format,
 or any proof of signature receipt compatible with the Chainpoint extension proposed by Woleet for signature
@@ -204,6 +204,7 @@ Note: this method is **not available** in node if files is a [Buffer]([buffer-li
 ## Advanced usage
 
 ### <a name="receiptValidate"></a>Validate a proof receipt
+
 **`woleet.receipt.validate(receipt)`**
 
 Allows to validate the format of a proof receipt.
