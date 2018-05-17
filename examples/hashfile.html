@@ -44,27 +44,32 @@
         li = document.createElement("li");
         document.getElementById('hashes').appendChild(li);
         li.innerText = message.file.name + ': started';
-        console.time(message.file.name);
       });
       hasher.on('progress', function (message) {
         li.innerText = message.file.name + ': ' + (message.progress * 100).toFixed(2) + '%';
       });
-      hasher.on('error', function (error) {
-        console.timeEnd(message.file.name);
-        console.error(error);
+      hasher.on('error', function (message) {
+        if (!li) {
+          li = document.createElement("li");
+          document.getElementById('hashes').appendChild(li);
+        }
+        li.style.color = 'red';
+        console.error(message);
+        li.innerText = message.file.name + ': ' + (message.error);
+        li = null;
       });
       hasher.on('cancel', function (message) {
-        console.timeEnd(message.file.name);
         li.innerText = message.file.name + ': cancelled';
+        li = null;
       });
       hasher.on('skip', function (message) {
-        console.timeEnd(message.file.name);
         li.innerText = message.file.name + ': skipped';
+        li = null;
       });
       // On success, display computed hash
       hasher.on('result', function (message) {
-        console.timeEnd(message.file.name);
         li.innerText = message.file.name + ': ' + message.result;
+        li = null;
       });
     }
   </script>
