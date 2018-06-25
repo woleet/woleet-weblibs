@@ -10,22 +10,64 @@ Note that these libraries don't rely on the Woleet API (except **`woleet.verify.
 **`woleet.receipt.get`** and **`woleet.anchor.getAnchorIds`** functions, which allow retrieving proof receipts from Woleet) and so don't require any Woleet account nor the
 availability of the Woleet service to work: they only need to access Bitcoin transactions, which by default is done using
 the Woleet API, but can be configured to use other independent providers like [blockcypher.com](https://blockcypher.com). 
- 
-# Building Woleet web libraries
 
-Type `./build.sh` on the project's root to:
-- install build tools and runtime dependencies into the `./node_modules/` directory
-- build the libraries into the `./dist/`directory
+## <a name="setup"></a>Setup
+### Installation using npm
 
-# Using Woleet web libraries
+You can use npm to add Woleet web libraries to your project:
+
+    npm i @woleet/woleet-weblibs --save
+
+### Installation using git
+    git clone git@github.com:woleet/woleet-weblibs.git
+
+The git repository (unlike the npm package) does not include a prebuilt version,
+you must then run `build.sh` script on the project's root in order to: 
+- install build tools and runtime dependencies into the `./node_modules/` directory 
+- build the libraries into the `./dist/`directory 
+
+### Initialization
+
+To use Woleet web libraries you have to include the following component:
+```html
+<script src="/node_modules/@woleet/woleet-weblibs/dist/woleet-weblibs.js"></script>
+```
+
+### <a name="runtime-dependencies"></a>Runtime dependencies
+
+This library is delivered into a single `woleet-weblibs.js` file (a minified versions is available).<br>
+To be able to perform hash on large file, `woleet-hashfile-worker.min.js` and `woleet-crypto.min.js` must be accessible (in the same directory).
+#### Note:
+If the worker's location is not the same as `woleet-weblibs.js`, or if `woleet-weblibs.js` is included in a bundle,
+you **must** indicate the worker's path before the libraries definitions:
+
+    <script>woleet = { workerScriptPath: '/my/path/to/woleet-hashfile-worker.min.js' }</script>
+
+#### Example:
+```sh
+├── foo
+│   ├── worker.min.js # woleet-hashfile-worker
+│   └── woleet-crypto.min.js # must NOT be renamed
+├── bar
+│   └── woleet-weblibs.min.js
+└── index.html: 
+      - <script>woleet = { workerScriptPath: "/foo/worker.min.js" }</script>
+      - <script src="/bar/woleet-weblibs.min.js"></script>
+```
+
 
 ## <a name="limitations"></a>Limitations
+### Proof format:
+These libraries currently only support proof of existence receipts compatible with the [Chainpoint]([chainpoint-link]) standard
+and proof of signature receipts (an extension of the Chainpoint standard proposed by Woleet).
 
+### Browsers:
 These libraries have been tested on all modern web browsers and should work on any browser supporting
 [Promises](https://developer.mozilla.org/en-US/docs/Web/API/Promise)
 and [Workers](https://developer.mozilla.org/en-US/docs/Web/API/Worker) (note that if Workers are not supported,
 it is still possible to hash files whose size do not exceed 50MB).
 
+#### Internet explorer:
 Since Internet Explorer 11 does not fully support promises, you will have to 
 include a third party library such as [bluebird](http://bluebirdjs.com/):
 
@@ -39,29 +81,7 @@ include a third party library such as [bluebird](http://bluebirdjs.com/):
 <!-- END IE ZONE -->
 ```
 
-These libraries currently only support proof of existence receipts compatible with the [Chainpoint]([chainpoint-link]) standard
-and proof of signature receipts (an extension of the Chainpoint standard proposed by Woleet).
-
-
-## <a name="runtime-dependencies"></a>Runtime dependencies
- 
-Woleet web libraries uses the **[crypto-js](https://github.com/brix/crypto-js)** lib to compute SHA256 hashes of files.
- The minified version of this library (**crypto.min.js**) must be present in the directory containing Woleet web libraries,
- which is done by the default build process.
-
-## Installation using npm
-
-You can use npm to add Woleet web libraries to your project:
-
-```npm i @woleet/woleet-weblibs --save```
-
-## Initialization
-
-To use Woleet web libraries you have to include the following component:
-```html
-<script src="/node_modules/@woleet/woleet-weblibs/dist/woleet-weblibs.js"></script>
-```
-
+# Using Woleet web libraries
 ## Basic usage
 
 All methods are provided by the `woleet` object. As an example, to get a Bitcoin transaction, the code is `woleet.transaction.get(txId)`.
@@ -302,20 +322,6 @@ Allows to retrieve from the Woleet platform all public anchors matching a file.
 
 - Parameter:
     - `provider: the provider to use as default provider: "woleet.io", "blockcypher.com" or "chain.so" (default is "woleet.io").
-
-## Dependencies
-
-This library delivered into a single *woleet-weblibs.js* file, a minified versions is available.
-
-  - *woleet-hashfile-worker.js* defines a worker used to hash files, it needs:
-    - *crypto-js.js* library (only to be accessible, not to include)
-
-#### Note:
-In order to use a worker for hashing big files, you may have to indicates the worker's location before the libraries definitions:
-```
-<script>woleet = {workerScriptPath: '/my/path/woleet-hashfile-worker.js'}</script>
-```
-the *woleet-crypto.js* file must be in the same folder than *woleet-hashfile-worker.js*.
 
 ## Objects definitions
 ### <a name="receipt_verification_status_object"></a>ReceiptVerificationStatus object
