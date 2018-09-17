@@ -790,8 +790,8 @@ describe("signature suite", function () {
 
     const s = {
       "signedHash": "fed6150564fe6bdba95c2ec0d7c650a7585d3fc755263d6a14499370fee3a08b",
-      "pubKey": "n1dx2jgHa9Bfu4Foih3s4aXVm8fBCNVahn",
-      "signature": "H35oY5Rt03B7uQcF5d8wYReQePcOnNY5kS4W4oYJATqxHqHJXHJwz3ihzVyPgjXCuynPPwT14TwP75cBFfDCn44=",
+      "pubKey": "miBDiJNw1moBD37mqjCVQNxGbEeqXtWnUG",
+      "signature": "IONYJd+lXs9Fd4AK3IIJPrwU7SF4zRjsRnm4wi2vuFZVFxeKm73thDqvROQdcJIpxPcTODUkFUVthsFCw8xPrKg=",
       "identityURL": "https://api-dev.woleet.io/v1/identity"
     };
 
@@ -800,6 +800,17 @@ describe("signature suite", function () {
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(true);
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating valid identity in strict mode with a server that do not send back safe leftData should be false', (done) => {
+      validateIdentity(s.identityURL, s.pubKey, true)
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          console.log(validation);
         })
         .catch(noErrorExpected)
         .then(done)

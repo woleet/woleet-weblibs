@@ -3,9 +3,9 @@
   "version": "0.5.2",
   "private": false,
   "scripts": {
-    "build": "gulp",
-    "test": "jasmine --config=jasmine.json",
-    "browserify-test": "browserify --im -s=runTests -o test/tests-browser.js test/tests.js"
+    "build": "npx gulp",
+    "test": "npx jasmine --config=jasmine.json",
+    "browserify-test": "npx browserify --im -s=runTests -o test/tests-browser.js test/tests.js"
   },
   "types": "./lib/woleet.d.ts",
   "main": "./index.js",
