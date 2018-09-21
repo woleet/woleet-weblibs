@@ -97,7 +97,7 @@ declare namespace woleet {
   }
 
   namespace signature {
-    function validateIdentity(identityUrl: string, pubKey: string, strict = false): Promise<SignatureValidationResult>;
+    function validateIdentity(identityUrl: string, pubKey: string, strict: boolean): Promise<SignatureValidationResult>;
 
     function validateSignature(message: string, address: string, signature: string): Promise<SignatureValidationResult>;
   }
