@@ -810,7 +810,7 @@ describe("signature suite", function () {
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(false);
-          console.log(validation);
+          // console.log(validation);
         })
         .catch(noErrorExpected)
         .then(done)
