@@ -502,10 +502,10 @@ describe("receipt.get suite", function () {
 
 describe("anchor.getAnchorIDs suite", function () {
 
-  it('anchor.getAnchorIDs with unknown/invalid file hash should return empty list', (done) => {
+  it('anchor.getAnchorIDs with invalid file hash should return an error', (done) => {
     woleet.anchor.getAnchorIDs('invalid_tx')
-      .then((resultPage) => expect(resultPage.length).toEqual(0))
-      .catch(noErrorExpected)
+      .then((resultPage) => expect(resultPage).toBeUndefined())
+      .catch((error) => expect(error instanceof Error).toBe(true))
       .then(done);
   });
 
@@ -513,6 +513,13 @@ describe("anchor.getAnchorIDs suite", function () {
     woleet.anchor.getAnchorIDs('invalid_tx', 1, -1)
       .then((resultPage) => expect(resultPage).toBeUndefined())
       .catch((error) => expect(error instanceof Error).toBe(true))
+      .then(done);
+  });
+
+  it('anchor.getAnchorIDs with unknown file hash should return empty list', (done) => {
+    woleet.anchor.getAnchorIDs(woleet.crypto.sha256().update("unknown_data").digest('hex'))
+      .then((resultPage) => expect(resultPage.length).toEqual(0))
+      .catch(noErrorExpected)
       .then(done);
   });
 });

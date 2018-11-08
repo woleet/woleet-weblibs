@@ -86,7 +86,7 @@ declare namespace woleet {
 
   namespace anchor {
     const types: {
-      FILE_HASH: number;
+      DATA: number;
       SIGNATURE: number;
       BOTH: number;
     };

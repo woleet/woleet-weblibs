@@ -278,18 +278,18 @@ See example at [examples/signature.html](examples/validateIdentity.html)
 - If the identity URL does not return the expected data, a `bad_server_response` Error object is returned.
 - If a network/server error occurred while calling the identity URL an `http_error` Error object is returned.
 
-### Get Woleet public anchors matching a file
+### Get Woleet public anchors matching some data
 
 **`woleet.anchor.getAnchorIDs(hash, type, size)`**
 
-Allows to retrieve from the Woleet platform all public anchors matching a file.
+Allows to retrieve from the Woleet platform all public anchors matching some data.
 
 - Parameters:
-    - `hash`: the SHA256 hash of the file (as an hexadecimal characters String).
-    - `type` (_optional_): type of anchor to retrieve among constants defined in woleet.anchor.types:
-      - FILE_HASH
-      - SIGNATURE
-      - BOTH
+    - `hash`: the SHA256 hash of the data (as an hexadecimal characters String).
+    - `type` (_optional_): type of anchors to retrieve:
+      - DATA: only data anchors will be retrieved
+      - SIGNATURE: only signature anchors will be retrieved
+      - BOTH: both data and signature anchors will be retrieved
     - `size` (_optional_): parameters setting the maximum number of anchor to retrieve (default: 20).
 - Returns a promise witch forwards:
   - on success: containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
