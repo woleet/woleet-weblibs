@@ -260,7 +260,6 @@ See example at [examples/signature.html](examples/validateSignature.html)
     - `signature`: the signature (in base 64).
 - Returns a Promise witch forwards an object:
     - `valid`: a boolean that indicates if signature is valid or not.
-    - `identity` an Identity object (if forwarded by the server).
     - `reason`: a string that gives details about the validation failure (if any).
 <br>Note that the **reason** attribute may not be defined depending on the kind of failure.
 
@@ -276,8 +275,11 @@ See example at [examples/signature.html](examples/validateIdentity.html)
 - Parameters:
     - `identityUrl`: the provided identity URL.
     - `pubKey`: a bitcoin address (in base 58).
-- Returns a Promise witch forwards an object: `{ valid: true }` if the identity is valid,
-`{ valid: false, reason: string }` otherwise. Note that the **reason** attribute may not be defined depending on the kind of failure.
+- Returns a Promise witch forwards an object:
+    - `valid`: a boolean that indicates if identity is valid or not.
+    - `identity` an [Identity](#object_identity) object (if forwarded by the server).
+    - `reason`: a string that gives details about the validation failure (if any).
+<br>Note that the **reason** attribute may not be defined depending on the kind of failure.
 - If the identity URL does not return the expected data, a `bad_server_response` Error object is returned.
 - If a network/server error occurred while calling the identity URL an `http_error` Error object is returned.
 
@@ -469,3 +471,26 @@ See https://developer.mozilla.org/fr/docs/Web/API/File
 [readable-link]: https://nodejs.org/api/stream.html#stream_readable_streams
 [chainpoint-link]: http://www.chainpoint.org/
 [bitcoinjs-message-link]: https://www.npmjs.com/package/bitcoinjs-message
+
+### <a name="object_identity"></a>Identity object
+
+Declarative indentity information about the signee provided as a set of X.500 attributes (see https://www.ietf.org/rfc/rfc4519.txt).
+
+| Attribute          | Description                            |
+|--------------------|----------------------------------------|
+| commonName         | commonName (CN) (2.5.4.3)              |
+| organization       | organizationName (O) (2.5.4.10)        |
+| organizationalUnit | organizationalUnitName (OU) (2.5.4.11) |
+| locality           | localityName (L) (2.5.4.7)             |
+| country            | countryName (C) (2.5.4.6)              |
+
+Example : 
+```json
+{
+  "commonName": "Woleet Identity",
+  "organizationalUnit": "Production",
+  "organization": "Woleet SAS",
+  "locality": "Rennes",
+  "country": "FR"
+}
+```
