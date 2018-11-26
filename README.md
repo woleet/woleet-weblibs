@@ -341,9 +341,11 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
     timestamp: {Date} proven timestamp of the data (for a data anchor) or of the signature (for a signature anchor)
     receipt: {Receipt} proof receipt
     code: {'verified' | error message} verifcations status code
-    identityVerificationStatus: {
-            code: {'verified' | 'http_error' | 'invalid_signature'} identity verifcations status code 
-        }
+    identityVerificationStatus: 
+    {
+        code: {'verified' | 'http_error' | 'invalid_signature'} identity verifcations status code 
+        identity: [Identity object]
+    }
 }
 ```
 #### Example
