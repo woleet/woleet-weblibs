@@ -258,8 +258,11 @@ See example at [examples/signature.html](examples/validateSignature.html)
     - `message`: the string that have been signed.
     - `pubKey`: a bitcoin address (in base 58).
     - `signature`: the signature (in base 64).
-- Returns a Promise witch forwards an object: `{ valid: true }` if the signature is valid,
-`{ valid: false, reason: string }` otherwise. Note that the **reason** attribute may not be defined depending on the kind of failure.
+- Returns a Promise witch forwards an object:
+    - `valid`: a boolean that indicates if signature is valid or not.
+    - `identity` an Identity object (if forwarded by the server).
+    - `reason`: a string that gives details about the validation failure (if any).
+<br>Note that the **reason** attribute may not be defined depending on the kind of failure.
 
 ### <a name="signatureValidateIdentity"></a>Validate a signee identity
  
