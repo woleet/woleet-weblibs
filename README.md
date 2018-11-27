@@ -336,10 +336,10 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 ### <a name="object_receipt_verification_status"></a>ReceiptVerificationStatus object
 ```
 {
-    confirmations: {Number} number of confirmations of the block containing the transaction
-    timestamp: {Date} proven timestamp of the data (for a data anchor) or of the signature (for a signature anchor)
-    receipt: {Receipt} proof receipt
     code: {'verified' | error message} receipt verifcation status code
+    timestamp: {Date} proven timestamp of the data (for a data anchor) or of the signature (for a signature anchor)
+    confirmations: {Number} number of confirmations of the block containing the transaction
+    receipt: {Receipt} proof receipt
     identityVerificationStatus: 
     {
         code: {'verified' | 'http_error' | 'invalid_signature'} identity verifcation status code 
@@ -350,10 +350,20 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 #### Example
 ```
 {
+    "code": "verified",
     "timestamp": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "confirmations": 3897,
-    "receipt": [Receipt object],
-    "code": "verified"
+    "receipt": [Receipt object]
+    "identityVerificationStatus": {
+        "code": "verified",
+        "identity": {
+            "commonName": "John Smith",
+            "organizationalUnit": "Production",
+            "organization": "Woleet SAS",
+            "locality": "Rennes",
+            "country": "FR"
+        }
+    }
 }
 ```
 
@@ -372,7 +382,7 @@ Signee's identity provided as a set of X.500 attributes (see https://www.ietf.or
 Example : 
 ```json
 {
-  "commonName": "Woleet Identity",
+  "commonName": "John Smith",
   "organizationalUnit": "Production",
   "organization": "Woleet SAS",
   "locality": "Rennes",
