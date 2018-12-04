@@ -105,7 +105,7 @@ See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 - Parameters:
     - `file`: the [File](#object_file) object containing the data to verify (with node: a [Buffer]([buffer-link]) or a [Readable]([readable-link]) object).
     - `hash`: the SHA256 hash of the data to verify (as an hexadecimal characters String).
-- Returns a Promise witch forwards a list of [ReceiptVerificationStatus](#receipt_verification_status_object) object (can be empty).
+- Returns a Promise witch forwards a list of [ReceiptVerificationStatus](#object_receipt_verification_status) object (can be empty).
 The `code` attribute can be:
     - `verified` on success
     - any `code` value returned by [woleet.receipt.verify](#receiptVerify) (see below).
@@ -130,13 +130,12 @@ See example at [examples/verifyDAB.html](examples/verifyDAB.html)
     - `file`: the [File](#object_file) object containing the data to verify (with node: a [Buffer]([buffer-link]) or a [Readable]([readable-link]) object).
     - `hash`: the SHA256 hash of the data to verify (as an hexadecimal characters String).
     - `receipt`: a JSON parsed proof of existence or proof of signature receipt.
-- Returns a Promise witch forwards a [ReceiptVerificationStatus](#receipt_verification_status_object) object.
+- Returns a Promise which forwards a [ReceiptVerificationStatus](#object_receipt_verification_status) object.
 The `code` attribute can be:
     - `verified` on success
     - any `code` value returned by [woleet.receipt.verify](#receiptVerify) (see below).
     - any error code thrown by the [Hasher](#hashfile) object (see below).
     - `target_hash_mismatch`: the receipt's target hash is not equal to the file hash or to the `hash` parameter.
-    
 
 ### <a name="receiptVerify"></a>Verify a proof receipt
 
@@ -153,7 +152,7 @@ See example at [examples/receiptVerify.html](examples/verifyReceipt.html)
 
 - Parameters:
     - `receipt`: a JSON parsed anchoring receipt.
-- Returns a Promise witch forwards a [ReceiptVerificationStatus](#receipt_verification_status_object) object.
+- Returns a Promise which forwards a [ReceiptVerificationStatus](#object_receipt_verification_status) object.
 The `code` attribute can be:
     - `verified` on success
     - any error code thrown by [woleet.receipt.validate](#receiptValidate) (see below)
@@ -258,8 +257,10 @@ See example at [examples/signature.html](examples/validateSignature.html)
     - `message`: the string that have been signed.
     - `pubKey`: a bitcoin address (in base 58).
     - `signature`: the signature (in base 64).
-- Returns a Promise witch forwards an object: `{ valid: true }` if the signature is valid,
-`{ valid: false, reason: string }` otherwise. Note that the **reason** attribute may not be defined depending on the kind of failure.
+- Returns a Promise which forwards an object:
+    - `valid`: a boolean that indicates if signature is valid or not.
+    - `reason`: a string that gives details about the validation failure (if any).
+<br>Note that the **reason** attribute may not be defined depending on the kind of failure.
 
 ### <a name="signatureValidateIdentity"></a>Validate a signee identity
  
@@ -273,8 +274,11 @@ See example at [examples/signature.html](examples/validateIdentity.html)
 - Parameters:
     - `identityUrl`: the provided identity URL.
     - `pubKey`: a bitcoin address (in base 58).
-- Returns a Promise witch forwards an object: `{ valid: true }` if the identity is valid,
-`{ valid: false, reason: string }` otherwise. Note that the **reason** attribute may not be defined depending on the kind of failure.
+- Returns a Promise which forwards an object:
+    - `valid`: a boolean that indicates if identity is valid or not.
+    - `reason`: a string that gives details about the validation failure (if any).
+    - `identity` an [Identity](#object_identity) object (if forwarded by the server).
+<br>Note that the **reason** attribute may not be defined depending on the kind of failure.
 - If the identity URL does not return the expected data, a `bad_server_response` Error object is returned.
 - If a network/server error occurred while calling the identity URL an `http_error` Error object is returned.
 
@@ -291,7 +295,7 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
       - SIGNATURE: only signature anchors will be retrieved
       - BOTH: both data and signature anchors will be retrieved
     - `size` (_optional_): parameters setting the maximum number of anchor to retrieve (default: 20).
-- Returns a promise witch forwards:
+- Returns a promise which forwards:
   - on success: containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
   - on error: 
     - An `http_error` Error: an unexpected HTTP error occurred during the verification process.
@@ -302,7 +306,7 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 
 - Parameters:
     - `anchorID`: the identifier of the anchor for which to retrieve the proof receipt.
-- Returns a promise witch forwards:
+- Returns a promise which forwards:
   - on success: a [Receipt](#object_receipt) object.
   - on error: 
     - A `not_found` Error: the anchor does not exist or is not public.
@@ -314,7 +318,7 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 
 - Parameters:
     - `txid`: the identifier of the Bitcoin transaction to retrieve.
-- Returns a promise witch forwards:
+- Returns a promise which forwards:
   - on succeed: a [Transaction](#object_transaction) object.
   - on error: 
     - A `tx_not_found` Error: the transaction does not exits on the Bitcoin blockchain.
@@ -329,25 +333,60 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 
 ## Objects definitions
 
-### <a name="receipt_verification_status_object"></a>ReceiptVerificationStatus object
+### <a name="object_receipt_verification_status"></a>ReceiptVerificationStatus object
 ```
 {
-    confirmations: {Number} number of confirmations of the block containing the transaction
+    code: {'verified' | error message} receipt verifcation status code
     timestamp: {Date} proven timestamp of the data (for a data anchor) or of the signature (for a signature anchor)
+    confirmations: {Number} number of confirmations of the block containing the transaction
     receipt: {Receipt} proof receipt
-    code: {'verified' | error message} verifcations status code
-    identityVerificationStatus: {
-            code: {'verified' | 'http_error' | 'invalid_signature'} identity verifcations status code 
-        }
+    identityVerificationStatus: 
+    {
+        code: {'verified' | 'http_error' | 'invalid_signature'} identity verifcation status code 
+        identity: [Identity object]
+    }
 }
 ```
 #### Example
 ```
 {
+    "code": "verified",
     "timestamp": "Wed Nov 23 2016 16:21:54 GMT+0100 (CET)",
     "confirmations": 3897,
-    "receipt": [Receipt object],
-    "code": "verified"
+    "receipt": [Receipt object]
+    "identityVerificationStatus": {
+        "code": "verified",
+        "identity": {
+            "commonName": "John Smith",
+            "organizationalUnit": "Production",
+            "organization": "Woleet SAS",
+            "locality": "Rennes",
+            "country": "FR"
+        }
+    }
+}
+```
+
+### <a name="object_identity"></a>Identity object
+
+Signee's identity provided as a set of X.500 attributes (see https://www.ietf.org/rfc/rfc4519.txt).
+
+| Attribute          | Description                            |
+|--------------------|----------------------------------------|
+| commonName         | commonName (CN) (2.5.4.3)              |
+| organization       | organizationName (O) (2.5.4.10)        |
+| organizationalUnit | organizationalUnitName (OU) (2.5.4.11) |
+| locality           | localityName (L) (2.5.4.7)             |
+| country            | countryName (C) (2.5.4.6)              |
+
+Example : 
+```json
+{
+  "commonName": "John Smith",
+  "organizationalUnit": "Production",
+  "organization": "Woleet SAS",
+  "locality": "Rennes",
+  "country": "FR"
 }
 ```
 

@@ -399,8 +399,6 @@ describe("receipt.validate suite", function () {
     const result = () => woleet.receipt.validate(invalidReceiptV22);
     expect(result).toThrowError('merkle_root_mismatch');
   });
-
-
 });
 
 describe("transaction.get suite", function () {
@@ -807,6 +805,13 @@ describe("signature suite", function () {
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(true);
+          expect(validation).toBeDefined();
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe("Woleet Test Identity");
+          expect(validation.identity.organization).toBe("Woleet SAS");
+          expect(validation.identity.organizationalUnit).toBe("Production");
+          expect(validation.identity.locality).toBe("Rennes");
+          expect(validation.identity.country).toBe("FR");
         })
         .catch(noErrorExpected)
         .then(done)
@@ -817,13 +822,12 @@ describe("signature suite", function () {
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(false);
-          // console.log(validation);
         })
         .catch(noErrorExpected)
         .then(done)
     });
 
-    it('validating valid identity but bad url should throw an error', (done) => {
+    it('validating valid identity but bad url should throw an HTTP error', (done) => {
       validateIdentity("https://dve.woleet.io/v1/identity", s.pubKey)
         .then(noResultExpected)
         .catch((error) => {
@@ -833,7 +837,7 @@ describe("signature suite", function () {
         .then(done)
     });
 
-    it('validating valid identity but bad pubKey should throw error', (done) => {
+    it('validating valid identity but bad pubKey should throw an HTTP error', (done) => {
       validateIdentity(s.identityURL, 'mxpZfrKUekYRFRf95tqH1ttrhjHK5GtJ3X')
         .then(noResultExpected)
         .catch((error) => {
