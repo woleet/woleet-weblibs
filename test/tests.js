@@ -172,11 +172,17 @@ const validReceiptV22 = {
 
 Object.freeze(validReceipt);
 
-function noop() {
-}
-
 function safeCopy(obj) {
   return JSON.parse(JSON.stringify(obj))
+}
+
+function nofail(fn) {
+  try {
+    return fn();
+  } catch (err) {
+    console.warn(err);
+    return null;
+  }
 }
 
 let PolyBlob, PolyFile;
@@ -524,7 +530,7 @@ describe("anchor.getAnchorIDs suite", function () {
 
 describe("hasher suite", function () {
   const blob = new PolyBlob(['abcdef123456789']);
-  const file = new PolyFile([blob], "image.png", {type: "image/png"});
+  const file = nofail(() => new PolyFile([blob], "image.png", { type: "image/png" }));
 
   testHasher('hasher with valid file should return valid hash', file, "a888e3c6de1f90d12f889952c0c7d0ac230e9014189914f65c548b8a3b44ef45");
 
@@ -533,7 +539,8 @@ describe("hasher suite", function () {
     while (i--) r += 'abcdef123456789';
     return r;
   })()]);
-  const midFile = new PolyFile([midBlob], "image.png", {type: "image/png"});
+
+  const midFile = nofail(() => new PolyFile([midBlob], "image.png", { type: "image/png" }));
 
   testHasher('hasher with valid 1MB file should return valid hash', midFile, "0c3185d8e1b4370037d32f2c30eb163dbd8d95733fe59f8cc45fdee468ee0544");
 
@@ -623,7 +630,7 @@ describe("verify.WoleetDAB suite", function () {
   afterEach((done) => setInterval(done, 1000));
 
   it('verify.WoleetDAB with unknown file should return empty list', (done) => {
-    woleet.verify.WoleetDAB(new PolyFile([new PolyBlob(['abcdef123456789'])], "image.png", {type: "image/png"}))
+    woleet.verify.WoleetDAB(new PolyFile([new PolyBlob(['abcdef123456789'])], "image.png", { type: "image/png" }))
       .then((results) => {
         expect(results.length).toEqual(0);
       })
@@ -632,7 +639,7 @@ describe("verify.WoleetDAB suite", function () {
   });
 
   it('verify.WoleetDAB with known file should not return empty list', (done) => {
-    woleet.verify.WoleetDAB(new PolyFile([new PolyBlob([''])], "image.png", {type: "image/png"}))
+    woleet.verify.WoleetDAB(new PolyFile([new PolyBlob([''])], "image.png", { type: "image/png" }))
       .then((results) => {
         expect(results.length).toBeGreaterThan(0);
         results.forEach((res) => validationExpected(res));
@@ -655,7 +662,7 @@ describe("verify.WoleetDAB suite", function () {
 
 describe("verify.DAB suite", function () {
   const blob = new PolyBlob(['']);
-  const file = new PolyFile([blob], "image.png", {type: "image/png"});
+  const file = nofail(() => new PolyFile([blob], "image.png", { type: "image/png" }));
 
   // Wait one second after each test not to exceed the API limit
   afterEach((done) => setInterval(done, 1000));
