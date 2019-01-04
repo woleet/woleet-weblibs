@@ -196,7 +196,8 @@ if (typeof window === 'undefined') {
   PolyFile = function ([blob]) {
     return blob;
   };
-} else {
+}
+else {
   PolyBlob = window.Blob;
   PolyFile = window.File;
   Buffer = woleet.crypto.Buffer;
@@ -206,7 +207,7 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
 // Force the blockchain provider (default is woleet.io)
 //woleet.transaction.setDefaultProvider('woleet.io');
-//woleet.transaction.setDefaultProvider('chain.so');
+//woleet.transaction.setDefaultProvider('blockstream.info');
 //woleet.transaction.setDefaultProvider('blockcypher.com');
 
 describe("isSHA256 suite", function () {
@@ -410,7 +411,7 @@ describe("receipt.validate suite", function () {
 describe("transaction.get suite", function () {
 
   genTest('woleet.io');
-  genTest('chain.so');
+  genTest('blockstream.info');
   genTest('blockcypher.com');
 
   function genTest(provider) {

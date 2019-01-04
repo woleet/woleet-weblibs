@@ -6,10 +6,10 @@ These libraries can be used in any web application to:
 - **verify the proof of signature** (ie. retrieve the signature timestamp, verify the signature and optionally the identity of the signee) of any data signed and anchored in the Bitcoin blockchain by Woleet or by any third party providing proof receipts compatible with [signature anchoring](https://medium.com/@woleet/beyond-data-anchoring-bee867d9be3a), an extension of the Chainpoint format proposed by Woleet
 - **compute the SHA256 hash** of any file (even larger than 500MB) efficiently (using native implementation whenever available). 
 
-Note that these libraries don't rely on the Woleet API (except **`woleet.verify.WoleetDAB`**,
-**`woleet.receipt.get`** and **`woleet.anchor.getAnchorIds`** functions, which allow retrieving public proof receipts from Woleet) and so don't require any Woleet account nor the
-availability of the Woleet service to work: they only need to access Bitcoin transactions, which by default is done using
-the Woleet transaction explorer API, but can be configured to use other independent providers like [blockcypher.com](https://blockcypher.com). 
+Note that these libraries do not rely on the Woleet API (except **`woleet.verify.WoleetDAB`**, **`woleet.anchor.getAnchorIds`** and **`woleet.receipt.get`** functions,
+which allow to search and retrieve public proof receipts from Woleet) and therefore do not require any Woleet account nor the
+availability of the Woleet service to operate: they only need to access Bitcoin transactions, which by default is done using
+the Woleet's transaction explorer API, but can be configured to use other independent providers like [blockstream.info](https://blockstream.info) or [blockcypher.com](https://blockcypher.com). 
 
 # Building Woleet web libraries
 
@@ -329,7 +329,7 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 **`woleet.transaction.setDefaultProvider(provider)`**
 
 - Parameter:
-    - `provider: the provider to use as default provider: "woleet.io", "blockcypher.com" or "chain.so" (default is "woleet.io").
+    - `provider: the provider to use as default provider: "woleet.io", "blockcypher.com" or "blocksteam.info" (default is "woleet.io").
 
 ## Objects definitions
 
