@@ -108,7 +108,7 @@ See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 - Returns a Promise witch forwards a list of [ReceiptVerificationStatus](#object_receipt_verification_status) object (can be empty).
 The `code` attribute can be:
     - `verified` on success
-    - any `code` value returned by [woleet.receipt.verify](#receiptVerify) (see below).
+    - any `code` value returned by [woleet.verify.receipt](#receiptVerify) (see below).
     - any error code thrown by the [Hasher](#hashfile) object (see below).
     - `target_hash_mismatch`: the receipt's target hash is not equal to the file hash or to the `hash` parameter.
     - `file_matched_but_anchor_not_yet_processed`: the file has a match in Woleet database but is waiting to be anchored.
@@ -133,7 +133,7 @@ See example at [examples/verifyDAB.html](examples/verifyDAB.html)
 - Returns a Promise which forwards a [ReceiptVerificationStatus](#object_receipt_verification_status) object.
 The `code` attribute can be:
     - `verified` on success
-    - any `code` value returned by [woleet.receipt.verify](#receiptVerify) (see below).
+    - any `code` value returned by [woleet.verify.receipt](#receiptVerify) (see below).
     - any error code thrown by the [Hasher](#hashfile) object (see below).
     - `target_hash_mismatch`: the receipt's target hash is not equal to the file hash or to the `hash` parameter.
 
@@ -160,7 +160,8 @@ The `code` attribute can be:
     - `invalid_receipt_signature`: the receipt's signature is not valid.
     - `invalid_receipt_signature_format`: the receipt's signature is not of the expected format.
     - `op_return_mismatches_merkle_root`: the Bitcoin transaction's OP_RETURN mismatches the receipt's Merkle root.
-    - `tx_not_found`: the Bitcoin transaction does not exist.
+    - `tx_not_found`: the transaction does not exist in the Bitcoin blockchain.
+    - `tx_not_confirmed`: the transaction is not yet confirmed by the Bitcoin blockchain (ie. not yet included in a block).
     - `http_error`: an unexpected HTTP error occurred during the verification process.
 
 ### <a name="hashfile"></a>Compute the SHA256 hash of a file
@@ -226,7 +227,7 @@ Note: this method is **not available** in node if files is a [Buffer]([buffer-li
 
 ## Advanced usage
 
-### <a name="receiptValidate"></a>Validate a proof receipt
+### <a name="receiptValidate"></a>Validate the format of a proof receipt
 
 **`woleet.receipt.validate(receipt)`**
 
