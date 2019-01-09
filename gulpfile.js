@@ -1,10 +1,11 @@
 const gulp = require('gulp'),
-  browserify = require('gulp-browserify'),
+  browserify = require('browserify'),
   babel = require('gulp-babel'),
-  dest = require('gulp-dest'),
   strip = require('gulp-strip-comments'),
   uglify = require('gulp-uglify'),
-  rename = require('gulp-rename');
+  rename = require('gulp-rename'),
+  buffer = require('vinyl-buffer'),
+  source = require('vinyl-source-stream');
 
 // Uglify hashfile worker
 gulp.task('worker', (done) => {
@@ -15,8 +16,8 @@ gulp.task('worker', (done) => {
 
   const worker_min = worker
     .pipe(uglify())
-    .pipe(dest('dist', {ext: '.min.js'}))
-    .pipe(gulp.dest('./'))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(gulp.dest('dist/'))
     .on('error', done)
     .on('end', done);
 });
@@ -24,19 +25,22 @@ gulp.task('worker', (done) => {
 function build(standalone, input, output, done) {
 
   const params = {
+    entries: input,
     standalone: standalone,
     insertGlobals: false
   };
 
-  const weblibs = gulp.src(input)
+  const weblibs = browserify(params)
+    .bundle()
+    .pipe(source(input))
+    .pipe(buffer())
     .pipe(rename(output))
-    .pipe(browserify(params))
     .pipe(strip())
     .pipe(gulp.dest('dist/'));
 
   const weblibs_min = weblibs
     .pipe(uglify())
-    .pipe(dest('./', {ext: '.min.js'}))
+    .pipe(rename({ suffix: '.min' }))
     .pipe(gulp.dest('dist/'))
     .on('error', done)
     .on('end', done);
@@ -44,19 +48,11 @@ function build(standalone, input, output, done) {
 }
 
 gulp.task('lib', (done) => {
-
   build('woleet', './lib/browser/index.js', 'woleet-weblibs.js', done);
-
 });
 
 gulp.task('crypto', (done) => {
-
   build('woleet.crypto', './lib/browser/woleet-crypto.js', 'woleet-crypto.js', done);
-
 });
 
-gulp.task('default', [
-  'worker',
-  'crypto',
-  'lib'
-]);
+gulp.task('default', gulp.parallel('worker', 'crypto', 'lib'));
