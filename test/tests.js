@@ -800,43 +800,61 @@ describe("signature suite", function () {
   describe('identity validation', function () {
 
     const validateIdentity = woleet.signature.validateIdentity;
+    
+    const proofReceipt = {
+      'pubKey': '13ETH6ceCJQ3wfnkqo1rVL1ihyLb9vRGGa',
+      'identityURL': 'https://dev2.woleet.io:3001/identity'
+    };
 
-    const s = {
-      "signedHash": "fed6150564fe6bdba95c2ec0d7c650a7585d3fc755263d6a14499370fee3a08b",
-      "pubKey": "miBDiJNw1moBD37mqjCVQNxGbEeqXtWnUG",
-      "signature": "IONYJd+lXs9Fd4AK3IIJPrwU7SF4zRjsRnm4wi2vuFZVFxeKm73thDqvROQdcJIpxPcTODUkFUVthsFCw8xPrKg=",
-      "identityURL": "https://api-dev.woleet.io/v1/identity"
+    const proofReceiptWithoutValidSignature = {
+      'pubKey': '1DUfCVRn4GRHFjL5tcv8vArrUXywHCjWKe',
+      'identityURL': 'https://dev2.woleet.io:3001/identity'
     };
 
     it('validating valid identity should be true', (done) => {
-      validateIdentity(s.identityURL, s.pubKey)
+      validateIdentity(proofReceipt.identityURL, proofReceipt.pubKey)
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(true);
-          expect(validation).toBeDefined();
           expect(validation.identity).toBeDefined();
-          expect(validation.identity.commonName).toBe("Woleet Test Identity");
-          expect(validation.identity.organization).toBe("Woleet SAS");
-          expect(validation.identity.organizationalUnit).toBe("Production");
-          expect(validation.identity.locality).toBe("Rennes");
-          expect(validation.identity.country).toBe("FR");
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.organization).toBe('Woleet SAS');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
         })
         .catch(noErrorExpected)
         .then(done)
     });
 
-    it('validating valid identity in strict mode with a server that do not send back safe leftData should be false', (done) => {
-      validateIdentity(s.identityURL, s.pubKey, true)
+    it('validating valid identity without a valid signature should be true', (done) => {
+      validateIdentity(proofReceiptWithoutValidSignature.identityURL, proofReceiptWithoutValidSignature.pubKey)
         .then((validation) => {
           expect(validation).toBeDefined();
-          expect(validation.valid).toBe(false);
+          expect(validation.valid).toBe(true);
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.organization).toBe('Woleet SAS');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating valid identity in strict mode with a server that do send back safe leftData should be true', (done) => {
+      validateIdentity(proofReceipt.identityURL, proofReceipt.pubKey, true)
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
         })
         .catch(noErrorExpected)
         .then(done)
     });
 
     it('validating valid identity but bad url should throw an HTTP error', (done) => {
-      validateIdentity("https://dve.woleet.io/v1/identity", s.pubKey)
+      validateIdentity('https://dve2.woleet.io:3001/identity', proofReceipt.pubKey)
         .then(noResultExpected)
         .catch((error) => {
           expect(error instanceof Error).toBe(true);
@@ -846,7 +864,7 @@ describe("signature suite", function () {
     });
 
     it('validating valid identity but bad pubKey should throw an HTTP error', (done) => {
-      validateIdentity(s.identityURL, 'mxpZfrKUekYRFRf95tqH1ttrhjHK5GtJ3X')
+      validateIdentity(proofReceipt.identityURL, 'mxpZfrKUekYRFRf95tqH1ttrhjHK5GtJ3X')
         .then(noResultExpected)
         .catch((error) => {
           expect(error instanceof Error).toBe(true);
