@@ -458,14 +458,14 @@ describe("receipt.get suite", function () {
 describe("anchor.getAnchorIDs suite", function () {
 
   it('anchor.getAnchorIDs with invalid file hash should return an error', (done) => {
-    woleet.anchor.getAnchorIDs('invalid_tx')
+    woleet.anchor.getAnchorIDs('invalid_hash')
       .then((resultPage) => expect(resultPage).toBeUndefined())
       .catch((error) => expect(error instanceof Error).toBe(true))
       .then(done);
   });
 
   it('anchor.getAnchorIDs with invalid page size should return an error', (done) => {
-    woleet.anchor.getAnchorIDs('invalid_tx', 1, -1)
+    woleet.anchor.getAnchorIDs('invalid_hash', woleet.anchor.types.BOTH, -1)
       .then((resultPage) => expect(resultPage).toBeUndefined())
       .catch((error) => expect(error instanceof Error).toBe(true))
       .then(done);
@@ -474,6 +474,21 @@ describe("anchor.getAnchorIDs suite", function () {
   it('anchor.getAnchorIDs with unknown file hash should return empty list', (done) => {
     woleet.anchor.getAnchorIDs(woleet.crypto.sha256().update("unknown_data").digest('hex'))
       .then((resultPage) => expect(resultPage.length).toEqual(0))
+      .catch(noErrorExpected)
+      .then(done);
+  });
+
+  it('anchor.getAnchorIDs with well known file hash should return more than 1 anchor', (done) => {
+    woleet.anchor.getAnchorIDs("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+      .then((resultPage) => expect(resultPage.length).toBeGreaterThan(1))
+      .catch(noErrorExpected)
+      .then(done);
+  });
+
+  it('anchor.getAnchorIDs with well known file hash but limited to 1 should return 1 anchor', (done) => {
+    woleet.anchor.getAnchorIDs("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      woleet.anchor.types.DATA, 1)
+      .then((resultPage) => expect(resultPage.length).toEqual(1))
       .catch(noErrorExpected)
       .then(done);
   });

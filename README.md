@@ -295,7 +295,7 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
       - DATA: only data anchors will be retrieved
       - SIGNATURE: only signature anchors will be retrieved
       - BOTH: both data and signature anchors will be retrieved
-    - `size` (_optional_): parameters setting the maximum number of anchor to retrieve (default: 20).
+    - `size` (_optional_): parameters setting the maximum number of anchor per type to retrieve (default: unlimited).
 - Returns a promise which forwards:
   - on success: containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
   - on error: 
