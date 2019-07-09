@@ -130,8 +130,8 @@ function nofail(fn) {
   try {
     return fn();
   }
-  catch (err) {
-    console.warn(err);
+  catch (error) {
+    console.warn(error);
     return null;
   }
 }
@@ -153,12 +153,43 @@ if (typeof window === 'undefined') {
   Buffer = woleet.crypto.Buffer;
 }
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
 // Force the blockchain provider (default is woleet.io)
 //woleet.transaction.setDefaultProvider('woleet.io');
 //woleet.transaction.setDefaultProvider('blockstream.info');
 //woleet.transaction.setDefaultProvider('blockcypher.com');
+
+function testErrorCode(expected) {
+  return function (result) {
+    expect(result).toBeDefined();
+    expect(result.confirmations).toBeUndefined();
+    expect(result.timestamp).toBeUndefined();
+    expect(result.code).toBeDefined();
+    expect(result.code).toBe(expected);
+    return result;
+  }
+}
+
+function noErrorExpected(error) {
+  expect(error).toBeUndefined();
+}
+
+function noResultExpected(result) {
+  expect(result).toBeUndefined();
+}
+
+function validationExpected(result) {
+  expect(result).toBeDefined();
+  expect(result.code).toBeDefined();
+  expect(result.code).toBe('verified');
+  expect(result.receipt).toBeDefined();
+  expect(result.timestamp).toBeDefined();
+  expect(result.confirmations).toBeDefined();
+  expect(result.confirmations).toBeGreaterThan(0);
+  expect(result.timestamp instanceof Date).toBe(true);
+  return result;
+}
 
 describe("isSHA256 suite", function () {
   it('isSHA256("789") should be false', function () {
@@ -396,17 +427,6 @@ describe("transaction.get suite", function () {
 
       it('transaction.get with unknown tx id should throw "tx_not_found"', (done) => {
         woleet.transaction.setDefaultProvider(provider);
-        woleet.transaction.get('invalid_tx')
-          .then((tx) => expect(tx).toBeUndefined())
-          .catch((error) => {
-            expect(error instanceof Error).toBe(true);
-            expect(error.message).toBe('tx_not_found');
-          })
-          .then(done);
-      });
-
-      it('non-existing transaction should throw "tx_not_found"', (done) => {
-        woleet.transaction.setDefaultProvider(provider);
         woleet.transaction.get('0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c4')
           .then(noResultExpected)
           .catch((error) => {
@@ -446,7 +466,7 @@ describe("receipt.get suite", function () {
 
   it('receipt.get with unknown anchor id should return "not_found"', (done) => {
     woleet.receipt.get('invalid_anchor_id')
-      .then((tx) => expect(tx).toBeUndefined())
+      .then((receipt) => expect(receipt).toBeUndefined())
       .catch((error) => {
         expect(error instanceof Error).toBe(true);
         expect(error.message).toBe("not_found");
@@ -460,14 +480,20 @@ describe("anchor.getAnchorIDs suite", function () {
   it('anchor.getAnchorIDs with invalid file hash should return an error', (done) => {
     woleet.anchor.getAnchorIDs('invalid_hash')
       .then((resultPage) => expect(resultPage).toBeUndefined())
-      .catch((error) => expect(error instanceof Error).toBe(true))
+      .catch((error) => {
+        expect(error instanceof Error).toBe(true);
+        expect(error.message).toBe('http_error');
+      })
       .then(done);
   });
 
   it('anchor.getAnchorIDs with invalid page size should return an error', (done) => {
     woleet.anchor.getAnchorIDs('invalid_hash', woleet.anchor.types.BOTH, -1)
       .then((resultPage) => expect(resultPage).toBeUndefined())
-      .catch((error) => expect(error instanceof Error).toBe(true))
+      .catch((error) => {
+        expect(error instanceof Error).toBe(true);
+        expect(error.message).toBe('http_error');
+      })
       .then(done);
   });
 
@@ -558,37 +584,6 @@ describe("hasher suite", function () {
     expect(result).toThrowError('invalid_parameter')
   });
 });
-
-function testErrorCode(expected) {
-  return function (result) {
-    expect(result).toBeDefined();
-    expect(result.confirmations).toBeUndefined();
-    expect(result.timestamp).toBeUndefined();
-    expect(result.code).toBeDefined();
-    expect(result.code).toBe(expected);
-    return result;
-  }
-}
-
-function noErrorExpected(error) {
-  expect(error).toBeUndefined();
-}
-
-function noResultExpected(result) {
-  expect(result).toBeUndefined();
-}
-
-function validationExpected(result) {
-  expect(result).toBeDefined();
-  expect(result.code).toBeDefined();
-  expect(result.code).toBe('verified');
-  expect(result.receipt).toBeDefined();
-  expect(result.timestamp).toBeDefined();
-  expect(result.confirmations).toBeDefined();
-  expect(result.confirmations).toBeGreaterThan(0);
-  expect(result.timestamp instanceof Date).toBe(true);
-  return result;
-}
 
 describe("verify.WoleetDAB suite", function () {
 
@@ -810,17 +805,7 @@ describe("signature suite", function () {
         .then(done)
     });
 
-    it('validating server controlled identity in strict mode with a server that do send back safe leftData should be true', (done) => {
-      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey, true)
-        .then((validation) => {
-          expect(validation).toBeDefined();
-          expect(validation.valid).toBe(true);
-        })
-        .catch(noErrorExpected)
-        .then(done)
-    });
-
-    it('validating identity with bad URL should throw an HTTP error', (done) => {
+    it('validating identity with a bad URL should throw an HTTP error', (done) => {
       validateIdentity('https://dve2.woleet.io:3001/identity', serverControlledIdentity.pubKey)
         .then(noResultExpected)
         .catch((error) => {
@@ -830,12 +815,22 @@ describe("signature suite", function () {
         .then(done)
     });
 
-    it('validating identity with bad pubKey should throw an HTTP error', (done) => {
+    it('validating identity with an invalid pubKey should throw an HTTP error', (done) => {
       validateIdentity(serverControlledIdentity.identityURL, 'mxpZfrKUekYRFRf95tqH1ttrhjHK5GtJ3X')
         .then(noResultExpected)
         .catch((error) => {
           expect(error instanceof Error).toBe(true);
           expect(error.message).toBe('http_error');
+        })
+        .then(done)
+    });
+
+    it('validating identity with a unknown pubKey should throw an HTTP error', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, '1EVXXLFyawVbJxueoe27t1CFE11veDh32L')
+        .then(noResultExpected)
+        .catch((error) => {
+          expect(error instanceof Error).toBe(true);
+          expect(error.message).toBe('key_not_found');
         })
         .then(done)
     });

@@ -94,11 +94,10 @@ All methods are provided by the `woleet` object. As an example, to get a Bitcoin
 
 **`woleet.verify.WoleetDAB(file)`** or **`woleet.verify.WoleetDAB(hash)`**
 
-Provides an easy way to retrieve and verify all public proof receipts related to a given file/hash and
- created using the Woleet platform.
+Provides an easy way to retrieve and verify all public proof receipts related to a given file/hash created using the Woleet platform.
 
-Proof of existence receipts (created when anchoring data) and proof of signature receipts (created when anchoring signature) are retrieved
- from the Woleet platform and verified automatically.
+Proof of existence receipts (created when anchoring a data) and proof of signature receipts (created when anchoring the
+ signature of a data) are retrieved from the Woleet platform and verified automatically.
 
 See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 
@@ -232,7 +231,8 @@ Note: this method is **not available** in node if files is a [Buffer]([buffer-li
 **`woleet.receipt.validate(receipt)`**
 
 Allows to validate the format of a proof receipt.
-It does not check the Bitcoin transaction, nor the signature, nor the signee identity (if any).
+
+Does not check the Bitcoin transaction, nor the signature, nor the signee identity (if any).
 
 - Parameters:
     - `receipt`: a JSON parsed proof receipt.
@@ -250,7 +250,8 @@ It does not check the Bitcoin transaction, nor the signature, nor the signee ide
 **`woleet.signature.validateSignature(message, pubKey, signature)`**
 
 Allows to validate a signature.
-It checks that the signature is valid for the message and produced by the public key.
+
+Checks that the signature is valid for the message and produced by the public key.
 
 See example at [examples/signature.html](examples/validateSignature.html)
 
@@ -267,21 +268,21 @@ See example at [examples/signature.html](examples/validateSignature.html)
  
 **`woleet.signature.validateIdentity(identityUrl, pubKey)`**
 
-Allows to validate the identity of a signee.
-It checks that the identity URL controls the provided public key by asking it to sign some random data and checking the returned signature.
+Allows to validate the identity of a signee using an identity server.
+
+Checks that the public key is known by the identity server, associated to an identity and/or controlled by the identity server
+(by asking it to sign some random data and checking the returned signature).
 
 See example at [examples/signature.html](examples/validateIdentity.html)
 
 - Parameters:
-    - `identityUrl`: the provided identity URL.
+    - `identityUrl`: the identity URL of the identity server.
     - `pubKey`: a bitcoin address (in base 58).
 - Returns a Promise which forwards an object:
     - `valid`: a boolean that indicates if identity is valid or not.
     - `reason`: a string that gives details about the validation failure (if any).
     - `identity` an [Identity](#object_identity) object (if forwarded by the server).
 <br>Note that the **reason** attribute may not be defined depending on the kind of failure.
-- If the identity URL does not return the expected data, a `bad_server_response` Error object is returned.
-- If a network/server error occurred while calling the identity URL an `http_error` Error object is returned.
 
 ### Get Woleet public anchors matching some data
 
@@ -337,13 +338,13 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 ### <a name="object_receipt_verification_status"></a>ReceiptVerificationStatus object
 ```
 {
-    code: {'verified' | error message} receipt verifcation status code
+    code: {'verified' | error message } receipt verifcation status code
     timestamp: {Date} proven timestamp of the data (for a data anchor) or of the signature (for a signature anchor)
     confirmations: {Number} number of confirmations of the block containing the transaction
     receipt: {Receipt} proof receipt
     identityVerificationStatus: 
     {
-        code: {'verified' | 'http_error' | 'invalid_signature'} identity verifcation status code 
+        code: {'verified' | 'identity_mismatch' | 'invalid_signature' | http_error'} identity verifcation status code 
         identity: [Identity object]
     }
 }
@@ -375,6 +376,7 @@ Signee's identity provided as a set of X.500 attributes (see https://www.ietf.or
 | Attribute          | Description                            |
 |--------------------|----------------------------------------|
 | commonName         | commonName (CN) (2.5.4.3)              |
+| emailAddress       | emailAddress (CN)                      |
 | organization       | organizationName (O) (2.5.4.10)        |
 | organizationalUnit | organizationalUnitName (OU) (2.5.4.11) |
 | locality           | localityName (L) (2.5.4.7)             |
@@ -384,6 +386,7 @@ Example :
 ```json
 {
   "commonName": "John Smith",
+  "emailAddress": "john.smith@woleet.com",
   "organizationalUnit": "Production",
   "organization": "Woleet SAS",
   "locality": "Rennes",
