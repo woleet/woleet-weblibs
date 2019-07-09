@@ -32,7 +32,8 @@
           try {
             _receipt = JSON.parse(e.target.result);
             check();
-          } catch (err) {
+          }
+          catch (error) {
             r.innerText = 'Error while parsing receipt, is it a JSON file?';
           }
         };
@@ -50,7 +51,6 @@
           .then(result => {
             r.innerText = 'Result: ' + JSON.stringify(result, null, 4);
           }, function (error) {
-            console.log(error);
             r.innerText = 'Error: ' + JSON.stringify(error, null, 4);
           });
       }

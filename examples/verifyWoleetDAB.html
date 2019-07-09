@@ -30,8 +30,7 @@
             if (len === 0) {
               r.innerText = 'There is no match for "' + file.name
                 + '", that means that the file was not anchored by Woleet or that the anchor is not public';
-            }
-            else {
+            } else {
               r.innerText = 'There is ' + len + ' match(es) for this file:';
               results.forEach(function (result) {
                 let li = document.createElement('li');

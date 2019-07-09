@@ -13,7 +13,7 @@
   <!-- END IE ZONE -->
 
   <!-- Woleet web libs (regular version) -->
-  <script>woleet = {workerScriptPath: '../dist/woleet-hashfile-worker.js'}</script>
+  <script>woleet = { workerScriptPath: '../dist/woleet-hashfile-worker.js' }</script>
   <script src="../dist/woleet-weblibs.js"></script>
 
   <!-- Woleet web libs (minified version) -->
@@ -35,8 +35,9 @@
 
         try {
           hasher.start(arr);
-        } catch (err) {
-          console.warn(err);
+        }
+        catch (error) {
+          console.warn(error);
         }
       };
 

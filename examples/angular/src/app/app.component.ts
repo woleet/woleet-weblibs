@@ -40,7 +40,6 @@ export class AppComponent {
       self.__hashList.push(self.__current);
     });
     hasher.on('progress', function (message) {
-      console.log(message);
       self.__current.progress = (message.progress * 100).toFixed(2)
     });
     hasher.on('error', function (error) {
@@ -64,12 +63,10 @@ export class AppComponent {
 
   hashString(event) {
     this.__hash = this._hash(event.target.value);
-    console.log(woleet, woleet.version);
   }
 
   hashFiles(event) {
     const files = event.srcElement.files;
-    console.log(files);
 
     let hasher = this.__hasher;
 
@@ -80,8 +77,8 @@ export class AppComponent {
 
     try {
       hasher.start(arr);
-    } catch (err) {
-      console.warn(err);
+    } catch (error) {
+      console.warn(error);
     }
 
   }

@@ -44,14 +44,13 @@
                         r.innerText += ' (identity verified using ' + receipt.signature.identityURL + ')';
                     }
                   }
-                }
-                else {
+                } else {
                   li.innerText += 'Receipt verification failed: ' + validation.code;
                 }
-
               })
-          } catch (err) {
-            li.innerText += 'Error: ' + err.message;
+          }
+          catch (error) {
+            li.innerText += 'Error: ' + error.message;
           }
           r.appendChild(li);
         };
