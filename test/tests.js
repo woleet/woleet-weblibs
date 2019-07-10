@@ -825,13 +825,15 @@ describe("signature suite", function () {
         .then(done)
     });
 
-    it('validating identity with a unknown pubKey should throw an HTTP error', (done) => {
+    it('validating identity with a unknown pubKey should be false', (done) => {
       validateIdentity(serverControlledIdentity.identityURL, '1EVXXLFyawVbJxueoe27t1CFE11veDh32L')
-        .then(noResultExpected)
-        .catch((error) => {
-          expect(error instanceof Error).toBe(true);
-          expect(error.message).toBe('key_not_found');
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('key_not_found');
+          expect(validation.identity).toBeUndefined();
         })
+        .catch(noErrorExpected)
         .then(done)
     });
   })
