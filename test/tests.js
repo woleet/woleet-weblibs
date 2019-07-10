@@ -488,7 +488,7 @@ describe("anchor.getAnchorIDs suite", function () {
   });
 
   it('anchor.getAnchorIDs with invalid page size should return an error', (done) => {
-    woleet.anchor.getAnchorIDs('invalid_hash', woleet.anchor.types.BOTH, -1)
+    woleet.anchor.getAnchorIDs("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", woleet.anchor.types.BOTH, -1)
       .then((resultPage) => expect(resultPage).toBeUndefined())
       .catch((error) => {
         expect(error instanceof Error).toBe(true);
@@ -805,23 +805,27 @@ describe("signature suite", function () {
         .then(done)
     });
 
-    it('validating identity with a bad URL should throw an HTTP error', (done) => {
+    it('validating identity with a bad URL should be false', (done) => {
       validateIdentity('https://dve2.woleet.io:3001/identity', serverControlledIdentity.pubKey)
-        .then(noResultExpected)
-        .catch((error) => {
-          expect(error instanceof Error).toBe(true);
-          expect(error.message).toBe('http_error');
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('http_error');
+          expect(validation.identity).toBeUndefined();
         })
+        .catch(noErrorExpected)
         .then(done)
     });
 
-    it('validating identity with an invalid pubKey should throw an HTTP error', (done) => {
+    it('validating identity with an invalid pubKey should be false', (done) => {
       validateIdentity(serverControlledIdentity.identityURL, 'mxpZfrKUekYRFRf95tqH1ttrhjHK5GtJ3X')
-        .then(noResultExpected)
-        .catch((error) => {
-          expect(error instanceof Error).toBe(true);
-          expect(error.message).toBe('http_error');
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('http_error');
+          expect(validation.identity).toBeUndefined();
         })
+        .catch(noErrorExpected)
         .then(done)
     });
 
