@@ -844,6 +844,7 @@ fdescribe("signature suite", function () {
           expect(validation.valid).toBe(true);
           expect(validation.identity).toBeDefined();
           expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.emailAddress).toBe('test@test.com');
           expect(validation.identity.organization).toBe('Woleet');
           expect(validation.identity.organizationalUnit).toBe('Production');
           expect(validation.identity.locality).toBe('Rennes');
@@ -878,6 +879,24 @@ fdescribe("signature suite", function () {
         .then(done)
     });
 
+    it('validating identity with a bad URL but a signed identity should be true', (done) => {
+      validateIdentity('https://dve2.woleet.io:3001/identity', serverControlledIdentity.pubKey,
+        "CN=Weblibs Test Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.emailAddress).toBe('test@test.com');
+          expect(validation.identity.organization).toBe('Woleet');
+          expect(validation.identity.organizationalUnit).toBeUndefined();
+          expect(validation.identity.locality).toBeUndefined();
+          expect(validation.identity.country).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
     it('validating identity with an invalid pubKey should be false', (done) => {
       validateIdentity(serverControlledIdentity.identityURL, 'invalid_pubkey')
         .then((validation) => {
@@ -896,6 +915,35 @@ fdescribe("signature suite", function () {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(false);
           expect(validation.reason).toBe('key_not_found');
+          expect(validation.identity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating identity with only a signed identity should be true', (done) => {
+      validateIdentity(null, null,
+        "CN=Weblibs Test Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.emailAddress).toBe('test@test.com');
+          expect(validation.identity.organization).toBe('Woleet');
+          expect(validation.identity.organizationalUnit).toBeUndefined();
+          expect(validation.identity.locality).toBeUndefined();
+          expect(validation.identity.country).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating identity with nothing should be false', (done) => {
+      validateIdentity(null, null, null)
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
           expect(validation.identity).toBeUndefined();
         })
         .catch(noErrorExpected)
