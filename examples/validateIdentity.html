@@ -47,11 +47,11 @@
         if (!_receipt.signature || !_receipt.signature.pubKey || !_receipt.signature.identityURL)
           return r.innerText = 'No signature, public key or identity URL in receipt';
 
-        woleet.signature.validateIdentity(_receipt.signature.identityURL, _receipt.signature.pubKey)
+        woleet.signature.validateIdentity(_receipt.signature.identityURL, _receipt.signature.pubKey, _receipt.signature.signedIdentity)
           .then(success => {
             r.innerText = 'Success: ' + JSON.stringify(success, null, 4);
           }, function (error) {
-            r.innerText = 'Error: ' + error.message;
+            r.innerText = 'Error: ' + JSON.stringify(error, null, 4);
           });
       }
     }

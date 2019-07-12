@@ -708,7 +708,7 @@ describe("verify.DAB suite", function () {
   });
 });
 
-describe("signature suite", function () {
+fdescribe("signature suite", function () {
 
   describe('signature validation', function () {
 
@@ -789,6 +789,37 @@ describe("signature suite", function () {
         .then(done)
     });
 
+    it('validating server controlled identity with matching signed identity should be true', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey,
+        "CN=Weblibs Test Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.emailAddress).toBe('test@test.com');
+          expect(validation.identity.organization).toBe('Woleet');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating server controlled identity with mismatching signed identity should be false', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey,
+        "CN=Weblibs Mismatch Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('identity_mismatch');
+          expect(validation.identity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
     it('validating user controlled identity should be true', (done) => {
       validateIdentity(userControlledIdentity.identityURL, userControlledIdentity.pubKey)
         .then((validation) => {
@@ -800,6 +831,36 @@ describe("signature suite", function () {
           expect(validation.identity.organizationalUnit).toBe('Production');
           expect(validation.identity.locality).toBe('Rennes');
           expect(validation.identity.country).toBe('FR');
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating user controlled identity with matching signed identity should be true', (done) => {
+      validateIdentity(userControlledIdentity.identityURL, userControlledIdentity.pubKey,
+        "CN=Weblibs Test Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.organization).toBe('Woleet');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating user controlled identity with mismatching signed identity should be false', (done) => {
+      validateIdentity(userControlledIdentity.identityURL, userControlledIdentity.pubKey,
+        "CN=Weblibs Mismatch Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('identity_mismatch');
+          expect(validation.identity).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
@@ -818,7 +879,7 @@ describe("signature suite", function () {
     });
 
     it('validating identity with an invalid pubKey should be false', (done) => {
-      validateIdentity(serverControlledIdentity.identityURL, 'mxpZfrKUekYRFRf95tqH1ttrhjHK5GtJ3X')
+      validateIdentity(serverControlledIdentity.identityURL, 'invalid_pubkey')
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(false);

@@ -48,8 +48,8 @@
           return r.innerText = 'No signature in receipt';
 
         woleet.signature.validateSignature(_receipt.signature.signedHash, _receipt.signature.pubKey, _receipt.signature.signature)
-          .then(result => {
-            r.innerText = 'Result: ' + JSON.stringify(result, null, 4);
+          .then(success => {
+            r.innerText = 'Success: ' + JSON.stringify(success, null, 4);
           }, function (error) {
             r.innerText = 'Error: ' + JSON.stringify(error, null, 4);
           });

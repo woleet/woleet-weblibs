@@ -266,18 +266,20 @@ See example at [examples/signature.html](examples/validateSignature.html)
 
 ### <a name="signatureValidateIdentity"></a>Validate a signee identity
  
-**`woleet.signature.validateIdentity(identityUrl, pubKey)`**
+**`woleet.signature.validateIdentity(identityUrl, pubKey, signedIdentity)`**
 
 Allows to validate the identity of a signee using an identity server.
 
 Checks that the public key is known by the identity server, associated to an identity and/or controlled by the identity server
 (by asking it to sign some random data and checking the returned signature).
+Can also check that the identity claimed by the server, if any, matches the identity claimed by the signee (ie. included in his signature).
 
 See example at [examples/signature.html](examples/validateIdentity.html)
 
 - Parameters:
     - `identityUrl`: the identity URL of the identity server.
-    - `pubKey`: a bitcoin address (in base 58).
+    - `pubKey`: the bitcoin address (in base 58) of the signee
+    - `signedIdentity`: the X500 Distinguished Name of the signee that should match.
 - Returns a Promise which forwards an object:
     - `valid`: a boolean that indicates if identity is valid or not.
     - `reason`: a string that gives details about the validation failure (if any).
@@ -360,6 +362,7 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
         "code": "verified",
         "identity": {
             "commonName": "John Smith",
+            "emailAddress": "john.smith@woleet.com",
             "organizationalUnit": "Production",
             "organization": "Woleet SAS",
             "locality": "Rennes",
@@ -376,7 +379,7 @@ Signee's identity provided as a set of X.500 attributes (see https://www.ietf.or
 | Attribute          | Description                            |
 |--------------------|----------------------------------------|
 | commonName         | commonName (CN) (2.5.4.3)              |
-| emailAddress       | emailAddress (CN)                      |
+| emailAddress       | emailAddress (EMAILADDRESS)            |
 | organization       | organizationName (O) (2.5.4.10)        |
 | organizationalUnit | organizationalUnitName (OU) (2.5.4.11) |
 | locality           | localityName (L) (2.5.4.7)             |
