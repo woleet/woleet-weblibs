@@ -708,7 +708,7 @@ describe("verify.DAB suite", function () {
   });
 });
 
-fdescribe("signature suite", function () {
+describe("signature suite", function () {
 
   describe('signature validation', function () {
 
@@ -760,6 +760,7 @@ fdescribe("signature suite", function () {
   describe('identity validation', function () {
 
     const validateIdentity = woleet.signature.validateIdentity;
+    const deserializeX500DN = woleet.signature.deserializeX500DN;
 
     // An identity whose private key is controlled by the server (server can prove the ownership of the key and claim the user identity)
     const serverControlledIdentity = {
@@ -772,6 +773,22 @@ fdescribe("signature suite", function () {
       'pubKey': '1DUfCVRn4GRHFjL5tcv8vArrUXywHCjWKe',
       'identityURL': 'https://dev2.woleet.io:3001/identity'
     };
+
+    it('deserializing X500 names should work', (done) => {
+      let x500 = deserializeX500DN('CN=John Smith, EMAILADDRESS=john@acme.com, O=Organization, OU=Organizational Unit, L=Locality, C=FR');
+      expect(x500.commonName).toBe('John Smith');
+      expect(x500.emailAddress).toBe('john@acme.com');
+      expect(x500.organization).toBe('Organization');
+      expect(x500.organizationalUnit).toBe('Organizational Unit');
+      expect(x500.locality).toBe('Locality');
+      expect(x500.country).toBe('FR');
+      expect(x500).toEqual(deserializeX500DN('cn=John Smith,emailaddress=john@acme.com,o=Organization,ou=Organizational Unit,l=Locality,c=FR'));
+
+      x500 = deserializeX500DN('CN=A\\"\\,\\;\\+\\=B,EMAILADDRESS=a@b.com');
+      expect(x500.commonName).toBe('A",;+=B');
+      expect(x500.emailAddress).toBe('a@b.com');
+      done();
+    });
 
     it('validating server controlled identity should be true', (done) => {
       validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey)
