@@ -812,17 +812,44 @@ describe("signature suite", function () {
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(true);
+
           expect(validation.identity).toBeDefined();
           expect(validation.identity.commonName).toBe('Weblibs Test Identity');
-          expect(validation.identity.emailAddress).toBe('test@test.com');
-          expect(validation.identity.organization).toBe('Woleet');
+          expect(validation.identity.emailAddress).toBeUndefined();
+          expect(validation.identity.organization).toBe('Woleet SAS');
           expect(validation.identity.organizationalUnit).toBe('Production');
           expect(validation.identity.locality).toBe('Rennes');
           expect(validation.identity.country).toBe('FR');
+
+          expect(validation.signedIdentity).toBeDefined();
+          expect(validation.signedIdentity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.signedIdentity.emailAddress).toBe('test@test.com');
+          expect(validation.signedIdentity.organization).toBe('Woleet');
         })
         .catch(noErrorExpected)
         .then(done)
     });
+
+    it('validating server controlled identity with matching signed issuer domain should be true', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey, null, "woleet.io")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.emailAddress).toBeUndefined();
+          expect(validation.identity.organization).toBe('Woleet SAS');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
+
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
 
     it('validating server controlled identity with mismatching signed identity should be false', (done) => {
       validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey,
@@ -832,6 +859,20 @@ describe("signature suite", function () {
           expect(validation.valid).toBe(false);
           expect(validation.reason).toBe('identity_mismatch');
           expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating server controlled identity with mismatching signed issuer domain should be false', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey, null, "acme..com")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('identity_mismatch');
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
@@ -859,13 +900,21 @@ describe("signature suite", function () {
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(true);
+
           expect(validation.identity).toBeDefined();
           expect(validation.identity.commonName).toBe('Weblibs Test Identity');
-          expect(validation.identity.emailAddress).toBe('test@test.com');
-          expect(validation.identity.organization).toBe('Woleet');
+          expect(validation.identity.organization).toBe('Woleet SAS');
           expect(validation.identity.organizationalUnit).toBe('Production');
           expect(validation.identity.locality).toBe('Rennes');
           expect(validation.identity.country).toBe('FR');
+
+          expect(validation.signedIdentity).toBeDefined();
+          expect(validation.signedIdentity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.signedIdentity.emailAddress).toBe('test@test.com');
+          expect(validation.signedIdentity.organization).toBe('Woleet');
+          expect(validation.signedIdentity.organizationalUnit).toBeUndefined();
+          expect(validation.signedIdentity.locality).toBeUndefined();
+          expect(validation.signedIdentity.country).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
@@ -879,6 +928,7 @@ describe("signature suite", function () {
           expect(validation.valid).toBe(false);
           expect(validation.reason).toBe('identity_mismatch');
           expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
@@ -891,6 +941,7 @@ describe("signature suite", function () {
           expect(validation.valid).toBe(false);
           expect(validation.reason).toBe('http_error');
           expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
@@ -902,13 +953,16 @@ describe("signature suite", function () {
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(true);
-          expect(validation.identity).toBeDefined();
-          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
-          expect(validation.identity.emailAddress).toBe('test@test.com');
-          expect(validation.identity.organization).toBe('Woleet');
-          expect(validation.identity.organizationalUnit).toBeUndefined();
-          expect(validation.identity.locality).toBeUndefined();
-          expect(validation.identity.country).toBeUndefined();
+
+          expect(validation.identity).toBeUndefined();
+
+          expect(validation.signedIdentity).toBeDefined();
+          expect(validation.signedIdentity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.signedIdentity.emailAddress).toBe('test@test.com');
+          expect(validation.signedIdentity.organization).toBe('Woleet');
+          expect(validation.signedIdentity.organizationalUnit).toBeUndefined();
+          expect(validation.signedIdentity.locality).toBeUndefined();
+          expect(validation.signedIdentity.country).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
@@ -921,6 +975,7 @@ describe("signature suite", function () {
           expect(validation.valid).toBe(false);
           expect(validation.reason).toBe('http_error');
           expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
@@ -933,6 +988,7 @@ describe("signature suite", function () {
           expect(validation.valid).toBe(false);
           expect(validation.reason).toBe('key_not_found');
           expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
@@ -944,13 +1000,13 @@ describe("signature suite", function () {
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(true);
-          expect(validation.identity).toBeDefined();
-          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
-          expect(validation.identity.emailAddress).toBe('test@test.com');
-          expect(validation.identity.organization).toBe('Woleet');
-          expect(validation.identity.organizationalUnit).toBeUndefined();
-          expect(validation.identity.locality).toBeUndefined();
-          expect(validation.identity.country).toBeUndefined();
+          expect(validation.signedIdentity).toBeDefined();
+          expect(validation.signedIdentity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.signedIdentity.emailAddress).toBe('test@test.com');
+          expect(validation.signedIdentity.organization).toBe('Woleet');
+          expect(validation.signedIdentity.organizationalUnit).toBeUndefined();
+          expect(validation.signedIdentity.locality).toBeUndefined();
+          expect(validation.signedIdentity.country).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
@@ -962,6 +1018,7 @@ describe("signature suite", function () {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(false);
           expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)

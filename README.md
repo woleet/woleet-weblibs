@@ -266,24 +266,27 @@ See example at [examples/signature.html](examples/validateSignature.html)
 
 ### <a name="signatureValidateIdentity"></a>Validate a signee identity
  
-**`woleet.signature.validateIdentity(identityUrl, pubKey, signedIdentity)`**
+**`woleet.signature.validateIdentity(identityUrl, pubKey, signedIdentity, signedIssuerDomain)`**
 
 Allows to validate the identity of a signee using an identity server.
 
 Checks that the public key is known by the identity server, associated to an identity and/or controlled by the identity server
 (by asking it to sign some random data and checking the returned signature).
-Can also check that the identity claimed by the server, if any, matches the identity claimed by the signee (ie. included in his signature).
+Can also check that the identity claimed by the server, if any, matches the identity signed by the signee 
+and that the identity URL of the identity server matches the issuer domain signed by the signee.
 
 See example at [examples/signature.html](examples/validateIdentity.html)
 
 - Parameters:
     - `identityUrl`: the identity URL of the identity server.
     - `pubKey`: the bitcoin address (in base 58) of the signee
-    - `signedIdentity`: the X500 Distinguished Name of the signee that should match.
+    - `signedIdentity`: optional: the X500 Distinguished Name of the signee (must match the identity returned by the server).
+    - `signedIssuerDomain`: optional: the domain of the identity server (must include the domain of the identity URL).
 - Returns a Promise which forwards an object:
     - `valid`: a boolean that indicates if identity is valid or not.
     - `reason`: a string that gives details about the validation failure (if any).
-    - `identity` an [Identity](#object_identity) object (if forwarded by the server).
+    - `identity` an [Identity](#object_identity) object (as returned by the identity server).
+    - `signedIdentity` an [Identity](#object_identity) object (deserialized version of the X500 Distinguished Name).
 <br>Note that the **reason** attribute may not be defined depending on the kind of failure.
 
 ### Get Woleet public anchors matching some data

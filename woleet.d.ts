@@ -17,9 +17,10 @@ interface Branch {
 interface ReceiptSignature {
   signedHash: string,
   signedIdentity?: string,
+  signedIssuerDomain?: string,
+  identityURL?: string
   pubKey: string,
   signature: string,
-  identityURL?: string
 }
 
 interface Receipt {
