@@ -30,8 +30,9 @@
                   if (receipt.header && receipt.header.tx_id) {
                     li.innerText += 'Receipt ' + file.name + ' is valid and matches transaction ' + receipt
                       .header.tx_id;
-                  } else {
-                    li.innerText += 'Receipt ' + file.name + ' format is valid but does not match any transaction '
+                  } else if (receipt.type === 'ChainpointSHA256v2') {
+                    li.innerText += 'Receipt ' + file.name + ' is valid and matches transaction ' + receipt
+                      .anchors[0].sourceId;
                   }
                   if (receipt.signature) {
                     li.innerText += ' it has been signed by ' + receipt.signature.pubKey;
