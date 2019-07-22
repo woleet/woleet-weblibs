@@ -66,25 +66,10 @@ and proof of signature receipts (an [extension of the Chainpoint standard](https
 
 ### Browsers
 
-These libraries have been tested on all modern web browsers and should work on any browser supporting
+These libraries have been tested on all modern web browsers (so not on Internet Explorer) and should work on any browser supporting
 [Promises](https://developer.mozilla.org/en-US/docs/Web/API/Promise)
 and [Workers](https://developer.mozilla.org/en-US/docs/Web/API/Worker) (note that if Workers are not supported,
 it is still possible to hash files whose size do not exceed 50MB).
-
-#### Internet explorer
-
-Since Internet Explorer 11 does not fully support promises, you will have to 
-include a third party library such as [bluebird](http://bluebirdjs.com/):
-
-```html
-<!-- IE ZONE -->
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-<script type="text/javascript">
-  if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
-    document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
-</script>
-<!-- END IE ZONE -->
-```
 
 ## Basic usage
 

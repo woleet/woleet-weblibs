@@ -5,15 +5,6 @@
   <meta charset="UTF-8">
   <title>Validate signature demo</title>
 
-  <!-- IE ZONE -->
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <script type="text/javascript">
-    if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
-
-  </script>
-  <!-- END IE ZONE -->
-
   <!-- Woleet web libs (regular version) -->
   <script src="../dist/woleet-weblibs.js"></script>
 
@@ -34,7 +25,8 @@
           try {
             _receipt = JSON.parse(e.target.result);
             check();
-          } catch (error) {
+          }
+          catch (error) {
             r.innerText = 'Error while parsing receipt, is it a JSON file?';
           }
         };
@@ -45,8 +37,8 @@
       function check() {
         r.innerText = 'pending ...';
 
-        if (!_receipt.signature || !_receipt.signature.signedHash || !_receipt.signature.pubKey || !_receipt.signature
-          .signature)
+        if (!_receipt.signature || !_receipt.signature.signedHash || !_receipt.signature.pubKey
+          || !_receipt.signature.signature)
           return r.innerText = 'No signature in receipt';
 
         // Build the message that should have been signed
@@ -57,7 +49,7 @@
         }
 
         woleet.signature.validateSignature(message, _receipt.signature.pubKey, _receipt
-            .signature.signature)
+          .signature.signature)
           .then(success => {
             r.innerText = 'Success: ' + JSON.stringify(success, null, 4);
           }, function (error) {
@@ -70,10 +62,10 @@
 </head>
 
 <body>
-  <h3>Validate signature demo</h3>
-  Choose a signature receipt:
-  <input type="file" onchange="setReceipt(this.files.item(0))">
-  <p id="result"></p>
+<h3>Validate signature demo</h3>
+Choose a signature receipt:
+<input type="file" onchange="setReceipt(this.files.item(0))">
+<p id="result"></p>
 </body>
 
 </html>

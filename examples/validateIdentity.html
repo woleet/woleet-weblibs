@@ -1,16 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Validate identity demo</title>
-
-  <!-- IE ZONE -->
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-  <script type="text/javascript">
-    if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
-  </script>
-  <!-- END IE ZONE -->
 
   <!-- Woleet web libs (regular version) -->
   <script src="../dist/woleet-weblibs.js"></script>
@@ -57,10 +50,12 @@
     }
   </script>
 </head>
+
 <body>
 <h3>Validate identity demo</h3>
 Choose a signature receipt:
 <input type="file" onchange="setReceipt(this.files.item(0))">
 <p id="result"></p>
 </body>
+
 </html>
