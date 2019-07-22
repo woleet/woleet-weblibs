@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Hash file(s) demo</title>
 
-  <!-- IE ZONE -->
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-  <script type="text/javascript">
-    if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
-  </script>
-  <!-- END IE ZONE -->
-
   <!-- Woleet web libs (regular version) -->
-  <script>woleet = {workerScriptPath: '../dist/woleet-hashfile-worker.js'}</script>
+  <script>woleet = { workerScriptPath: '../dist/woleet-hashfile-worker.js' }</script>
   <script src="../dist/woleet-weblibs.js"></script>
 
   <!-- Woleet web libs (minified version) -->
@@ -35,8 +28,9 @@
 
         try {
           hasher.start(arr);
-        } catch (err) {
-          console.warn(err);
+        }
+        catch (error) {
+          console.warn(error);
         }
       };
 
@@ -74,6 +68,7 @@
     }
   </script>
 </head>
+
 <body>
 <h3>Hash file(s) demo</h3>
 <input type="file" id="input" multiple onchange="start(this.files)">
@@ -81,4 +76,5 @@
 <button onclick="if (!hasher.isReady()) hasher.skip()">Skip</button>
 <ul id="hashes"></ul>
 </body>
+
 </html>

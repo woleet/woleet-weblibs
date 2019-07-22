@@ -16,9 +16,11 @@ interface Branch {
 
 interface ReceiptSignature {
   signedHash: string,
+  signedIdentity?: string,
+  signedIssuerDomain?: string,
+  identityURL?: string
   pubKey: string,
   signature: string,
-  identityURL?: string
 }
 
 interface Receipt {
@@ -49,10 +51,10 @@ interface ReceiptV2 {
 }
 
 interface ReceiptVerificationStatus {
-  confirmations?: number
-  timestamp?: Date
   receipt: Receipt
   code: string
+  confirmations?: number
+  timestamp?: Date
   identityVerificationStatus?: {
     code: string
   }
@@ -97,13 +99,13 @@ declare namespace woleet {
   }
 
   namespace signature {
-    function validateIdentity(identityUrl: string, pubKey: string, strict: boolean): Promise<SignatureValidationResult>;
+    function validateIdentity(identityUrl: string, pubKey: string, signedIdentity: string): Promise<SignatureValidationResult>;
 
     function validateSignature(message: string, address: string, signature: string): Promise<SignatureValidationResult>;
   }
 
   namespace identity {
-    function getRandomSignature(identityUrl: string, pubKey: string, leftData: string): Promise<{ signature: string, rightData: string }>;
+    function getIdentity(identityUrl: string, pubKey: string, leftData: string): Promise<{ signature: string, rightData: string }>;
   }
 
   namespace crypto {

@@ -1,16 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Verify DAB</title>
-
-  <!-- IE ZONE -->
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-  <script type="text/javascript">
-    if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
-  </script>
-  <!-- END IE ZONE -->
 
   <!-- Woleet web libs (regular version) -->
   <script src="../dist/woleet-weblibs.js"></script>
@@ -39,7 +32,8 @@
           try {
             _receipt = JSON.parse(e.target.result);
             check();
-          } catch (err) {
+          }
+          catch (error) {
             r.innerText = 'Error while parsing receipt, is it a JSON file?';
           }
         };
@@ -78,6 +72,7 @@
     }
   </script>
 </head>
+
 <body>
 <h3>Verify DAB demo</h3>
 Choose a file:
@@ -87,4 +82,5 @@ Choose a receipt:
 <input type="file" onchange="setReceipt(this.files.item(0))">
 <p id="result"></p>
 </body>
+
 </html>

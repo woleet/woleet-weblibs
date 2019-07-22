@@ -13,7 +13,6 @@ const validReceipt = {
   },
   "target": {
     "target_hash": "0bf8e69866ff5db9efc108ea87953081ba627fb524a2c457dfb6c1b7df9430f9",
-    "target_uri": "null",
     "target_proof": [
       {
         "parent": "275036918865f2bc25da43487e9d6d24a59b730753758935a68d8b8f2d27cdc5",
@@ -31,18 +30,7 @@ const validReceipt = {
         "right": "31ec828ab1de576e8ae5f711d42aa28c59f0bb9242d23c27b9d12448e0e1cfee"
       }
     ]
-  },
-  "extra": [
-    {
-      "size": "93259"
-    },
-    {
-      "type": "application/pdf"
-    },
-    {
-      "anchorid": "c2f25d10-eae5-413c-82eb-1bdb6cf499b6"
-    }
-  ]
+  }
 };
 
 /** @type {Receipt} */
@@ -56,7 +44,6 @@ const emptyFileValidReceipt = {
   },
   "target": {
     "target_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "target_uri": "null",
     "target_proof": [
       {
         "parent": "628968521ab483a75de893f6a27132bae3ea55384c67f22ebb94199d07e0878e",
@@ -64,16 +51,11 @@ const emptyFileValidReceipt = {
         "right": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     ]
-  },
-  "extra": [
-    {
-      "anchorid": "616980d1-7672-4558-b101-6c94bf7cee41"
-    }
-  ]
+  }
 };
 
 /** @type {Receipt} */
-const emptyFileValidSignedReceipt = {
+const emptyFileValidSignatureReceipt = {
   "header": {
     "chainpoint_version": "1.0",
     "merkle_root": "76280be77b005ee3a4e61a3301717289362e1a9106343c7afba21b55be33b39b",
@@ -81,14 +63,6 @@ const emptyFileValidSignedReceipt = {
     "hash_type": "SHA-256",
     "timestamp": 1497625706
   },
-  "extra": [
-    {
-      "size": "0"
-    },
-    {
-      "anchorid": "561920c1-68a0-468e-82c9-982e7c4b1c63"
-    }
-  ],
   "signature": {
     "signature": "HxVxyhfiJ1EyEDlhXidshWs3QQxb3JUcAvKpt1NLMonLXWWKXL39OLH3XXGofTho5JKjrZUY32sRoX6g2mh/Os0=",
     "signedHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -123,30 +97,6 @@ const emptyFileValidSignedReceipt = {
 
 /** @type {ReceiptV2} */
 const validReceiptV2 = {
-  "targetHash": "8de1de49d84480c8d0142ee23d82595d5046a40e3958b4161ac37cb75d7ef0da",
-  "signature": {
-    "signature": "H5aUT2noAzB7CeT0YTgIpcEx1xQ1KhBetYoewDVDrImgEYgSUKTg/5v0wbVfY4tky3EJyWgYH1PwFrwosfgE670=",
-    "signedHash": "b8f0ccf1484379c957bb1a2d1806998e2662ebde731266dbd9b953d59fd81a5b",
-    "pubKey": "1BGLkyG7SCHH32bALDnMP2YrS84JMCimc3"
-  },
-  "merkleRoot": "9a094a28c667633c6e6868124a694673cc8b440ab1a8205dad748c6a4455e8d9",
-  "proof": [
-    {
-      "right": "dda086255a9d62e90a791307de7aa1bdb973333f8da8ac53f402b9d72db8d9d9"
-    }
-  ],
-  "anchors": [
-    {
-      "sourceId": "cf85e40a989414fcba072434fbead5d7b51899c95e63bdc641561294fbaf7687",
-      "type": "BTCOpReturn"
-    }
-  ],
-  "type": "ChainpointSHA256v2",
-  "@context": "https://w3id.org/chainpoint/v2"
-};
-
-/** @type {ReceiptV2} */
-const validReceiptV22 = {
   "@context": "https://w3id.org/chainpoint/v2",
   "type": "ChainpointSHA256v2",
   "targetHash": "bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2",
@@ -179,8 +129,9 @@ function safeCopy(obj) {
 function nofail(fn) {
   try {
     return fn();
-  } catch (err) {
-    console.warn(err);
+  }
+  catch (error) {
+    console.warn(error);
     return null;
   }
 }
@@ -196,19 +147,49 @@ if (typeof window === 'undefined') {
   PolyFile = function ([blob]) {
     return blob;
   };
-}
-else {
+} else {
   PolyBlob = window.Blob;
   PolyFile = window.File;
   Buffer = woleet.crypto.Buffer;
 }
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
 // Force the blockchain provider (default is woleet.io)
 //woleet.transaction.setDefaultProvider('woleet.io');
 //woleet.transaction.setDefaultProvider('blockstream.info');
 //woleet.transaction.setDefaultProvider('blockcypher.com');
+
+function testErrorCode(expected) {
+  return function (result) {
+    expect(result).toBeDefined();
+    expect(result.confirmations).toBeUndefined();
+    expect(result.timestamp).toBeUndefined();
+    expect(result.code).toBeDefined();
+    expect(result.code).toBe(expected);
+    return result;
+  }
+}
+
+function noErrorExpected(error) {
+  expect(error).toBeUndefined();
+}
+
+function noResultExpected(result) {
+  expect(result).toBeUndefined();
+}
+
+function validationExpected(result) {
+  expect(result).toBeDefined();
+  expect(result.code).toBeDefined();
+  expect(result.code).toBe('verified');
+  expect(result.receipt).toBeDefined();
+  expect(result.timestamp).toBeDefined();
+  expect(result.confirmations).toBeDefined();
+  expect(result.confirmations).toBeGreaterThan(0);
+  expect(result.timestamp instanceof Date).toBe(true);
+  return result;
+}
 
 describe("isSHA256 suite", function () {
   it('isSHA256("789") should be false', function () {
@@ -395,13 +376,13 @@ describe("receipt.validate suite", function () {
 
   it('invalid chainpoint 2 receipt should not be valid', function () {
     const invalidReceiptV2 = safeCopy(validReceiptV2);
-    invalidReceiptV2.proof[0].right = 'eda086255a9d62e90a791307de7aa1bdb973333f8da8ac53f402b9d72db8d9d9';
+    invalidReceiptV2.proof[0].left = 'eda086255a9d62e90a791307de7aa1bdb973333f8da8ac53f402b9d72db8d9d9';
     const result = () => woleet.receipt.validate(invalidReceiptV2);
     expect(result).toThrowError('merkle_root_mismatch');
   });
 
   it('invalid chainpoint 2 receipt should not be valid', function () {
-    const invalidReceiptV22 = safeCopy(validReceiptV22);
+    const invalidReceiptV22 = safeCopy(validReceiptV2);
     invalidReceiptV22.proof[0].left = 'ddf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2';
     const result = () => woleet.receipt.validate(invalidReceiptV22);
     expect(result).toThrowError('merkle_root_mismatch');
@@ -446,17 +427,6 @@ describe("transaction.get suite", function () {
 
       it('transaction.get with unknown tx id should throw "tx_not_found"', (done) => {
         woleet.transaction.setDefaultProvider(provider);
-        woleet.transaction.get('invalid_tx')
-          .then((tx) => expect(tx).toBeUndefined())
-          .catch((error) => {
-            expect(error instanceof Error).toBe(true);
-            expect(error.message).toBe('tx_not_found');
-          })
-          .then(done);
-      });
-
-      it('non-existing transaction should throw "tx_not_found"', (done) => {
-        woleet.transaction.setDefaultProvider(provider);
         woleet.transaction.get('0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c4')
           .then(noResultExpected)
           .catch((error) => {
@@ -496,7 +466,7 @@ describe("receipt.get suite", function () {
 
   it('receipt.get with unknown anchor id should return "not_found"', (done) => {
     woleet.receipt.get('invalid_anchor_id')
-      .then((tx) => expect(tx).toBeUndefined())
+      .then((receipt) => expect(receipt).toBeUndefined())
       .catch((error) => {
         expect(error instanceof Error).toBe(true);
         expect(error.message).toBe("not_found");
@@ -508,22 +478,43 @@ describe("receipt.get suite", function () {
 describe("anchor.getAnchorIDs suite", function () {
 
   it('anchor.getAnchorIDs with invalid file hash should return an error', (done) => {
-    woleet.anchor.getAnchorIDs('invalid_tx')
+    woleet.anchor.getAnchorIDs('invalid_hash')
       .then((resultPage) => expect(resultPage).toBeUndefined())
-      .catch((error) => expect(error instanceof Error).toBe(true))
+      .catch((error) => {
+        expect(error instanceof Error).toBe(true);
+        expect(error.message).toBe('http_error');
+      })
       .then(done);
   });
 
   it('anchor.getAnchorIDs with invalid page size should return an error', (done) => {
-    woleet.anchor.getAnchorIDs('invalid_tx', 1, -1)
+    woleet.anchor.getAnchorIDs("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", woleet.anchor.types.BOTH, -1)
       .then((resultPage) => expect(resultPage).toBeUndefined())
-      .catch((error) => expect(error instanceof Error).toBe(true))
+      .catch((error) => {
+        expect(error instanceof Error).toBe(true);
+        expect(error.message).toBe('http_error');
+      })
       .then(done);
   });
 
   it('anchor.getAnchorIDs with unknown file hash should return empty list', (done) => {
     woleet.anchor.getAnchorIDs(woleet.crypto.sha256().update("unknown_data").digest('hex'))
       .then((resultPage) => expect(resultPage.length).toEqual(0))
+      .catch(noErrorExpected)
+      .then(done);
+  });
+
+  it('anchor.getAnchorIDs with well known file hash should return more than 1 anchor', (done) => {
+    woleet.anchor.getAnchorIDs("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+      .then((resultPage) => expect(resultPage.length).toBeGreaterThan(1))
+      .catch(noErrorExpected)
+      .then(done);
+  });
+
+  it('anchor.getAnchorIDs with well known file hash but limited to 1 should return 1 anchor', (done) => {
+    woleet.anchor.getAnchorIDs("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      woleet.anchor.types.DATA, 1)
+      .then((resultPage) => expect(resultPage.length).toEqual(1))
       .catch(noErrorExpected)
       .then(done);
   });
@@ -594,37 +585,6 @@ describe("hasher suite", function () {
   });
 });
 
-function testErrorCode(expected) {
-  return function (result) {
-    expect(result).toBeDefined();
-    expect(result.confirmations).toBeUndefined();
-    expect(result.timestamp).toBeUndefined();
-    expect(result.code).toBeDefined();
-    expect(result.code).toBe(expected);
-    return result;
-  }
-}
-
-function noErrorExpected(error) {
-  expect(error).toBeUndefined();
-}
-
-function noResultExpected(result) {
-  expect(result).toBeUndefined();
-}
-
-function validationExpected(result) {
-  expect(result).toBeDefined();
-  expect(result.code).toBeDefined();
-  expect(result.code).toBe('verified');
-  expect(result.receipt).toBeDefined();
-  expect(result.timestamp).toBeDefined();
-  expect(result.confirmations).toBeDefined();
-  expect(result.confirmations).toBeGreaterThan(0);
-  expect(result.timestamp instanceof Date).toBe(true);
-  return result;
-}
-
 describe("verify.WoleetDAB suite", function () {
 
   // Wait one second after each test not to exceed the API limit
@@ -662,37 +622,44 @@ describe("verify.WoleetDAB suite", function () {
 });
 
 describe("verify.DAB suite", function () {
-  const blob = new PolyBlob(['']);
-  const file = nofail(() => new PolyFile([blob], "image.png", { type: "image/png" }));
+  const emptyFile = nofail(() => new PolyFile([new PolyBlob([''])], "image.png", { type: "image/png" }));
 
   // Wait one second after each test not to exceed the API limit
   afterEach((done) => setInterval(done, 1000));
 
   it('verify.DAB with valid file and valid corresponding receipt should return valid result', (done) => {
-    woleet.verify.DAB(file, emptyFileValidReceipt)
+    woleet.verify.DAB(emptyFile, emptyFileValidReceipt)
       .then(validationExpected)
       .catch(noErrorExpected)
       .then(done)
   });
 
   it('verify.DAB with valid file and valid corresponding signed receipt should return valid result', (done) => {
-    woleet.verify.DAB(file, emptyFileValidSignedReceipt)
+    woleet.verify.DAB(emptyFile, emptyFileValidSignatureReceipt)
+      .then(validationExpected)
+      .catch(noErrorExpected)
+      .then(done)
+  });
+
+  it('verify.DAB with valid file and valid corresponding Chainpoint 1 receipt should return valid result', (done) => {
+    woleet.verify.DAB("0bf8e69866ff5db9efc108ea87953081ba627fb524a2c457dfb6c1b7df9430f9", validReceipt)
       .then(validationExpected)
       .catch(noErrorExpected)
       .then(done)
   });
 
   it('verify.DAB with valid file and valid corresponding Chainpoint 2 receipt should return valid result', (done) => {
-    woleet.verify.DAB("bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2", validReceiptV22)
+    woleet.verify.DAB("bdf8c9bdf076d6aff0292a1c9448691d2ae283f2ce41b045355e2c8cb8e85ef2", validReceiptV2)
       .then(validationExpected)
       .catch(noErrorExpected)
       .then(done)
   });
 
-  let invalidIdentityReceipt = safeCopy(emptyFileValidSignedReceipt);
+  let invalidIdentityReceipt = safeCopy(emptyFileValidSignatureReceipt);
   invalidIdentityReceipt.signature.identityURL = 'https://dve.woleet.io/v1/identity';
+
   it('verify.DAB with valid file and corresponding signed receipt with invalid identityURL should have identityVerificationStatus.code set to "http_error"', (done) => {
-    woleet.verify.DAB(file, invalidIdentityReceipt)
+    woleet.verify.DAB(emptyFile, invalidIdentityReceipt)
       .then(validationExpected)
       .then((result) => {
         expect(result.identityVerificationStatus).toBeDefined();
@@ -703,46 +670,39 @@ describe("verify.DAB suite", function () {
       .then(done)
   });
 
-  let invalidSignedReceipt = safeCopy(emptyFileValidSignedReceipt);
+  let invalidSignedReceipt = safeCopy(emptyFileValidSignatureReceipt);
   invalidSignedReceipt.signature.signedHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b854";
 
   it('verify.DAB with valid file and corresponding signed receipt with invalid signedHash should return code target_hash_mismatch', (done) => {
-    woleet.verify.DAB(file, invalidSignedReceipt)
+    woleet.verify.DAB(emptyFile, invalidSignedReceipt)
       .then(testErrorCode('target_hash_mismatch'))
       .catch(noErrorExpected)
       .then(done)
   });
 
-  let invalidSignedReceipt2 = safeCopy(emptyFileValidSignedReceipt);
+  let invalidSignedReceipt2 = safeCopy(emptyFileValidSignatureReceipt);
   invalidSignedReceipt2.signature.pubKey = "19itkAbBMnjpC8xL4nHWWebgAMEGUS2coQ";
 
   it('verify.DAB with valid file and corresponding signed receipt with invalid pubKey should return code invalid_receipt_signature', (done) => {
-    woleet.verify.DAB(file, invalidSignedReceipt2)
+    woleet.verify.DAB(emptyFile, invalidSignedReceipt2)
       .then(testErrorCode('invalid_receipt_signature'))
       .catch(noErrorExpected)
       .then(done)
   });
 
-  let invalidSignedReceipt3 = safeCopy(emptyFileValidSignedReceipt);
+  let invalidSignedReceipt3 = safeCopy(emptyFileValidSignatureReceipt);
   invalidSignedReceipt3.signature.signature = "HxVxyhfiJ1EyEDlhXidshWs3QQxb3JUcAvKpt1NLMonLXWWKXL39OLH3XXGofThp5JKjrZUY32sRoX6g2mh/Os0=";
 
   it('verify.DAB with valid file and corresponding signed receipt with invalid pubKey should return code invalid_receipt_signature', (done) => {
-    woleet.verify.DAB(file, invalidSignedReceipt3)
+    woleet.verify.DAB(emptyFile, invalidSignedReceipt3)
       .then(testErrorCode('invalid_receipt_signature'))
       .catch(noErrorExpected)
       .then(done)
   });
 
   it('verify.DAB with valid file and valid NOT corresponding receipt should return code target_hash_mismatch', (done) => {
-    woleet.verify.DAB(file, validReceipt)
+    woleet.verify.DAB(emptyFile, validReceipt)
       .then(testErrorCode('target_hash_mismatch'))
-      .catch(noErrorExpected)
-      .then(done)
-  });
-
-  it('verify.DAB with valid hash and valid corresponding receipt should return return valid result', (done) => {
-    woleet.verify.DAB('0bf8e69866ff5db9efc108ea87953081ba627fb524a2c457dfb6c1b7df9430f9', validReceipt)
-      .then(validationExpected)
       .catch(noErrorExpected)
       .then(done)
   });
@@ -775,7 +735,7 @@ describe("signature suite", function () {
         .then(done)
     });
 
-    it('invalid hash should not be valid', (done) => {
+    it('invalid signed hash should not be valid', (done) => {
       validateSignature("fd071b9817c9efccbc5a144d69893a4a5323cbde4a74d5691c3cf3ab979d4160", s.pubKey, s.signature)
         .then(testSignature(false))
         .catch(noErrorExpected)
@@ -800,58 +760,267 @@ describe("signature suite", function () {
   describe('identity validation', function () {
 
     const validateIdentity = woleet.signature.validateIdentity;
+    const deserializeX500DN = woleet.signature.deserializeX500DN;
 
-    const s = {
-      "signedHash": "fed6150564fe6bdba95c2ec0d7c650a7585d3fc755263d6a14499370fee3a08b",
-      "pubKey": "miBDiJNw1moBD37mqjCVQNxGbEeqXtWnUG",
-      "signature": "IONYJd+lXs9Fd4AK3IIJPrwU7SF4zRjsRnm4wi2vuFZVFxeKm73thDqvROQdcJIpxPcTODUkFUVthsFCw8xPrKg=",
-      "identityURL": "https://api-dev.woleet.io/v1/identity"
+    // An identity whose private key is controlled by the server (server can prove the ownership of the key and claim the user identity)
+    const serverControlledIdentity = {
+      'pubKey': '13ETH6ceCJQ3wfnkqo1rVL1ihyLb9vRGGa',
+      'identityURL': 'https://dev2.woleet.io:3001/identity'
     };
 
-    it('validating valid identity should be true', (done) => {
-      validateIdentity(s.identityURL, s.pubKey)
+    // An identity whose private key is controlled by the user (server can only claim the user identity)
+    const userControlledIdentity = {
+      'pubKey': '1DUfCVRn4GRHFjL5tcv8vArrUXywHCjWKe',
+      'identityURL': 'https://dev2.woleet.io:3001/identity'
+    };
+
+    it('deserializing X500 names should work', (done) => {
+      let x500 = deserializeX500DN('CN=John Smith, EMAILADDRESS=john@acme.com, O=Organization, OU=Organizational Unit, L=Locality, C=FR');
+      expect(x500.commonName).toBe('John Smith');
+      expect(x500.emailAddress).toBe('john@acme.com');
+      expect(x500.organization).toBe('Organization');
+      expect(x500.organizationalUnit).toBe('Organizational Unit');
+      expect(x500.locality).toBe('Locality');
+      expect(x500.country).toBe('FR');
+      expect(x500).toEqual(deserializeX500DN('cn=John Smith,emailaddress=john@acme.com,o=Organization,ou=Organizational Unit,l=Locality,c=FR'));
+
+      x500 = deserializeX500DN('CN=A\\"\\,\\;\\+\\=B,EMAILADDRESS=a@b.com');
+      expect(x500.commonName).toBe('A",;+=B');
+      expect(x500.emailAddress).toBe('a@b.com');
+      done();
+    });
+
+    it('validating server controlled identity should be true', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey)
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(true);
-          expect(validation).toBeDefined();
           expect(validation.identity).toBeDefined();
-          expect(validation.identity.commonName).toBe("Woleet Test Identity");
-          expect(validation.identity.organization).toBe("Woleet SAS");
-          expect(validation.identity.organizationalUnit).toBe("Production");
-          expect(validation.identity.locality).toBe("Rennes");
-          expect(validation.identity.country).toBe("FR");
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.organization).toBe('Woleet SAS');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
         })
         .catch(noErrorExpected)
         .then(done)
     });
 
-    it('validating valid identity in strict mode with a server that do not send back safe leftData should be false', (done) => {
-      validateIdentity(s.identityURL, s.pubKey, true)
+    it('validating server controlled identity with matching signed identity should be true', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey,
+        "CN=Weblibs Test Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.emailAddress).toBeUndefined();
+          expect(validation.identity.organization).toBe('Woleet SAS');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
+
+          expect(validation.signedIdentity).toBeDefined();
+          expect(validation.signedIdentity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.signedIdentity.emailAddress).toBe('test@test.com');
+          expect(validation.signedIdentity.organization).toBe('Woleet');
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating server controlled identity with matching signed issuer domain should be true', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey, null, "woleet.io")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.emailAddress).toBeUndefined();
+          expect(validation.identity.organization).toBe('Woleet SAS');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
+
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+
+    it('validating server controlled identity with mismatching signed identity should be false', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey,
+        "CN=Weblibs Mismatch Identity,EMAILADDRESS=test@test.com,O=Woleet")
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('identity_mismatch');
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
         })
         .catch(noErrorExpected)
         .then(done)
     });
 
-    it('validating valid identity but bad url should throw an HTTP error', (done) => {
-      validateIdentity("https://dve.woleet.io/v1/identity", s.pubKey)
-        .then(noResultExpected)
-        .catch((error) => {
-          expect(error instanceof Error).toBe(true);
-          expect(error.message).toBe('http_error');
+    it('validating server controlled identity with mismatching signed issuer domain should be false', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, serverControlledIdentity.pubKey, null, "acme..com")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('identity_mismatch');
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
         })
+        .catch(noErrorExpected)
         .then(done)
     });
 
-    it('validating valid identity but bad pubKey should throw an HTTP error', (done) => {
-      validateIdentity(s.identityURL, 'mxpZfrKUekYRFRf95tqH1ttrhjHK5GtJ3X')
-        .then(noResultExpected)
-        .catch((error) => {
-          expect(error instanceof Error).toBe(true);
-          expect(error.message).toBe('http_error');
+    it('validating user controlled identity should be true', (done) => {
+      validateIdentity(userControlledIdentity.identityURL, userControlledIdentity.pubKey)
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.organization).toBe('Woleet SAS');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
         })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating user controlled identity with matching signed identity should be true', (done) => {
+      validateIdentity(userControlledIdentity.identityURL, userControlledIdentity.pubKey,
+        "CN=Weblibs Test Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.identity.organization).toBe('Woleet SAS');
+          expect(validation.identity.organizationalUnit).toBe('Production');
+          expect(validation.identity.locality).toBe('Rennes');
+          expect(validation.identity.country).toBe('FR');
+
+          expect(validation.signedIdentity).toBeDefined();
+          expect(validation.signedIdentity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.signedIdentity.emailAddress).toBe('test@test.com');
+          expect(validation.signedIdentity.organization).toBe('Woleet');
+          expect(validation.signedIdentity.organizationalUnit).toBeUndefined();
+          expect(validation.signedIdentity.locality).toBeUndefined();
+          expect(validation.signedIdentity.country).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating user controlled identity with mismatching signed identity should be false', (done) => {
+      validateIdentity(userControlledIdentity.identityURL, userControlledIdentity.pubKey,
+        "CN=Weblibs Mismatch Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('identity_mismatch');
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating identity with a bad URL should be false', (done) => {
+      validateIdentity('https://dve2.woleet.io:3001/identity', serverControlledIdentity.pubKey)
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('http_error');
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating identity with a bad URL but a signed identity should be true', (done) => {
+      validateIdentity('https://dve2.woleet.io:3001/identity', serverControlledIdentity.pubKey,
+        "CN=Weblibs Test Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+
+          expect(validation.identity).toBeUndefined();
+
+          expect(validation.signedIdentity).toBeDefined();
+          expect(validation.signedIdentity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.signedIdentity.emailAddress).toBe('test@test.com');
+          expect(validation.signedIdentity.organization).toBe('Woleet');
+          expect(validation.signedIdentity.organizationalUnit).toBeUndefined();
+          expect(validation.signedIdentity.locality).toBeUndefined();
+          expect(validation.signedIdentity.country).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating identity with an invalid pubKey should be false', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, 'invalid_pubkey')
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('http_error');
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating identity with a unknown pubKey should be false', (done) => {
+      validateIdentity(serverControlledIdentity.identityURL, '1EVXXLFyawVbJxueoe27t1CFE11veDh32L')
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.reason).toBe('key_not_found');
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating identity with only a signed identity should be true', (done) => {
+      validateIdentity(null, null,
+        "CN=Weblibs Test Identity,EMAILADDRESS=test@test.com,O=Woleet")
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+          expect(validation.signedIdentity).toBeDefined();
+          expect(validation.signedIdentity.commonName).toBe('Weblibs Test Identity');
+          expect(validation.signedIdentity.emailAddress).toBe('test@test.com');
+          expect(validation.signedIdentity.organization).toBe('Woleet');
+          expect(validation.signedIdentity.organizationalUnit).toBeUndefined();
+          expect(validation.signedIdentity.locality).toBeUndefined();
+          expect(validation.signedIdentity.country).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating identity with nothing should be false', (done) => {
+      validateIdentity(null, null, null)
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
         .then(done)
     });
   })

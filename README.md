@@ -66,25 +66,10 @@ and proof of signature receipts (an [extension of the Chainpoint standard](https
 
 ### Browsers
 
-These libraries have been tested on all modern web browsers and should work on any browser supporting
+These libraries have been tested on all modern web browsers (so not on Internet Explorer) and should work on any browser supporting
 [Promises](https://developer.mozilla.org/en-US/docs/Web/API/Promise)
 and [Workers](https://developer.mozilla.org/en-US/docs/Web/API/Worker) (note that if Workers are not supported,
 it is still possible to hash files whose size do not exceed 50MB).
-
-#### Internet explorer
-
-Since Internet Explorer 11 does not fully support promises, you will have to 
-include a third party library such as [bluebird](http://bluebirdjs.com/):
-
-```html
-<!-- IE ZONE -->
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-<script type="text/javascript">
-  if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
-    document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.5/bluebird.min.js"><\/script>');
-</script>
-<!-- END IE ZONE -->
-```
 
 ## Basic usage
 
@@ -94,11 +79,10 @@ All methods are provided by the `woleet` object. As an example, to get a Bitcoin
 
 **`woleet.verify.WoleetDAB(file)`** or **`woleet.verify.WoleetDAB(hash)`**
 
-Provides an easy way to retrieve and verify all public proof receipts related to a given file/hash and
- created using the Woleet platform.
+Provides an easy way to retrieve and verify all public proof receipts related to a given file/hash created using the Woleet platform.
 
-Proof of existence receipts (created when anchoring data) and proof of signature receipts (created when anchoring signature) are retrieved
- from the Woleet platform and verified automatically.
+Proof of existence receipts (created when anchoring a data) and proof of signature receipts (created when anchoring the
+ signature of a data) are retrieved from the Woleet platform and verified automatically.
 
 See example at [examples/verifyWoleetDAB.html](examples/verifyWoleetDAB.html)
 
@@ -232,7 +216,8 @@ Note: this method is **not available** in node if files is a [Buffer]([buffer-li
 **`woleet.receipt.validate(receipt)`**
 
 Allows to validate the format of a proof receipt.
-It does not check the Bitcoin transaction, nor the signature, nor the signee identity (if any).
+
+Does not check the Bitcoin transaction, nor the signature, nor the signee identity (if any).
 
 - Parameters:
     - `receipt`: a JSON parsed proof receipt.
@@ -250,7 +235,8 @@ It does not check the Bitcoin transaction, nor the signature, nor the signee ide
 **`woleet.signature.validateSignature(message, pubKey, signature)`**
 
 Allows to validate a signature.
-It checks that the signature is valid for the message and produced by the public key.
+
+Checks that the signature is valid for the message and produced by the public key.
 
 See example at [examples/signature.html](examples/validateSignature.html)
 
@@ -265,23 +251,28 @@ See example at [examples/signature.html](examples/validateSignature.html)
 
 ### <a name="signatureValidateIdentity"></a>Validate a signee identity
  
-**`woleet.signature.validateIdentity(identityUrl, pubKey)`**
+**`woleet.signature.validateIdentity(identityUrl, pubKey, signedIdentity, signedIssuerDomain)`**
 
-Allows to validate the identity of a signee.
-It checks that the identity URL controls the provided public key by asking it to sign some random data and checking the returned signature.
+Allows to validate the identity of a signee using an identity server.
+
+Checks that the public key is known by the identity server, associated to an identity and/or controlled by the identity server
+(by asking it to sign some random data and checking the returned signature).
+Can also check that the identity claimed by the server, if any, matches the identity signed by the signee 
+and that the identity URL of the identity server matches the issuer domain signed by the signee.
 
 See example at [examples/signature.html](examples/validateIdentity.html)
 
 - Parameters:
-    - `identityUrl`: the provided identity URL.
-    - `pubKey`: a bitcoin address (in base 58).
+    - `identityUrl`: the identity URL of the identity server.
+    - `pubKey`: the bitcoin address (in base 58) of the signee
+    - `signedIdentity`: optional: the X500 Distinguished Name of the signee (must match the identity returned by the server).
+    - `signedIssuerDomain`: optional: the domain of the identity server (must include the domain of the identity URL).
 - Returns a Promise which forwards an object:
     - `valid`: a boolean that indicates if identity is valid or not.
     - `reason`: a string that gives details about the validation failure (if any).
-    - `identity` an [Identity](#object_identity) object (if forwarded by the server).
+    - `identity` an [Identity](#object_identity) object (as returned by the identity server).
+    - `signedIdentity` an [Identity](#object_identity) object (deserialized version of the X500 Distinguished Name).
 <br>Note that the **reason** attribute may not be defined depending on the kind of failure.
-- If the identity URL does not return the expected data, a `bad_server_response` Error object is returned.
-- If a network/server error occurred while calling the identity URL an `http_error` Error object is returned.
 
 ### Get Woleet public anchors matching some data
 
@@ -295,7 +286,7 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
       - DATA: only data anchors will be retrieved
       - SIGNATURE: only signature anchors will be retrieved
       - BOTH: both data and signature anchors will be retrieved
-    - `size` (_optional_): parameters setting the maximum number of anchor to retrieve (default: 20).
+    - `size` (_optional_): parameters setting the maximum number of anchor per type to retrieve (default: unlimited).
 - Returns a promise which forwards:
   - on success: containing the list (possibly empty) of the identifiers of all public anchors corresponding to the hash.
   - on error: 
@@ -337,13 +328,13 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 ### <a name="object_receipt_verification_status"></a>ReceiptVerificationStatus object
 ```
 {
-    code: {'verified' | error message} receipt verifcation status code
+    code: {'verified' | error message } receipt verifcation status code
     timestamp: {Date} proven timestamp of the data (for a data anchor) or of the signature (for a signature anchor)
     confirmations: {Number} number of confirmations of the block containing the transaction
     receipt: {Receipt} proof receipt
     identityVerificationStatus: 
     {
-        code: {'verified' | 'http_error' | 'invalid_signature'} identity verifcation status code 
+        code: {'verified' | 'identity_mismatch' | 'invalid_signature' | http_error'} identity verifcation status code 
         identity: [Identity object]
     }
 }
@@ -359,6 +350,7 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
         "code": "verified",
         "identity": {
             "commonName": "John Smith",
+            "emailAddress": "john.smith@woleet.com",
             "organizationalUnit": "Production",
             "organization": "Woleet SAS",
             "locality": "Rennes",
@@ -375,6 +367,7 @@ Signee's identity provided as a set of X.500 attributes (see https://www.ietf.or
 | Attribute          | Description                            |
 |--------------------|----------------------------------------|
 | commonName         | commonName (CN) (2.5.4.3)              |
+| emailAddress       | emailAddress (EMAILADDRESS)            |
 | organization       | organizationName (O) (2.5.4.10)        |
 | organizationalUnit | organizationalUnitName (OU) (2.5.4.11) |
 | locality           | localityName (L) (2.5.4.7)             |
@@ -384,6 +377,7 @@ Example :
 ```json
 {
   "commonName": "John Smith",
+  "emailAddress": "john.smith@woleet.com",
   "organizationalUnit": "Production",
   "organization": "Woleet SAS",
   "locality": "Rennes",
