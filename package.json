@@ -1,6 +1,6 @@
 {
   "name": "@woleet/woleet-weblibs",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": false,
   "scripts": {
     "build": "npx gulp",
