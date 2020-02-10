@@ -774,6 +774,13 @@ describe("signature suite", function () {
       'identityURL': 'https://dev2.woleet.io:3001/identity'
     };
 
+    // An identity whose private key is controlled by the platform (signed identity must be provided and server can only claim the user identity)
+    const platformControlledIdentity = {
+      'pubKey': '14qN1k7hWopUWDBHWVFBabkUb7RzdB26sr',
+      'signedIdentity': 'CN=Woleet Admin',
+      'identityURL': 'https://api.woleet.io/v1/identity'
+    };
+
     it('deserializing X500 names should work', (done) => {
       let x500 = deserializeX500DN('CN=John Smith, EMAILADDRESS=john@acme.com, O=Organization, OU=Organizational Unit, L=Locality, C=FR');
       expect(x500.commonName).toBe('John Smith');
@@ -1013,7 +1020,49 @@ describe("signature suite", function () {
     });
 
     it('validating identity with nothing should be false', (done) => {
-      validateIdentity(null, null, null)
+      validateIdentity()
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating platform controlled identity should be true', (done) => {
+      validateIdentity(platformControlledIdentity.identityURL, platformControlledIdentity.pubKey,
+        platformControlledIdentity.signedIdentity, 'woleet.io')
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(true);
+
+          expect(validation.identity).toBeDefined();
+          expect(validation.identity.commonName).toBe('Woleet Admin');
+
+          expect(validation.signedIdentity).toBeDefined();
+          expect(validation.signedIdentity.commonName).toBe('Woleet Admin');
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating platform controlled identity without signed identity should be false', (done) => {
+      validateIdentity(platformControlledIdentity.identityURL, platformControlledIdentity.pubKey)
+        .then((validation) => {
+          expect(validation).toBeDefined();
+          expect(validation.valid).toBe(false);
+          expect(validation.identity).toBeUndefined();
+          expect(validation.signedIdentity).toBeUndefined();
+        })
+        .catch(noErrorExpected)
+        .then(done)
+    });
+
+    it('validating platform controlled identity with an invalid issuer domain should be false', (done) => {
+      validateIdentity(platformControlledIdentity.identityURL, platformControlledIdentity.pubKey,
+        platformControlledIdentity.signedIdentity, 'invalid.io')
         .then((validation) => {
           expect(validation).toBeDefined();
           expect(validation.valid).toBe(false);
