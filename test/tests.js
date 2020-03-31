@@ -393,7 +393,6 @@ describe("transaction.get suite", function () {
 
   genTest('woleet.io');
   genTest('blockstream.info');
-  genTest('blockcypher.com');
 
   function genTest(provider) {
     describe(provider, function () {
@@ -782,14 +781,14 @@ describe("signature suite", function () {
     };
 
     it('deserializing X500 names should work', (done) => {
-      let x500 = deserializeX500DN('CN=John Smith, EMAILADDRESS=john@acme.com, O=Organization, OU=Organizational Unit, L=Locality, C=FR');
-      expect(x500.commonName).toBe('John Smith');
+      let x500 = deserializeX500DN('CN=John\\Smith\\ , EMAILADDRESS=john@acme.com, O=Organization, OU=Organizational Unit, L=Locality, C=FR');
+      expect(x500.commonName).toBe('John\\Smith ');
       expect(x500.emailAddress).toBe('john@acme.com');
       expect(x500.organization).toBe('Organization');
       expect(x500.organizationalUnit).toBe('Organizational Unit');
       expect(x500.locality).toBe('Locality');
       expect(x500.country).toBe('FR');
-      expect(x500).toEqual(deserializeX500DN('cn=John Smith,emailaddress=john@acme.com,o=Organization,ou=Organizational Unit,l=Locality,c=FR'));
+      expect(x500).toEqual(deserializeX500DN('cn=John\\Smith ,emailaddress=john@acme.com,o=Organization,ou=Organizational Unit,l=Locality,c=FR'));
 
       x500 = deserializeX500DN('CN=A\\"\\,\\;\\+\\=B,EMAILADDRESS=a@b.com');
       expect(x500.commonName).toBe('A",;+=B');
