@@ -1,13 +1,12 @@
 const gulp = require('gulp'),
   browserify = require('browserify'),
   babel = require('gulp-babel'),
-  strip = require('gulp-strip-comments'),
-  uglify = require('gulp-uglify'),
+  minify = require('gulp-minify'),
   rename = require('gulp-rename'),
+  strip = require('gulp-strip-comments'),
   buffer = require('vinyl-buffer'),
   source = require('vinyl-source-stream');
 
-// Uglify hashfile worker
 gulp.task('worker', (done) => {
   const worker = gulp.src('lib/browser/woleet-hashfile-worker.js')
     .pipe(gulp.dest('./dist'))
@@ -15,7 +14,7 @@ gulp.task('worker', (done) => {
     .pipe(strip());
 
   const worker_min = worker
-    .pipe(uglify())
+    .pipe(minify())
     .pipe(rename({ suffix: '.min' }))
     .pipe(gulp.dest('dist/'))
     .on('error', done)
@@ -39,12 +38,11 @@ function build(standalone, input, output, done) {
     .pipe(gulp.dest('dist/'));
 
   const weblibs_min = weblibs
-    .pipe(uglify())
+    .pipe(minify())
     .pipe(rename({ suffix: '.min' }))
     .pipe(gulp.dest('dist/'))
     .on('error', done)
     .on('end', done);
-
 }
 
 gulp.task('lib', (done) => {

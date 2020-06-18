@@ -1,6 +1,6 @@
 {
   "name": "@woleet/woleet-weblibs",
-  "version": "0.8.4",
+  "version": "0.9.0",
   "private": false,
   "scripts": {
     "build": "npx gulp",
@@ -14,17 +14,17 @@
     "./index.js": "./lib/browser/index.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
+    "@babel/core": "^7.10.2",
     "babel-preset-env": "^1.7.0",
     "babelify": "^7.3.0",
     "browserify": "^16.5.1",
     "gulp": "^4.0.2",
     "gulp-babel": "^7.0.1",
-    "gulp-rename": "^1.4.0",
+    "gulp-minify": "^3.1.0",
+    "gulp-rename": "^2.0.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-strip-comments": "^2.5.2",
-    "gulp-uglify": "^2.1.2",
-    "jasmine-core": "^3.4.0",
+    "jasmine-core": "^3.5.0",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   },
@@ -47,9 +47,10 @@
     "test": "test"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.2.5",
-    "bitcoinjs-message": "^1.0.1",
-    "crypto-js": "3.1.9-1"
+    "@babel/polyfill": "^7.10.1",
+    "bitcoinjs-message": "^2.1.1",
+    "crypto-js": "^4.0.0",
+    "request": "^2.88.2"
   },
   "repository": {
     "type": "git",
