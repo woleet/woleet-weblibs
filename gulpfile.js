@@ -14,7 +14,7 @@ gulp.task('worker', (done) => {
     .pipe(strip());
 
   const worker_min = worker
-    .pipe(minify())
+    .pipe(minify({ ext: { min: '.min.js' } }))
     .pipe(gulp.dest('dist/'))
     .on('error', done)
     .on('end', done);
@@ -37,7 +37,7 @@ function build(standalone, input, output, done) {
     .pipe(gulp.dest('dist/'));
 
   const weblibs_min = weblibs
-    .pipe(minify())
+    .pipe(minify({ ext: { min: '.min.js' } }))
     .pipe(gulp.dest('dist/'))
     .on('error', done)
     .on('end', done);
