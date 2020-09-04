@@ -185,17 +185,17 @@ var isHTTPS = location.protocol === 'https:';
 
 var testNativeCryptoSupport = root.crypto && root.crypto.subtle && root.crypto.subtle.digest && isHTTPS;
 
-function findBasePath() {
-  var scripts = document.getElementsByTagName('script');
-  var path = scripts[scripts.length - 1].src.split('?')[0];
-  var path = path.split('/').slice(0, -1).join('/') + '/';
-  return path;
-}
+var workerScriptPath = void 0;
 
-var basePath = findBasePath();
-var DEFAULT_WORKER_SCRIPT = "woleet-hashfile-worker.min.js";
-var workerScriptPath = root.woleet && root.woleet.workerScriptPath ? root.woleet.workerScriptPath : basePath ? basePath + DEFAULT_WORKER_SCRIPT : null;
-if (!workerScriptPath) console.error('Cannot find Woleet hashfile worker script ' + DEFAULT_WORKER_SCRIPT);else console.log('Woleet hashfile worker script will be loaded from: ', workerScriptPath);
+function findWorkerScriptPath() {
+  var DEFAULT_WORKER_SCRIPT = "woleet-hashfile-worker.min.js";
+  var scripts = document.getElementsByTagName('script');
+  var scriptPath = scripts[scripts.length - 1].src.split('?')[0];
+  var basePath = scriptPath.split('/').slice(0, -1).join('/') + '/';
+  var workerScriptPath = root.woleet && root.woleet.workerScriptPath ? root.woleet.workerScriptPath : basePath ? basePath + DEFAULT_WORKER_SCRIPT : null;
+  if (!workerScriptPath) console.error('Cannot find Woleet hashfile worker script ' + DEFAULT_WORKER_SCRIPT);else console.log('Woleet hashfile worker script will be loaded from: ', workerScriptPath);
+  return workerScriptPath;
+}
 
 function isFileReachable(url) {
   var req = new XMLHttpRequest();
@@ -216,10 +216,10 @@ function isFileReachable(url) {
 var isWorkerSupportedPromise =
 function checkFileReaderSyncSupport() {
 
+  workerScriptPath = findWorkerScriptPath();
   if (!workerScriptPath) return Promise.resolve(false);
 
   var workerReachablePromise = isFileReachable(workerScriptPath);
-
   var cryptoReachablePromise = isFileReachable(workerScriptPath.split('/').slice(0, -1).join('/') + '/woleet-crypto.min.js');
 
   function makeWorker(script) {
@@ -565,7 +565,7 @@ function Hasher() {
           return Promise.resolve();
         } else {
 
-          var hashMethod = null;
+          var hashMethod = void 0;
           if (files[i].size === 0) {
             hashMethod = hashLocal; 
           } else if (testNativeCryptoSupport && files[i].size < HASH_NATIVE_LIMIT) {
