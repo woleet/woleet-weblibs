@@ -178,24 +178,28 @@ var isSHA256 = function isSHA256(hash) {
   return (/^[a-f0-9]{64}$/i.test(hash)
   );
 };
+
 var crypto = require('./woleet-crypto');
+
 var root = window;
 
 var isHTTPS = location.protocol === 'https:';
 
-var testNativeCryptoSupport = root.crypto && root.crypto.subtle && root.crypto.subtle.digest && isHTTPS;
+var isNativeCryptoSupported = root.crypto && root.crypto.subtle && root.crypto.subtle.digest && isHTTPS;
 
-var workerScriptPath = void 0;
-
-function findWorkerScriptPath() {
+var defaultWorkerScriptPath = function () {
   var DEFAULT_WORKER_SCRIPT = "woleet-hashfile-worker.min.js";
   var scripts = document.getElementsByTagName('script');
   var scriptPath = scripts[scripts.length - 1].src.split('?')[0];
   var basePath = scriptPath.split('/').slice(0, -1).join('/') + '/';
-  var workerScriptPath = root.woleet && root.woleet.workerScriptPath ? root.woleet.workerScriptPath : basePath ? basePath + DEFAULT_WORKER_SCRIPT : null;
-  if (!workerScriptPath) console.error('Cannot find Woleet hashfile worker script ' + DEFAULT_WORKER_SCRIPT);else console.log('Woleet hashfile worker script will be loaded from: ', workerScriptPath);
-  return workerScriptPath;
-}
+  var wsp = root.woleet && root.woleet.workerScriptPath ? root.woleet.workerScriptPath : basePath ? basePath + DEFAULT_WORKER_SCRIPT : null;
+  if (!wsp) {
+    console.error('Cannot find Woleet WebLibs\' default worker script ' + DEFAULT_WORKER_SCRIPT);
+    return null;
+  }
+  console.log('Woleet WebLibs\' default worker script will be loaded from: ', wsp);
+  return wsp;
+}();
 
 function isFileReachable(url) {
   var req = new XMLHttpRequest();
@@ -213,54 +217,10 @@ function isFileReachable(url) {
   });
 }
 
-var isWorkerSupportedPromise =
-function checkFileReaderSyncSupport() {
+function Hasher(wsp) {
 
-  workerScriptPath = findWorkerScriptPath();
-  if (!workerScriptPath) return Promise.resolve(false);
+  if (!wsp) wsp = defaultWorkerScriptPath;
 
-  var workerReachablePromise = isFileReachable(workerScriptPath);
-  var cryptoReachablePromise = isFileReachable(workerScriptPath.split('/').slice(0, -1).join('/') + '/woleet-crypto.min.js');
-
-  function makeWorker(script) {
-    var URL = root.URL || window.webkitURL;
-    var Blob = root.Blob;
-    var Worker = root.Worker;
-
-    if (!URL || !Blob || !Worker || !script) return null;
-
-    var blob = new Blob([script]);
-    return new Worker(URL.createObjectURL(blob));
-  }
-
-  var workerSupportedPromise = new Promise(function (resolve) {
-    var syncDetectionScript = "onmessage = function(e) { postMessage(!!FileReaderSync); close() };";
-    try {
-      var worker = makeWorker(syncDetectionScript);
-      if (worker) {
-        worker.onmessage = function (e) {
-          worker.terminate();
-          worker = null;
-          resolve(e.data);
-        };
-        worker.postMessage({});
-      } else resolve(false);
-    } catch (error) {
-      resolve(false);
-    }
-  });
-
-  return Promise.all([workerReachablePromise, cryptoReachablePromise, workerSupportedPromise]).then(function (arr) {
-    return arr.every(function (e) {
-      return true === e;
-    });
-  });
-}().then(function (support) {
-  if (!support) console.warn('Failed to load worker.');
-  return support;
-});
-
-function Hasher() {
   var ready = true;
   var cancel = null;
   var skip = null;
@@ -294,9 +254,9 @@ function Hasher() {
   var HASH_LOCAL_LIMIT = 5e7; 
   var HASH_NATIVE_LIMIT = 5e8; 
 
-  function HashWorker() {
+  function HashWorker(wsp) {
 
-    var worker = new Worker(workerScriptPath);
+    var worker = new Worker(wsp);
 
     this.hash = function (file) {
       return new Promise(function (next, reject) {
@@ -377,9 +337,9 @@ function Hasher() {
   }
 
   function checkFileSize(file, limit, reject) {
-    var error = new Error("file_too_big_to_be_hashed_without_worker");
     if (file.size > limit) {
       ready = true;
+      var error = new Error("file_too_big_to_be_hashed_without_worker");
       if (emittable(EVT_ERROR)) return emit(EVT_ERROR, { error: error, file: file });else reject(error);
       return false;
     }
@@ -552,7 +512,54 @@ function Hasher() {
       return file instanceof File;
     }))) throw new Error("invalid_parameter");
 
-    isWorkerSupportedPromise.then(function (WorkerSupported) {
+    var isWorkerSupportedPromise =
+
+    function () {
+
+      if (!wsp) return Promise.resolve(false);
+
+      var workerReachablePromise = isFileReachable(wsp);
+      var cryptoReachablePromise = isFileReachable(wsp.split('/').slice(0, -1).join('/') + '/woleet-crypto.min.js');
+
+      function makeWorker(script) {
+        var URL = root.URL || window.webkitURL;
+        var Blob = root.Blob;
+        var Worker = root.Worker;
+
+        if (!URL || !Blob || !Worker || !script) return null;
+
+        var blob = new Blob([script]);
+        return new Worker(URL.createObjectURL(blob));
+      }
+
+      var workerSupportedPromise = new Promise(function (resolve) {
+        var syncDetectionScript = "onmessage = function(e) { postMessage(!!FileReaderSync); close() };";
+        try {
+          var worker = makeWorker(syncDetectionScript);
+          if (worker) {
+            worker.onmessage = function (e) {
+              worker.terminate();
+              worker = null;
+              resolve(e.data);
+            };
+            worker.postMessage({});
+          } else resolve(false);
+        } catch (error) {
+          resolve(false);
+        }
+      });
+
+      return Promise.all([workerReachablePromise, cryptoReachablePromise, workerSupportedPromise]).then(function (arr) {
+        return arr.every(function (e) {
+          return true === e;
+        });
+      });
+    }().then(function (support) {
+      if (!support) console.warn('Failed to load worker.');
+      return support;
+    });
+
+    isWorkerSupportedPromise.then(function (workerSupported) {
 
       function iter(i, len, files) {
 
@@ -568,10 +575,11 @@ function Hasher() {
           var hashMethod = void 0;
           if (files[i].size === 0) {
             hashMethod = hashLocal; 
-          } else if (testNativeCryptoSupport && files[i].size < HASH_NATIVE_LIMIT) {
+          } else if (isNativeCryptoSupported && files[i].size < HASH_NATIVE_LIMIT) {
             hashMethod = hashLocalWithNativeAPI;
-          } else if (WorkerSupported && files[i].size > HASH_LOCAL_LIMIT) {
-            if (!hashWorker) hashWorker = new HashWorker(); 
+          } else if (workerSupported && files[i].size > HASH_LOCAL_LIMIT) {
+
+            if (!hashWorker) hashWorker = new HashWorker(wsp);
             hashMethod = hashWorker.hash;
           } else {
             hashMethod = hashLocal;
