@@ -34,26 +34,26 @@ To use Woleet web libraries you have to include the following component:
 
 ## <a name="runtime-dependencies"></a>Runtime dependencies
 
-This library is delivered into a single `woleet-weblibs.js` file (a minified versions is also available).<br>
-To be able to perform hash on files larger than 500MB, `woleet-hashfile-worker.min.js` and `woleet-crypto.min.js` must be accessible (in the same directory).
+This library is delivered as a single `woleet-weblibs.js` script (a minified versions is also available).<br>
 
-### Note:
+To be able to hash files larger than 500MB, the `woleet-hashfile-worker.min.js` and `woleet-crypto.min.js` scripts must be located in the same directory.
 
-If the worker's location is not the same as `woleet-weblibs.js`, or if `woleet-weblibs.js` is included in a bundle,
-you **must** indicate the worker's path before the libraries definitions:
+If the location of these 2 scripts is not the same as `woleet-weblibs.js`, or if `woleet-weblibs.js` is included in a bundle, you **must** indicate the path of the worker script before the libraries definitions:
 
-    <script>woleet = { workerScriptPath: '/my/path/to/woleet-hashfile-worker.min.js' }</script>
+```angular2html
+<script>woleet = { workerScriptPath: '/my/path/to/woleet-hashfile-worker.min.js' }</script>
+```
 
-### Example:
+Example:
 
 ```sh
 ├── foo
-│   ├── worker.min.js # woleet-hashfile-worker
+│   ├── woleet-hashfile-worker.min.js # woleet-hashfile-worker
 │   └── woleet-crypto.min.js # must NOT be renamed
 ├── bar
 │   └── woleet-weblibs.min.js
 └── index.html: 
-      - <script>woleet = { workerScriptPath: "/foo/worker.min.js" }</script>
+      - <script>woleet = { workerScriptPath: "/foo/woleet-hashfile-worker.min.js" }</script>
       - <script src="/bar/woleet-weblibs.min.js"></script>
 ```
 
@@ -150,7 +150,14 @@ The `code` attribute can be:
 
 ### <a name="hashfile"></a>Compute the SHA256 hash of a file
 
-To compute the SHA256 hash of a file, you have to instantiate a Hasher object: `var hasher = new woleet.file.Hasher`.
+To compute the SHA256 hash of a file, you have to instantiate a Hasher object:
+ 
+**`let hasher = new woleet.file.Hasher()`.**
+
+or
+
+**`let hasher = new woleet.file.Hasher({path to the worker script})`.**
+
 This object provides an interface to hash files in the browser:
 
 See example at [examples/hashfile.html](examples/hashfile.html)
