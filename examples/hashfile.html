@@ -6,7 +6,6 @@
   <title>Hash file(s) demo</title>
 
   <!-- Woleet web libs (regular version) -->
-  <script>woleet = { workerScriptPath: '../dist/woleet-hashfile-worker.js' }</script>
   <script src="../dist/woleet-weblibs.js"></script>
 
   <!-- Woleet web libs (minified version) -->
@@ -15,22 +14,17 @@
   <script>
     window.onload = function () {
 
-      // Instantiate a new file hasher
-      let hasher = new woleet.file.Hasher;
+      // Instantiate a new file hasher (provide the path of the worker script)
+      let hasher = new woleet.file.Hasher('../dist/woleet-hashfile-worker.js');
       let li = null;
       window.hasher = hasher;
 
       window.start = function (files) {
-        // This transformation is for testing purpose only
-        // we could pass directly "files" as it is a FileList object
-        let arr = [];
-        for (let i = 0; i < files.length; i++) arr.push(files[i]);
-
         try {
-          hasher.start(arr);
+          hasher.start(files);
         }
         catch (error) {
-          console.warn(error);
+          console.error(error);
         }
       };
 
@@ -39,9 +33,11 @@
         document.getElementById('hashes').appendChild(li);
         li.innerText = message.file.name + ': started';
       });
+
       hasher.on('progress', function (message) {
         li.innerText = message.file.name + ': ' + (message.progress * 100).toFixed(2) + '%';
       });
+
       hasher.on('error', function (message) {
         if (!li) {
           li = document.createElement("li");
@@ -52,14 +48,17 @@
         li.innerText = message.file.name + ': ' + (message.error);
         li = null;
       });
+
       hasher.on('cancel', function (message) {
         li.innerText = message.file.name + ': cancelled';
         li = null;
       });
+
       hasher.on('skip', function (message) {
         li.innerText = message.file.name + ': skipped';
         li = null;
       });
+
       // On success, display computed hash
       hasher.on('result', function (message) {
         li.innerText = message.file.name + ': ' + message.result;
