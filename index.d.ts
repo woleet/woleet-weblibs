@@ -6,8 +6,6 @@ interface Transaction {
   txId: string
 }
 
-interface Hash extends String {}
-
 interface Branch {
   parent: string
   left: string
@@ -71,7 +69,6 @@ interface HashFunction {
 }
 
 declare namespace woleet {
-
   const version: string;
 
   namespace transaction {

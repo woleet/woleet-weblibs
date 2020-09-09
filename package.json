@@ -7,8 +7,6 @@
     "test": "npx jasmine --config=jasmine.json",
     "browserify-test": "npx browserify --im -s=runTests -o test/tests-browser.js test/tests.js"
   },
-  "types": "./lib/woleet.d.ts",
-  "main": "./index.js",
   "browser": {
     "./lib/node/index.js": false,
     "./index.js": "./lib/browser/index.js"
