@@ -14,58 +14,70 @@
   <script>
     window.onload = function () {
 
-      let r = document.getElementById('result');
-      let _receipt = null;
+      const message = document.getElementById('message');
+      const signatureValidationResult = document.getElementById('signatureValidationResult');
 
-      window.setReceipt = function (receipt) {
-        r.innerText = '';
+      window.setReceiptFile = function (receiptFile) {
+        message.innerText = 'Validating...';
+        signatureValidationResult.innerText = null;
+
         let reader = new FileReader();
 
-        reader.onloadend = function (e) {
+        // Once the receipt file is read
+        reader.onloadend = function (event) {
           try {
-            _receipt = JSON.parse(e.target.result);
-            check();
+
+            // Parse the receipt file
+            let receipt = JSON.parse(event.target.result);
+
+            // The receipt must contain the signed hash, the public key of the signer and the signature
+            if (!receipt.signature || !receipt.signature.signedHash || !receipt.signature.pubKey
+              || !receipt.signature.signature)
+              return message.innerText = 'No signed hash, signer public key or signature in receipt';
+
+            // Build the message that should have been signed
+            let signedMessage = receipt.signature.signedHash;
+            if (receipt.signature.signedIdentity || receipt.signature.signedIssuerDomain) {
+              signedMessage = woleet.crypto.sha256().update(
+                receipt.signature.signedHash
+                + (receipt.signature.signedIdentity || '')
+                + (receipt.signature.signedIssuerDomain || '')
+              ).digest('hex');
+            }
+
+            // Validate the signature
+            woleet.signature.validateSignature(signedMessage, receipt.signature.pubKey, receipt.signature.signature)
+              .then(success => {
+                message.innerText = success.valid ? 'Signature validated' : 'Invalid signature';
+                signatureValidationResult.innerText = JSON.stringify(success, null, 2);
+              })
+              .catch(error => {
+                message.innerText = 'Unexpected error during signature validation: ' + error;
+              });
           }
           catch (error) {
-            r.innerText = 'Error while parsing receipt, is it a JSON file?';
+            message.innerText = 'Error while parsing receipt, is it a JSON file?';
+            console.error(error);
           }
         };
 
-        reader.readAsText(receipt);
+        // Read the receipt file
+        reader.readAsText(receiptFile);
       };
-
-      function check() {
-        r.innerText = 'pending ...';
-
-        if (!_receipt.signature || !_receipt.signature.signedHash || !_receipt.signature.pubKey
-          || !_receipt.signature.signature)
-          return r.innerText = 'No signature in receipt';
-
-        // Build the message that should have been signed
-        let message = _receipt.signature.signedHash;
-        if (_receipt.signature.signedIdentity || _receipt.signature.signedIssuerDomain) {
-          message = woleet.crypto.sha256().update(_receipt.signature.signedHash + (_receipt.signature
-            .signedIdentity || '') + (_receipt.signature.signedIssuerDomain || '')).digest('hex');
-        }
-
-        woleet.signature.validateSignature(message, _receipt.signature.pubKey, _receipt
-          .signature.signature)
-          .then(success => {
-            r.innerText = 'Success: ' + JSON.stringify(success, null, 4);
-          }, function (error) {
-            r.innerText = 'Error: ' + JSON.stringify(error, null, 4);
-          });
-      }
     }
 
   </script>
 </head>
 
 <body>
+
 <h3>Validate signature demo</h3>
-Choose a signature receipt:
-<input type="file" onchange="setReceipt(this.files.item(0))">
-<p id="result"></p>
+
+Choose a signature receipt: <input type="file" onchange="setReceiptFile(this.files.item(0))">
+
+<div id="message"></div>
+<code id="signatureValidationResult" style="white-space: pre-wrap"></code>
+
 </body>
 
 </html>

@@ -48,18 +48,37 @@ interface ReceiptV2 {
   signature?: ReceiptSignature
 }
 
+interface Identity {
+  commonName: string
+  emailAddress: string
+  organizationalUnit: string
+  organization: string
+  locality: string
+  country: string
+}
+
 interface ReceiptVerificationStatus {
-  receipt: Receipt
   code: string
   confirmations?: number
   timestamp?: Date
   identityVerificationStatus?: {
     code: string
+    identity: Identity
+    signedIdentity: Identity
   }
+  receipt: Receipt | ReceiptV2
 }
 
 interface SignatureValidationResult {
   valid: boolean
+  reason: string
+}
+
+interface IdentityValidationResult {
+  valid: boolean
+  reason: string
+  identity: Identity
+  signedIdentity: Identity
 }
 
 interface HashFunction {
@@ -98,7 +117,7 @@ declare namespace woleet {
   namespace signature {
     function validateIdentity(identityUrl: string, pubKey: string, signedIdentity: string, signedIssuerDomain: string): Promise<SignatureValidationResult>;
 
-    function validateSignature(message: string, address: string, signature: string): Promise<SignatureValidationResult>;
+    function validateSignature(message: string, address: string, signature: string): Promise<IdentityValidationResult>;
   }
 
   namespace identity {
