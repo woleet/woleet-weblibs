@@ -1,96 +1,95 @@
-interface Transaction {
-  blockHash: string
-  confirmations: number
-  timestamp: Date
-  opReturn: string
-  txId: string
-}
+declare namespace woleet {
 
-interface Branch {
-  parent: string
-  left: string
-  right: string
-}
+  interface HashFunction {
+    update(data: Uint8Array | string): HashFunction
 
-interface ReceiptSignature {
-  signedHash: string,
-  signedIdentity?: string,
-  signedIssuerDomain?: string,
-  identityURL?: string
-  pubKey: string,
-  signature: string,
-}
+    digest(encoding?: string): string
+  }
 
-interface Receipt {
-  header: {
-    chainpoint_version: "1.0"
-    hash_type: "SHA-256"
-    merkle_root: string
-    tx_id: string
-    timestamp: number
-  },
-  target: {
-    "target_hash": string,
-    "target_uri": string,
-    "target_proof": Array<Branch>
-  },
-  signature?: ReceiptSignature,
-  extra: Array<Object>
-}
+  interface Signature {
+    signedHash: string,
+    signedIdentity?: string,
+    signedIssuerDomain?: string,
+    identityURL?: string
+    pubKey: string,
+    signature: string,
+  }
 
-interface ReceiptV2 {
-  '@context': string,
-  type: string,
-  targetHash: string,
-  merkleRoot: string,
-  proof: Array<{ left?: string, right?: string }>,
-  anchors: Array<{ type: string, sourceId: string }>,
-  signature?: ReceiptSignature
-}
+  interface ReceiptV1 {
+    header: {
+      chainpoint_version: '1.0'
+      hash_type: 'SHA-256'
+      merkle_root: string
+      tx_id: string
+      timestamp: number
+    },
+    target: {
+      'target_hash': string,
+      'target_uri': string,
+      'target_proof': Array<{
+        parent: string
+        left: string
+        right: string
+      }>
+    },
+    signature?: Signature
+  }
 
-interface Identity {
-  commonName: string
-  emailAddress: string
-  organizationalUnit: string
-  organization: string
-  locality: string
-  country: string
-}
+  interface ReceiptV2 {
+    '@context': string,
+    type: string,
+    targetHash: string,
+    merkleRoot: string,
+    proof: Array<{ left?: string, right?: string }>,
+    anchors: Array<{ type: string, sourceId: string }>,
+    signature?: Signature
+  }
 
-interface ReceiptVerificationStatus {
-  code: string
-  confirmations?: number
-  timestamp?: Date
-  identityVerificationStatus?: {
+  type Receipt = ReceiptV1 | ReceiptV2
+
+  interface Identity {
+    commonName: string
+    emailAddress: string
+    organizationalUnit: string
+    organization: string
+    locality: string
+    country: string
+  }
+
+  interface ReceiptVerificationStatus {
     code: string
+    confirmations?: number
+    timestamp?: Date
+    identityVerificationStatus?: {
+      code: string
+      identity: Identity
+      signedIdentity: Identity
+    }
+    receipt: Receipt
+  }
+
+  interface SignatureValidationResult {
+    valid: boolean
+    reason: string
+  }
+
+  interface Transaction {
+    blockHash: string
+    confirmations: number
+    timestamp: Date
+    opReturn: string
+    txId: string
+  }
+
+  interface IdentityValidationResult {
+    valid: boolean
+    reason: string
     identity: Identity
     signedIdentity: Identity
   }
-  receipt: Receipt | ReceiptV2
-}
-
-interface SignatureValidationResult {
-  valid: boolean
-  reason: string
-}
-
-interface IdentityValidationResult {
-  valid: boolean
-  reason: string
-  identity: Identity
-  signedIdentity: Identity
-}
-
-interface HashFunction {
-  update(data: Uint8Array | string): HashFunction
-
-  digest(encoding?: string): string
-}
-
-declare namespace woleet {
-  const version: string;
 
   namespace transaction {
+
     function get(transactionID: string): Promise<Transaction>;
 
     function setDefaultProvider(api: string);
@@ -103,19 +102,20 @@ declare namespace woleet {
   }
 
   namespace anchor {
-    const types: {
-      DATA: number;
-      SIGNATURE: number;
-      BOTH: number;
-    };
+    enum Type {
+      DATA = 1,
+      SIGNATURE = 2,
+      BOTH = 3
+    }
 
-    function getAnchorIDs(hash: string, type?: number, size?: Number): Promise<Array<string>>;
+    function getAnchorIDs(hash: string, type?: Type, size?: Number): Promise<Array<string>>;
 
     function create(hash: string | File, progressCallback?: Function): Promise<any>;
   }
 
   namespace signature {
-    function validateIdentity(identityUrl: string, pubKey: string, signedIdentity: string, signedIssuerDomain: string): Promise<SignatureValidationResult>;
+    function validateIdentity(identityUrl: string, pubKey: string, signedIdentity: string,
+                              signedIssuerDomain: string): Promise<SignatureValidationResult>;
 
     function validateSignature(message: string, address: string, signature: string): Promise<IdentityValidationResult>;
   }
@@ -153,7 +153,7 @@ declare namespace woleet {
 
     function DAB(hash: string | File, receipt: Object, progressCallback?: Function): Promise<ReceiptVerificationStatus>;
 
-    function receipt(receipt: Object): Promise<ReceiptVerificationStatus>;
+    function receipt(receipt: Receipt): Promise<ReceiptVerificationStatus>;
   }
 }
 
