@@ -685,19 +685,20 @@ module.exports = function (getJSON) {
     };
   }
 
-  var WOLEET_API_URL = "https://api.woleet.io/v1";
+  var DEFAULT_WOLEET_API_URL = "https://api.woleet.io/v1";
+  var woleetApiUrl = DEFAULT_WOLEET_API_URL;
 
   var DEFAULT_TRANSACTION_PROVIDER = 'woleet.io';
   var transactionProvider = DEFAULT_TRANSACTION_PROVIDER;
 
-  woleet.transaction = {
+  woleet.config = {
 
-    setDefaultProvider: function setDefaultProvider(provider) {
-      switch (provider) {
+    setDefaultTransactionProvider: function setDefaultTransactionProvider(_transactionProvider) {
+      switch (_transactionProvider) {
         case 'blockcypher.com':
         case 'blockstream.info':
         case 'woleet.io':
-          transactionProvider = provider;
+          transactionProvider = _transactionProvider;
           break;
         default:
           transactionProvider = DEFAULT_TRANSACTION_PROVIDER;
@@ -705,10 +706,17 @@ module.exports = function (getJSON) {
       }
     },
 
+    setDefaultWoleetApiUrl: function setDefaultWoleetApiUrl(_woleetApiUrl) {
+      woleetApiUrl = _woleetApiUrl;
+    }
+  };
+
+  woleet.transaction = {
+
     get: function get(txId) {
       switch (transactionProvider) {
         case 'woleet.io':
-          return getJSON(WOLEET_API_URL + '/bitcoin/transaction/' + txId).then(function (tx) {
+          return getJSON(woleetApiUrl + '/bitcoin/transaction/' + txId).then(function (tx) {
 
             if (!tx.time || !tx.confirmations) {
               throw new Error('tx_not_confirmed');
@@ -772,7 +780,6 @@ module.exports = function (getJSON) {
 
 
   var _types = {
-    FILE_HASH: 1, 
     DATA: 1,
     SIGNATURE: 2,
     BOTH: 3
@@ -780,6 +787,7 @@ module.exports = function (getJSON) {
 
   woleet.anchor = {
     types: _types,
+
     getAnchorIDs: function getAnchorIDs(hash, type, size) {
       switch (type) {
         case _types.BOTH:
@@ -794,14 +802,14 @@ module.exports = function (getJSON) {
             return [].concat(a, b);
           });
         case _types.SIGNATURE:
-          return getJSON(WOLEET_API_URL + '/anchorids' + dataToURI({ signedHash: hash, size: size })).then(function (res) {
+          return getJSON(woleetApiUrl + '/anchorids' + dataToURI({ signedHash: hash, size: size })).then(function (res) {
             return res.content || [];
           }).catch(function (error) {
             throw new Error('http_error');
           });
         case _types.DATA:
         default:
-          return getJSON(WOLEET_API_URL + '/anchorids' + dataToURI({ hash: hash, size: size })).then(function (res) {
+          return getJSON(woleetApiUrl + '/anchorids' + dataToURI({ hash: hash, size: size })).then(function (res) {
             return res.content || [];
           }).catch(function (error) {
             throw new Error('http_error');
@@ -811,7 +819,7 @@ module.exports = function (getJSON) {
   };
 
   woleet.receipt.get = function (anchorId) {
-    return getJSON(WOLEET_API_URL + "/receipt/" + anchorId).catch(function (error) {
+    return getJSON(woleetApiUrl + "/receipt/" + anchorId).catch(function (error) {
       if (error.code === 404) throw new Error('not_found');else throw new Error(error.code);
     });
   };

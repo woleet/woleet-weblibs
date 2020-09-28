@@ -88,11 +88,15 @@ declare namespace woleet {
     signedIdentity: Identity
   }
 
+  namespace config {
+    function setDefaultTransactionProvider(transactionProvider: string);
+
+    function setDefaultWoleetApiUrl(woleetApiUrl: string);
+  }
+
   namespace transaction {
 
     function get(transactionID: string): Promise<Transaction>;
-
-    function setDefaultProvider(api: string);
   }
 
   namespace receipt {

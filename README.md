@@ -325,10 +325,17 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 
 ### Set the Bitcoin transaction provider
 
-**`woleet.transaction.setDefaultProvider(provider)`**
+**`woleet.config.setDefaultTransactionProvider(tansactionProvider)`**
 
 - Parameter:
-    - `provider: the provider to use as default provider: "woleet.io", "blockcypher.com" or "blocksteam.info" (default is "woleet.io").
+    - `tansactionProvider`: the default bitcoin transaction provider to use: "woleet.io", "blockcypher.com" or "blocksteam.info" (default is "woleet.io").
+    
+### Set the Woleet API
+
+**`woleet.config.setDefaultWoleetApiUrl(woleetApiUrl)`**
+
+- Parameter:
+    - `woleetApiUrl`: the default URL of the Woleet API to use (default is "https://api.woleet.io/v1").
 
 ## Objects definitions
 

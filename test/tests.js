@@ -156,9 +156,9 @@ if (typeof window === 'undefined') {
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
 // Force the blockchain provider (default is woleet.io)
-//woleet.transaction.setDefaultProvider('woleet.io');
-//woleet.transaction.setDefaultProvider('blockstream.info');
-//woleet.transaction.setDefaultProvider('blockcypher.com');
+//woleet.config.setDefaultProvider('woleet.io');
+//woleet.config.setDefaultProvider('blockstream.info');
+//woleet.config.setDefaultProvider('blockcypher.com');
 
 function testErrorCode(expected) {
   return function (result) {
@@ -401,7 +401,7 @@ describe("transaction.get suite", function () {
       afterEach((done) => setInterval(done, 1000));
 
       it('transaction.get with valid tx id should return transaction object', (done) => {
-        woleet.transaction.setDefaultProvider(provider);
+        woleet.config.setDefaultTransactionProvider(provider);
         woleet.transaction.get(validReceipt.header.tx_id)
           .then((tx) => {
             expect(tx.blockHash).toEqual("00000000000000000276fb1e87fa581e09d943f198a8b9114167df0e2230c247");
@@ -414,7 +414,7 @@ describe("transaction.get suite", function () {
       });
 
       it('transaction.get with invalid tx id should throw "tx_not_found"', (done) => {
-        woleet.transaction.setDefaultProvider(provider);
+        woleet.config.setDefaultTransactionProvider(provider);
         woleet.transaction.get('invalid_tx')
           .then((tx) => expect(tx).toBeUndefined())
           .catch((error) => {
@@ -425,7 +425,7 @@ describe("transaction.get suite", function () {
       });
 
       it('transaction.get with unknown tx id should throw "tx_not_found"', (done) => {
-        woleet.transaction.setDefaultProvider(provider);
+        woleet.config.setDefaultTransactionProvider(provider);
         woleet.transaction.get('0e50313029143187a44bf9fa9b9f08bf1b349291787ad8eeec2d09a2a5aaa1c4')
           .then(noResultExpected)
           .catch((error) => {
@@ -436,7 +436,7 @@ describe("transaction.get suite", function () {
       });
 
       it('transaction.get without parameter should return an error', (done) => {
-        woleet.transaction.setDefaultProvider(provider);
+        woleet.config.setDefaultTransactionProvider(provider);
         woleet.transaction.get()
           .then(noResultExpected)
           .catch((error) => {
@@ -450,7 +450,7 @@ describe("transaction.get suite", function () {
 
   afterAll(() => {
     // We reset default provider to woleet.io as the others can be stingy on request limit
-    woleet.transaction.setDefaultProvider('woleet.io');
+    woleet.config.setDefaultTransactionProvider('woleet.io');
   })
 });
 
