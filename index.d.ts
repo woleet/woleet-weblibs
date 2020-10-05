@@ -134,7 +134,7 @@ declare namespace woleet {
 
   namespace file {
     class Hasher {
-      constructor();
+      constructor(wsp: string);
 
       on(event: 'start' | 'result' | 'progress' | 'error' | 'cancel' | 'skip', callback: Function);
 

@@ -183,9 +183,7 @@ var crypto = require('./woleet-crypto');
 
 var root = window;
 
-var isHTTPS = location.protocol === 'https:';
-
-var isNativeCryptoSupported = root.crypto && root.crypto.subtle && root.crypto.subtle.digest && isHTTPS;
+var isNativeCryptoSupported = root.crypto && root.crypto.subtle && root.crypto.subtle.digest;
 
 var defaultWorkerScriptPath = function () {
   var DEFAULT_WORKER_SCRIPT = "woleet-hashfile-worker.min.js";
@@ -251,8 +249,8 @@ function Hasher(wsp) {
   var CANCEL_EXCEPTION = '__cancel__';
   var SKIP_EXCEPTION = '__skip__';
 
-  var HASH_LOCAL_LIMIT = 5e7; 
-  var HASH_NATIVE_LIMIT = 5e8; 
+  var HASH_LOCAL_LIMIT = 134217728; 
+  var HASH_NATIVE_LIMIT = 1073741824; 
 
   function HashWorker(wsp) {
 
@@ -543,7 +541,9 @@ function Hasher(wsp) {
               resolve(e.data);
             };
             worker.postMessage({});
-          } else resolve(false);
+          } else {
+            resolve(false);
+          }
         } catch (error) {
           resolve(false);
         }
@@ -575,7 +575,7 @@ function Hasher(wsp) {
           var hashMethod = void 0;
           if (files[i].size === 0) {
             hashMethod = hashLocal; 
-          } else if (isNativeCryptoSupported && files[i].size < HASH_NATIVE_LIMIT) {
+          } else if (isNativeCryptoSupported && files[i].size <= HASH_NATIVE_LIMIT) {
             hashMethod = hashLocalWithNativeAPI;
           } else if (workerSupported && files[i].size > HASH_LOCAL_LIMIT) {
 
