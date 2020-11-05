@@ -62,7 +62,7 @@ woleet.verify = require('../common/woleet-verify')(woleet);
 module.exports = woleet;
 
 },{"../common/woleet-api":5,"../common/woleet-chainpoint":6,"../common/woleet-signature":7,"../common/woleet-verify":8,"./get-json":1,"./woleet-crypto":3,"./woleet-hashfile":4}],3:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 'use strict';
 
 if (typeof _in_worker === 'undefined' && typeof window === 'undefined') {
@@ -162,7 +162,7 @@ module.exports = {
   }
 };
 
-}).call(this,require("buffer").Buffer)
+}).call(this)}).call(this,require("buffer").Buffer)
 },{"buffer":21,"crypto-js/core":25,"crypto-js/lib-typedarrays":26,"crypto-js/sha224":27,"crypto-js/sha256":28,"crypto-js/sha384":29,"crypto-js/sha512":30}],4:[function(require,module,exports){
 'use strict';
 
@@ -1094,7 +1094,7 @@ module.exports = function (crypto) {
 };
 
 },{}],7:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -1291,7 +1291,7 @@ module.exports = function (getIdentity) {
   return { validateSignature: validateSignature, validateIdentity: validateIdentity, deserializeX500DN: deserializeX500DN };
 };
 
-}).call(this,require("buffer").Buffer)
+}).call(this)}).call(this,require("buffer").Buffer)
 },{"bitcoinjs-message":13,"buffer":21}],8:[function(require,module,exports){
 "use strict";
 
@@ -1986,7 +1986,7 @@ module.exports = {
 }
 
 },{"safe-buffer":88}],13:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 const bs58check = require('bs58check')
 const bech32 = require('bech32')
 const bufferEquals = require('buffer-equals')
@@ -2171,7 +2171,7 @@ module.exports = {
   verify: verify
 }
 
-}).call(this,require("buffer").Buffer)
+}).call(this)}).call(this,require("buffer").Buffer)
 },{"bech32":11,"bs58check":19,"buffer":21,"buffer-equals":20,"create-hash":24,"secp256k1":89,"varuint-bitcoin":122}],14:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
@@ -5516,7 +5516,7 @@ function sha256x2 (buffer) {
 module.exports = bs58checkBase(sha256x2)
 
 },{"./base":18,"create-hash":24}],20:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 'use strict';
 module.exports = function (a, b) {
 	if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
@@ -5544,9 +5544,9 @@ module.exports = function (a, b) {
 	return true;
 };
 
-}).call(this,{"isBuffer":require("../is-buffer/index.js")})
+}).call(this)}).call(this,{"isBuffer":require("../is-buffer/index.js")})
 },{"../is-buffer/index.js":65}],21:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 
 'use strict'
 
@@ -7181,7 +7181,7 @@ function numberIsNaN (obj) {
   return obj !== obj 
 }
 
-}).call(this,require("buffer").Buffer)
+}).call(this)}).call(this,require("buffer").Buffer)
 },{"base64-js":10,"buffer":21,"ieee754":63}],22:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('stream').Transform
@@ -7284,7 +7284,7 @@ CipherBase.prototype._toString = function (value, enc, fin) {
 module.exports = CipherBase
 
 },{"inherits":64,"safe-buffer":88,"stream":103,"string_decoder":119}],23:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 
 
 function isArray(arg) {
@@ -7371,7 +7371,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-}).call(this,{"isBuffer":require("../../is-buffer/index.js")})
+}).call(this)}).call(this,{"isBuffer":require("../../is-buffer/index.js")})
 },{"../../is-buffer/index.js":65}],24:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
@@ -14342,7 +14342,7 @@ utils.encode = function encode(arr, enc) {
 };
 
 },{}],70:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 'use strict';
 
 if (typeof process === 'undefined' ||
@@ -14389,7 +14389,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 }
 
 
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"_process":71}],71:[function(require,module,exports){
 var process = module.exports = {};
 
@@ -14686,7 +14686,7 @@ createErrorType('ERR_STREAM_UNSHIFT_AFTER_END_EVENT', 'stream.unshift() after en
 module.exports.codes = codes;
 
 },{}],73:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 'use strict';
 
 var objectKeys = Object.keys || function (obj) {
@@ -14782,7 +14782,7 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
     this._writableState.destroyed = value;
   }
 });
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"./_stream_readable":75,"./_stream_writable":77,"_process":71,"inherits":64}],74:[function(require,module,exports){
 'use strict';
 
@@ -14801,7 +14801,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
 },{"./_stream_transform":76,"inherits":64}],75:[function(require,module,exports){
-(function (process,global){
+(function (process,global){(function (){
 'use strict';
 
 module.exports = Readable;
@@ -15734,7 +15734,7 @@ function indexOf(xs, x) {
 
   return -1;
 }
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../errors":72,"./_stream_duplex":73,"./internal/streams/async_iterator":78,"./internal/streams/buffer_list":79,"./internal/streams/destroy":80,"./internal/streams/from":82,"./internal/streams/state":84,"./internal/streams/stream":85,"_process":71,"buffer":21,"events":48,"inherits":64,"string_decoder/":119,"util":16}],76:[function(require,module,exports){
 'use strict';
 
@@ -15860,7 +15860,7 @@ function done(stream, er, data) {
   return stream.push(null);
 }
 },{"../errors":72,"./_stream_duplex":73,"inherits":64}],77:[function(require,module,exports){
-(function (process,global){
+(function (process,global){(function (){
 'use strict';
 
 module.exports = Writable;
@@ -16460,9 +16460,9 @@ Writable.prototype._undestroy = destroyImpl.undestroy;
 Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../errors":72,"./_stream_duplex":73,"./internal/streams/destroy":80,"./internal/streams/state":84,"./internal/streams/stream":85,"_process":71,"buffer":21,"inherits":64,"util-deprecate":121}],78:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 'use strict';
 
 var _Object$setPrototypeO;
@@ -16651,7 +16651,7 @@ var createReadableStreamAsyncIterator = function createReadableStreamAsyncIterat
 };
 
 module.exports = createReadableStreamAsyncIterator;
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"./end-of-stream":81,"_process":71}],79:[function(require,module,exports){
 'use strict';
 
@@ -16858,7 +16858,7 @@ function () {
   return BufferList;
 }();
 },{"buffer":21,"util":16}],80:[function(require,module,exports){
-(function (process){
+(function (process){(function (){
 'use strict'; 
 
 function destroy(err, cb) {
@@ -16958,7 +16958,7 @@ module.exports = {
   undestroy: undestroy,
   errorOrDestroy: errorOrDestroy
 };
-}).call(this,require('_process'))
+}).call(this)}).call(this,require('_process'))
 },{"_process":71}],81:[function(require,module,exports){
 'use strict';
 
@@ -17430,7 +17430,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 module.exports = require('./lib')(require('./lib/elliptic'))
 
 },{"./lib":93,"./lib/elliptic":92}],90:[function(require,module,exports){
-(function (Buffer){
+(function (Buffer){(function (){
 'use strict'
 var toString = Object.prototype.toString
 
@@ -17474,7 +17474,7 @@ exports.isNumberInInterval = function (number, x, y, message) {
   if (number <= x || number >= y) throw RangeError(message)
 }
 
-}).call(this,{"isBuffer":require("../../is-buffer/index.js")})
+}).call(this)}).call(this,{"isBuffer":require("../../is-buffer/index.js")})
 },{"../../is-buffer/index.js":65}],91:[function(require,module,exports){
 'use strict'
 var Buffer = require('safe-buffer').Buffer
@@ -19183,7 +19183,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
 },{"./_stream_transform":108,"core-util-is":23,"inherits":64}],107:[function(require,module,exports){
-(function (process,global){
+(function (process,global){(function (){
 
 'use strict';
 
@@ -19985,7 +19985,7 @@ function indexOf(xs, x) {
   }
   return -1;
 }
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./_stream_duplex":105,"./internal/streams/BufferList":110,"./internal/streams/destroy":111,"./internal/streams/stream":112,"_process":71,"core-util-is":23,"events":48,"inherits":64,"isarray":66,"process-nextick-args":70,"safe-buffer":117,"string_decoder/":118,"util":16}],108:[function(require,module,exports){
 
 
@@ -20117,7 +20117,7 @@ function done(stream, er, data) {
   return stream.push(null);
 }
 },{"./_stream_duplex":105,"core-util-is":23,"inherits":64}],109:[function(require,module,exports){
-(function (process,global,setImmediate){
+(function (process,global,setImmediate){(function (){
 
 
 'use strict';
@@ -20667,7 +20667,7 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
+}).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
 },{"./_stream_duplex":105,"./internal/streams/destroy":111,"./internal/streams/stream":112,"_process":71,"core-util-is":23,"inherits":64,"process-nextick-args":70,"safe-buffer":117,"timers":120,"util-deprecate":121}],110:[function(require,module,exports){
 'use strict';
 
@@ -21142,7 +21142,7 @@ function simpleEnd(buf) {
 },{"safe-buffer":117}],119:[function(require,module,exports){
 arguments[4][118][0].apply(exports,arguments)
 },{"dup":118,"safe-buffer":88}],120:[function(require,module,exports){
-(function (setImmediate,clearImmediate){
+(function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
 var slice = Array.prototype.slice;
@@ -21213,9 +21213,9 @@ exports.setImmediate = typeof setImmediate === "function" ? setImmediate : funct
 exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
   delete immediateIds[id];
 };
-}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+}).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
 },{"process/browser.js":71,"timers":120}],121:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 
 
 module.exports = deprecate;
@@ -21256,7 +21256,7 @@ function config (name) {
   return String(val).toLowerCase() === 'true';
 }
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],122:[function(require,module,exports){
 'use strict'
 var Buffer = require('safe-buffer').Buffer

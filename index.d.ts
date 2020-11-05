@@ -15,7 +15,8 @@ declare namespace woleet {
     signature: string,
   }
 
-  interface ReceiptV1 {
+  // Chainpoint V1
+  interface Receipt {
     header: {
       chainpoint_version: '1.0'
       hash_type: 'SHA-256'
@@ -35,7 +36,8 @@ declare namespace woleet {
     signature?: Signature
   }
 
-  interface ReceiptV2 {
+  // Chainpoint V2
+  interface Receipt {
     '@context': string,
     type: string,
     targetHash: string,
@@ -44,8 +46,6 @@ declare namespace woleet {
     anchors: Array<{ type: string, sourceId: string }>,
     signature?: Signature
   }
-
-  type Receipt = ReceiptV1 | ReceiptV2
 
   interface Identity {
     commonName: string
