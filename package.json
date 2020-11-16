@@ -1,6 +1,7 @@
 {
   "name": "@woleet/woleet-weblibs",
-  "version": "0.11.0",
+  "version": "0.11.1",
+  "description": "Woleet web libraries",
   "private": false,
   "scripts": {
     "build": "npx gulp",
@@ -39,7 +40,6 @@
       ]
     ]
   },
-  "description": "This repository contains the sources code of **Woleet web libraries**.",
   "directories": {
     "example": "examples",
     "test": "test"

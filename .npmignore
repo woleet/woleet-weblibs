@@ -1,4 +1,4 @@
-# Build & examples files
+# Exclude examples and tests
 examples
 test
 
@@ -9,13 +9,11 @@ test
 **/.idea/
 **/*.iml
 
-# Node module
+# Node modules
 **/node_modules
 
-# Bower components
-**/bower_components
-bower.json
+# Other files
 .gitignore
 build.sh
 gulpfile.js
-*.tgz
+jasmine.json
