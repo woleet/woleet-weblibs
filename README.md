@@ -463,15 +463,7 @@ The receipt object matches the [Chainpoint]([chainpoint-link]) format.
                 "right": "8c6d7d8fa5a4418d79ef9699af0a58bc63a43f603e0f41533b743ba656a76fcf"
             }
         ]
-    },
-    "extra": [
-        {
-            "size": "0"
-        },
-        {
-            "anchorid": "561920c1-68a0-468e-82c9-982e7c4b1c63"
-        }
-    ]
+    }
 }
 ```
 
