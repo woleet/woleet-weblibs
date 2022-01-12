@@ -289,7 +289,7 @@ Allows to retrieve from the Woleet platform all public anchors matching some dat
 
 - Parameters:
     - `hash`: the SHA256 hash of the data (as an hexadecimal characters String).
-    - `type` (_optional_): type of anchors to retrieve:
+    - `type` (_optional_): type of anchors to retrieve  (default: BOTH):
       - DATA: only data anchors will be retrieved
       - SIGNATURE: only signature anchors will be retrieved
       - BOTH: both data and signature anchors will be retrieved

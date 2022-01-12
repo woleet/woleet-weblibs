@@ -456,8 +456,15 @@ describe("transaction.get suite", function () {
 
 describe("receipt.get suite", function () {
 
-  it('receipt.get with valid anchor id should return valid receipt', (done) => {
-    woleet.receipt.get("c2f25d10-eae5-413c-82eb-1bdb6cf499b6")
+  // it('receipt.get with valid anchor id should return valid receipt (Chainpoint 1)', (done) => {
+  //   woleet.receipt.get("c2f25d10-eae5-413c-82eb-1bdb6cf499b6")
+  //     .then((receipt) => expect(woleet.receipt.validate(receipt)).toBe(true))
+  //     .catch(noErrorExpected)
+  //     .then(done);
+  // });
+
+  it('receipt.get with valid anchor id should return valid receipt (Chanpoint 2)', (done) => {
+    woleet.receipt.get("e560305d-2c9c-4e8d-829d-c7d1b6eef8cf")
       .then((receipt) => expect(woleet.receipt.validate(receipt)).toBe(true))
       .catch(noErrorExpected)
       .then(done);
@@ -487,7 +494,7 @@ describe("anchor.getAnchorIDs suite", function () {
   });
 
   it('anchor.getAnchorIDs with invalid page size should return an error', (done) => {
-    woleet.anchor.getAnchorIDs("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", woleet.anchor.types.BOTH, -1)
+    woleet.anchor.getAnchorIDs("6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d", woleet.anchor.types.BOTH, -1)
       .then((resultPage) => expect(resultPage).toBeUndefined())
       .catch((error) => {
         expect(error instanceof Error).toBe(true);
@@ -504,15 +511,14 @@ describe("anchor.getAnchorIDs suite", function () {
   });
 
   it('anchor.getAnchorIDs with well known file hash should return more than 1 anchor', (done) => {
-    woleet.anchor.getAnchorIDs("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+    woleet.anchor.getAnchorIDs("6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d")
       .then((resultPage) => expect(resultPage.length).toBeGreaterThan(1))
       .catch(noErrorExpected)
       .then(done);
   });
 
   it('anchor.getAnchorIDs with well known file hash but limited to 1 should return 1 anchor', (done) => {
-    woleet.anchor.getAnchorIDs("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      woleet.anchor.types.DATA, 1)
+    woleet.anchor.getAnchorIDs("6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d", null, 1)
       .then((resultPage) => expect(resultPage.length).toEqual(1))
       .catch(noErrorExpected)
       .then(done);
@@ -599,7 +605,17 @@ describe("verify.WoleetDAB suite", function () {
   });
 
   it('verify.WoleetDAB with known file should not return empty list', (done) => {
-    woleet.verify.WoleetDAB(new PolyFile([new PolyBlob([''])], "image.png", { type: "image/png" }))
+    woleet.verify.WoleetDAB(new PolyFile([new PolyBlob(['\x00'])], "image.png", { type: "image/png" }))
+      .then((results) => {
+        expect(results.length).toBeGreaterThan(0);
+        results.forEach((res) => validationExpected(res));
+      })
+      .catch(noErrorExpected)
+      .then(done)
+  });
+
+  it('verify.WoleetDAB with known hash should not return empty list', (done) => {
+    woleet.verify.WoleetDAB("6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d")
       .then((results) => {
         expect(results.length).toBeGreaterThan(0);
         results.forEach((res) => validationExpected(res));
