@@ -89,9 +89,9 @@ declare namespace woleet {
   }
 
   namespace config {
-    function setDefaultTransactionProvider(transactionProvider: string);
+    function setDefaultTransactionProvider(transactionProvider: string): void;
 
-    function setDefaultWoleetApiUrl(woleetApiUrl: string);
+    function setDefaultWoleetApiUrl(woleetApiUrl: string): void;
   }
 
   namespace transaction {
@@ -136,18 +136,18 @@ declare namespace woleet {
     class Hasher {
       constructor(wsp: string);
 
-      on(event: 'start' | 'result' | 'progress' | 'error' | 'cancel' | 'skip', callback: Function);
+      on(event: 'start' | 'result' | 'progress' | 'error' | 'cancel' | 'skip', callback: Function): void;
 
-      start(files: File | FileList | File[]);
+      start(files: File | FileList | File[]): void;
 
-      cancel();
+      cancel(): void;
 
-      skip();
+      skip(): void;
 
       isReady(): boolean;
     }
 
-    function hashFileOrCheckHash(file: File | string, progressCallback?: Function)
+    function hashFileOrCheckHash(file: File | string, progressCallback?: Function): void
   }
 
   function isSHA256(hash: string): boolean;
